@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>你的名字 · 知识库</title>
+    <title>云雪星球 · 知识库</title>
     <style>
         /* ===== 全局重置 & 基础 ===== */
         * {
@@ -26,7 +26,7 @@
         .container {
             max-width: 760px;
             width: 100%;
-            /* ----- 新增：整体淡入动画 ----- */
+            /* 整体淡入动画 */
             animation: fadeInUp 0.8s ease-out;
         }
 
@@ -92,7 +92,6 @@
             text-decoration: none;
             font-size: 0.95rem;
             padding-bottom: 0.2rem;
-            /* ----- 新增：下划线滑动效果 ----- */
             border-bottom: 2px solid transparent;
             transition: border-color 0.3s, color 0.3s;
         }
@@ -115,12 +114,11 @@
             padding: 0.6rem 0;
             border-bottom: 1px solid #f0f2f5;
             gap: 1rem;
-            /* ----- 新增：每个条目逐个上浮，设置不同延迟 ----- */
             opacity: 0;
             animation: slideUp 0.5s ease forwards;
         }
 
-        /* 为每个条目设置不同的延迟，形成依次出现效果 */
+        /* 依次出现 */
         .post-item:nth-child(1) { animation-delay: 0.05s; }
         .post-item:nth-child(2) { animation-delay: 0.15s; }
         .post-item:nth-child(3) { animation-delay: 0.25s; }
@@ -165,7 +163,6 @@
             padding: 0.1rem 0.8rem;
             border-radius: 20px;
             text-decoration: none;
-            /* ----- 新增：悬停放大 + 颜色过渡 ----- */
             transition: transform 0.2s ease, background 0.25s, color 0.25s;
             display: inline-block;
         }
@@ -225,9 +222,9 @@
 <body>
 
     <div class="container">
-        <!-- 头部 -->
+        <!-- ===== 头部 ===== -->
         <header class="site-header">
-            <a href="#" class="site-title">你的知识库</a>
+            <a href="#" class="site-title">云雪星球</a>
             <div class="site-desc">即使再小的帆也能远航 · 记录技术成长</div>
             <div class="nav">
                 <a href="#">首页</a>
@@ -237,24 +234,24 @@
             </div>
         </header>
 
-        <!-- 文章列表 -->
+        <!-- ===== 文章列表 ===== -->
         <h2 style="font-size:1.2rem; font-weight:500; color:#34495e; margin-bottom:0.2rem;">最新笔记</h2>
         <ul class="post-list">
             <li class="post-item">
-                <a href="#" class="post-title">深入理解 Go 语言的内存对齐</a>
-                <span class="post-date">2026-07-12</span>
+                <a href="#" class="post-title">AI 写代码之前，先让它读懂 PRD——PRD Pilot 的设计与思考</a>
+                <span class="post-date">2026-03-28</span>
             </li>
             <li class="post-item">
-                <a href="#" class="post-title">gRPC 入门：从 Protobuf 到服务通信</a>
-                <span class="post-date">2026-07-08</span>
+                <a href="#" class="post-title">AI Agent 范式全景：从 ReAct 到多智能体编排（2022-2026）</a>
+                <span class="post-date">2026-03-17</span>
             </li>
             <li class="post-item">
-                <a href="#" class="post-title">Redis 持久化机制：RDB 与 AOF 对比</a>
-                <span class="post-date">2026-07-03</span>
+                <a href="#" class="post-title">Go基础篇：接口</a>
+                <span class="post-date">2023-05-17</span>
             </li>
             <li class="post-item">
-                <a href="#" class="post-title">Gin 框架中间件原理与实战</a>
-                <span class="post-date">2026-06-28</span>
+                <a href="#" class="post-title">Go基础篇：类型系统</a>
+                <span class="post-date">2023-04-28</span>
             </li>
             <li class="post-item">
                 <a href="#" class="post-title">从零搭建静态博客：Hugo + Netlify 部署指南</a>
@@ -262,7 +259,7 @@
             </li>
         </ul>
 
-        <!-- 标签云 -->
+        <!-- ===== 标签云 ===== -->
         <div class="tag-list">
             <a href="#" class="tag">Go</a>
             <a href="#" class="tag">gRPC</a>
@@ -274,9 +271,9 @@
             <a href="#" class="tag">微服务</a>
         </div>
 
-        <!-- 页脚 -->
+        <!-- ===== 页脚 ===== -->
         <div class="footer">
-            <span>© 2026 · 你的名字</span>
+            <span>© 2026 · 云雪星球</span>
             <span>
                 <a href="#">GitHub</a> ·
                 <a href="#">Twitter</a> ·

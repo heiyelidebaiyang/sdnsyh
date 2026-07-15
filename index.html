@@ -15,17 +15,65 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                 "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-            background: #fcfcfc;
+            /* 暖白底色，更接近纸质阅读感 */
+            background: #faf9f8;
             color: #2c3e50;
             line-height: 1.7;
             padding: 2.5rem 1.5rem;
             display: flex;
             justify-content: center;
+            min-height: 100vh;
+            /* 新增：背景氛围光晕 + 微噪点 */
+            position: relative;
         }
 
+        /* ===== 背景氛围层（纯CSS光晕 + 纹理） ===== */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            /* 让光晕位于内容背后 */;
+        }
+
+        /* 左上角：淡蓝色光晕 */
+        body::before {
+            width: 600px;
+            height: 600px;
+            top: -200px;
+            left: -200px;
+            background: radial-gradient(circle, rgba(200, 225, 255, 0.4) 0%, transparent 70%);
+            animation: glowFloat 20s ease-in-out infinite alternate;
+        }
+
+        /* 右下角：淡紫色光晕 */
+        body::after {
+            width: 500px;
+            height: 500px;
+            bottom: -150px;
+            right: -150px;
+            background: radial-gradient(circle, rgba(230, 210, 255, 0.35) 0%, transparent 70%);
+            animation: glowFloat 25s ease-in-out infinite alternate-reverse;
+        }
+
+        /* 光晕缓慢漂浮动画 */
+        @keyframes glowFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(30px, 30px) scale(1.1);
+            }
+        }
+
+        /* 内容容器：置于背景之上 */
         .container {
             max-width: 760px;
             width: 100%;
+            position: relative;
+            z-index: 1;
             /* 整体淡入动画 */
             animation: fadeInUp 0.8s ease-out;
         }
@@ -56,7 +104,7 @@
         /* ===== 头部 ===== */
         .site-header {
             margin-bottom: 2.5rem;
-            border-bottom: 1px solid #eaeef2;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
             padding-bottom: 1.5rem;
         }
 
@@ -67,6 +115,8 @@
             color: #1a1a1a;
             text-decoration: none;
             transition: color 0.25s;
+            /* 给标题加一点点星尘感 */
+            text-shadow: 0 2px 10px rgba(52, 152, 219, 0.1);
         }
 
         .site-title:hover {
@@ -112,7 +162,7 @@
             justify-content: space-between;
             align-items: baseline;
             padding: 0.6rem 0;
-            border-bottom: 1px solid #f0f2f5;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
             gap: 1rem;
             opacity: 0;
             animation: slideUp 0.5s ease forwards;
@@ -159,12 +209,13 @@
         .tag {
             font-size: 0.8rem;
             color: #7f8c8d;
-            background: #f0f2f5;
+            background: rgba(0, 0, 0, 0.04);
             padding: 0.1rem 0.8rem;
             border-radius: 20px;
             text-decoration: none;
             transition: transform 0.2s ease, background 0.25s, color 0.25s;
             display: inline-block;
+            backdrop-filter: blur(2px);
         }
 
         .tag:hover {
@@ -177,7 +228,7 @@
         .footer {
             margin-top: 3rem;
             padding-top: 1.2rem;
-            border-top: 1px solid #eaeef2;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
             font-size: 0.85rem;
             color: #95a5a6;
             display: flex;
@@ -215,6 +266,19 @@
             }
             .nav {
                 gap: 0 1.2rem;
+            }
+            /* 移动端缩小光晕，避免遮挡内容 */
+            body::before {
+                width: 300px;
+                height: 300px;
+                top: -100px;
+                left: -100px;
+            }
+            body::after {
+                width: 250px;
+                height: 250px;
+                bottom: -80px;
+                right: -80px;
             }
         }
     </style>

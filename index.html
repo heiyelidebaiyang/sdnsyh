@@ -3,12 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>你的名字 · 个人作品集</title>
-    <!-- 
-        极简 · 快速 · 纯粹 
-        基于原生 HTML / CSS / JS，零框架依赖。
-        参考了社区中多个优秀的极简作品集设计思路。
-    -->
+    <title>云雪星球 · 知识库</title>
     <style>
         /* ===== 全局重置 & 基础 ===== */
         * {
@@ -17,156 +12,138 @@
             box-sizing: border-box;
         }
 
-        /* 使用系统字体栈，无需加载额外字体，加载更快 */
+        /* 使用系统字体，保证加载速度 */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                "Helvetica Neue", Arial, sans-serif;
-            background: #fafafa;
-            color: #1e1e1e;
-            line-height: 1.6;
-            padding: 2rem 1.5rem;
+                "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            background: #fcfcfc;
+            color: #2c3e50;
+            line-height: 1.7;
+            padding: 2.5rem 1.5rem;
             display: flex;
             justify-content: center;
         }
 
         .container {
-            max-width: 720px;
+            max-width: 760px;
             width: 100%;
         }
 
-        /* ===== 版式 ===== */
-        h1 {
-            font-size: 2.4rem;
+        /* ===== 头部 ===== */
+        .site-header {
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid #eaeef2;
+            padding-bottom: 1.5rem;
+        }
+
+        .site-title {
+            font-size: 1.8rem;
             font-weight: 600;
             letter-spacing: -0.02em;
-            margin-bottom: 0.25rem;
+            color: #1a1a1a;
+            text-decoration: none;
         }
 
-        .subhead {
-            font-size: 1.1rem;
-            color: #555;
-            margin-bottom: 1.5rem;
+        .site-title:hover {
+            color: #3498db;
         }
 
-        h2 {
-            font-size: 1.4rem;
-            font-weight: 500;
-            margin-top: 2.8rem;
-            margin-bottom: 1rem;
-            letter-spacing: -0.01em;
-            border-bottom: 2px solid #eaeaea;
-            padding-bottom: 0.3rem;
+        .site-desc {
+            font-size: 0.95rem;
+            color: #7f8c8d;
+            margin-top: 0.2rem;
         }
 
-        /* ===== 头像 ===== */
-        .avatar {
-            width: 96px;
-            height: 96px;
-            border-radius: 50%;
-            object-fit: cover;
-            background: #ddd;
-            margin-bottom: 1rem;
-            display: block;
-        }
-
-        /* ===== 简介 ===== */
-        .bio {
-            font-size: 1.05rem;
-            color: #333;
-            margin-bottom: 1.2rem;
-        }
-
-        /* ===== 社交链接 ===== */
-        .social-links {
+        /* ===== 导航 ===== */
+        .nav {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.75rem 1.5rem;
+            gap: 0 2rem;
             margin: 1.2rem 0 0.5rem;
         }
 
-        .social-links a {
-            color: #1e1e1e;
+        .nav a {
+            color: #34495e;
             text-decoration: none;
             font-size: 0.95rem;
-            border-bottom: 1px solid transparent;
-            transition: border-color 0.2s;
+            border-bottom: 2px solid transparent;
+            padding-bottom: 0.2rem;
+            transition: border-color 0.2s, color 0.2s;
         }
 
-        .social-links a:hover {
-            border-bottom-color: #1e1e1e;
+        .nav a:hover {
+            border-bottom-color: #3498db;
+            color: #1a1a1a;
         }
 
-        /* ===== 作品集网格 ===== */
-        .projects-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.2rem;
-            margin-top: 0.5rem;
+        /* ===== 文章列表 ===== */
+        .post-list {
+            list-style: none;
+            margin-top: 1rem;
         }
 
-        @media (max-width: 480px) {
-            .projects-grid {
-                grid-template-columns: 1fr;
-            }
+        .post-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid #f0f2f5;
+            gap: 1rem;
         }
 
-        .project-card {
-            background: #ffffff;
-            padding: 1.2rem 1.2rem 1rem;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            transition: box-shadow 0.2s ease, transform 0.15s ease;
-            border: 1px solid #f0f0f0;
+        .post-item:last-child {
+            border-bottom: none;
         }
 
-        .project-card:hover {
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-            transform: translateY(-2px);
-        }
-
-        .project-card h3 {
+        .post-title {
             font-size: 1.05rem;
-            font-weight: 500;
-            margin-bottom: 0.2rem;
-        }
-
-        .project-card p {
-            font-size: 0.92rem;
-            color: #555;
-            margin-bottom: 0.6rem;
-        }
-
-        .project-card a {
-            color: #1e1e1e;
+            font-weight: 450;
+            color: #2c3e50;
             text-decoration: none;
-            font-size: 0.9rem;
-            font-weight: 450;
-            border-bottom: 1px solid #ccc;
+            transition: color 0.2s;
         }
 
-        .project-card a:hover {
-            border-bottom-color: #1e1e1e;
+        .post-title:hover {
+            color: #3498db;
         }
 
-        .project-tag {
-            display: inline-block;
-            font-size: 0.7rem;
-            font-weight: 450;
-            letter-spacing: 0.02em;
-            background: #efefef;
-            padding: 0.1rem 0.6rem;
+        .post-date {
+            font-size: 0.8rem;
+            color: #95a5a6;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        /* ===== 标签 ===== */
+        .tag-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem 0.8rem;
+            margin: 1.5rem 0 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+            background: #f0f2f5;
+            padding: 0.1rem 0.8rem;
             border-radius: 20px;
-            color: #444;
-            margin-top: 0.3rem;
+            text-decoration: none;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .tag:hover {
+            background: #3498db;
+            color: #fff;
         }
 
         /* ===== 底部 ===== */
         .footer {
-            margin-top: 3.5rem;
+            margin-top: 3rem;
             padding-top: 1.2rem;
-            border-top: 1px solid #ececec;
+            border-top: 1px solid #eaeef2;
             font-size: 0.85rem;
-            color: #888;
+            color: #95a5a6;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
@@ -174,30 +151,34 @@
         }
 
         .footer a {
-            color: #555;
+            color: #7f8c8d;
             text-decoration: none;
             border-bottom: 1px solid transparent;
         }
 
         .footer a:hover {
-            border-bottom-color: #888;
+            border-bottom-color: #95a5a6;
+            color: #2c3e50;
         }
 
-        /* ===== 工具类 ===== */
-        .text-muted {
-            color: #777;
-        }
-
-        /* ===== 滚动条 (保持极简) ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f0f0f0;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #ccc;
-            border-radius: 8px;
+        /* ===== 响应式 ===== */
+        @media (max-width: 480px) {
+            body {
+                padding: 1.5rem 1rem;
+            }
+            .post-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.1rem;
+                padding: 0.8rem 0;
+            }
+            .post-date {
+                font-size: 0.75rem;
+                color: #b0b0b0;
+            }
+            .nav {
+                gap: 0 1.2rem;
+            }
         }
     </style>
 </head>
@@ -206,101 +187,76 @@
     <div class="container">
 
         <!-- ========================================= -->
-        <!--  1. 头像 & 标题                          -->
+        <!--  头部：网站标题 + 描述                    -->
         <!-- ========================================= -->
-        <!-- 替换为自己的头像图片，或删除 <img> 标签 -->
-        <img class="avatar" src="https://via.placeholder.com/96/cccccc/555?text=👤" alt="头像" />
+        <header class="site-header">
+            <a href="#" class="site-title">你的知识库</a>
+            <div class="site-desc">即使再小的帆也能远航 · 记录技术成长</div>
 
-        <h1>你好，我是 <span id="nameDisplay">你的名字</span></h1>
-        <div class="subhead">设计师 · 开发者 · 创造者</div>
+            <!-- 导航 -->
+            <div class="nav">
+                <a href="#">首页</a>
+                <a href="#">归档</a>
+                <a href="#">关于</a>
+                <a href="#">GitHub</a>
+            </div>
+        </header>
 
         <!-- ========================================= -->
-        <!--  2. 个人简介                              -->
+        <!--  文章列表                                 -->
         <!-- ========================================= -->
-        <p class="bio">
-            用简洁的代码和干净的设计讲述故事。目前专注于 Web 开发与交互体验。
-            相信好的作品源于对细节的执着。
-        </p>
+        <h2 style="font-size:1.2rem; font-weight:500; color:#34495e; margin-bottom:0.2rem;">最新笔记</h2>
+
+        <ul class="post-list">
+            <li class="post-item">
+                <a href="#" class="post-title">深入理解 Go 语言的内存对齐</a>
+                <span class="post-date">2026-07-12</span>
+            </li>
+            <li class="post-item">
+                <a href="#" class="post-title">gRPC 入门：从 Protobuf 到服务通信</a>
+                <span class="post-date">2026-07-08</span>
+            </li>
+            <li class="post-item">
+                <a href="#" class="post-title">Redis 持久化机制：RDB 与 AOF 对比</a>
+                <span class="post-date">2026-07-03</span>
+            </li>
+            <li class="post-item">
+                <a href="#" class="post-title">Gin 框架中间件原理与实战</a>
+                <span class="post-date">2026-06-28</span>
+            </li>
+            <li class="post-item">
+                <a href="#" class="post-title">从零搭建静态博客：Hugo + Netlify 部署指南</a>
+                <span class="post-date">2026-06-20</span>
+            </li>
+        </ul>
 
         <!-- ========================================= -->
-        <!--  3. 社交 / 联系链接                       -->
+        <!--  标签云                                   -->
         <!-- ========================================= -->
-        <div class="social-links">
-            <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="#" target="_blank" rel="noopener noreferrer">Twitter / X</a>
-            <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="mailto:your@email.com">Email</a>
+        <div class="tag-list">
+            <a href="#" class="tag">Go</a>
+            <a href="#" class="tag">gRPC</a>
+            <a href="#" class="tag">Redis</a>
+            <a href="#" class="tag">Gin</a>
+            <a href="#" class="tag">Docker</a>
+            <a href="#" class="tag">Kubernetes</a>
+            <a href="#" class="tag">MySQL</a>
+            <a href="#" class="tag">微服务</a>
         </div>
 
         <!-- ========================================= -->
-        <!--  4. 作品集                                -->
-        <!-- ========================================= -->
-        <h2>精选作品</h2>
-
-        <div class="projects-grid">
-            <!-- 作品卡片 1 -->
-            <div class="project-card">
-                <h3>项目 Alpha</h3>
-                <p>一个极简的协作工具，聚焦于效率与视觉一致性。</p>
-                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
-                <div class="project-tag">React</div>
-            </div>
-
-            <!-- 作品卡片 2 -->
-            <div class="project-card">
-                <h3>品牌设计系统</h3>
-                <p>为初创公司打造的模块化设计语言，包含组件库与规范。</p>
-                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
-                <div class="project-tag">Figma</div>
-            </div>
-
-            <!-- 作品卡片 3 -->
-            <div class="project-card">
-                <h3>个人博客</h3>
-                <p>基于静态站点生成器，专注于内容阅读体验与加载速度。</p>
-                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
-                <div class="project-tag">Eleventy</div>
-            </div>
-
-            <!-- 作品卡片 4 -->
-            <div class="project-card">
-                <h3>数据可视化</h3>
-                <p>交互式图表展示复杂数据集，帮助用户快速洞察趋势。</p>
-                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
-                <div class="project-tag">D3.js</div>
-            </div>
-        </div>
-
-        <!-- ========================================= -->
-        <!--  5. 页脚                                  -->
+        <!--  页脚                                     -->
         <!-- ========================================= -->
         <div class="footer">
             <span>© 2026 · 你的名字</span>
             <span>
-                <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a> ·
-                <a href="mailto:your@email.com">联系</a>
+                <a href="#">GitHub</a> ·
+                <a href="#">Twitter</a> ·
+                <a href="mailto:your@email.com">Email</a>
             </span>
         </div>
 
     </div>
-
-    <!-- ========================================= -->
-    <!--  极简 JavaScript：仅用于动态展示名字        -->
-    <!--  无框架、无额外请求，保持轻量               -->
-    <!-- ========================================= -->
-    <script>
-        (function() {
-            // 你可以在这里修改名字，或者从 URL 参数读取
-            const name = '你的名字';
-            const nameEl = document.getElementById('nameDisplay');
-            if (nameEl) {
-                nameEl.textContent = name;
-            }
-
-            // 可选：在控制台输出问候
-            console.log('👋 欢迎访问 ' + name + ' 的个人作品集');
-        })();
-    </script>
 
 </body>
 </html>

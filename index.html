@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>你的名字 · 个人作品集</title>
+    <!-- 
+        极简 · 快速 · 纯粹 
+        基于原生 HTML / CSS / JS，零框架依赖。
+        参考了社区中多个优秀的极简作品集设计思路。
+    -->
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 使用系统字体栈，无需加载额外字体，加载更快 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+            background: #fafafa;
+            color: #1e1e1e;
+            line-height: 1.6;
+            padding: 2rem 1.5rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 720px;
+            width: 100%;
+        }
+
+        /* ===== 版式 ===== */
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.25rem;
+        }
+
+        .subhead {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+            margin-top: 2.8rem;
+            margin-bottom: 1rem;
+            letter-spacing: -0.01em;
+            border-bottom: 2px solid #eaeaea;
+            padding-bottom: 0.3rem;
+        }
+
+        /* ===== 头像 ===== */
+        .avatar {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #ddd;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        /* ===== 简介 ===== */
+        .bio {
+            font-size: 1.05rem;
+            color: #333;
+            margin-bottom: 1.2rem;
+        }
+
+        /* ===== 社交链接 ===== */
+        .social-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.5rem;
+            margin: 1.2rem 0 0.5rem;
+        }
+
+        .social-links a {
+            color: #1e1e1e;
+            text-decoration: none;
+            font-size: 0.95rem;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .social-links a:hover {
+            border-bottom-color: #1e1e1e;
+        }
+
+        /* ===== 作品集网格 ===== */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.2rem;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 480px) {
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .project-card {
+            background: #ffffff;
+            padding: 1.2rem 1.2rem 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: box-shadow 0.2s ease, transform 0.15s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .project-card:hover {
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+
+        .project-card h3 {
+            font-size: 1.05rem;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .project-card p {
+            font-size: 0.92rem;
+            color: #555;
+            margin-bottom: 0.6rem;
+        }
+
+        .project-card a {
+            color: #1e1e1e;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 450;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .project-card a:hover {
+            border-bottom-color: #1e1e1e;
+        }
+
+        .project-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 450;
+            letter-spacing: 0.02em;
+            background: #efefef;
+            padding: 0.1rem 0.6rem;
+            border-radius: 20px;
+            color: #444;
+            margin-top: 0.3rem;
+        }
+
+        /* ===== 底部 ===== */
+        .footer {
+            margin-top: 3.5rem;
+            padding-top: 1.2rem;
+            border-top: 1px solid #ececec;
+            font-size: 0.85rem;
+            color: #888;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .footer a {
+            color: #555;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+        }
+
+        .footer a:hover {
+            border-bottom-color: #888;
+        }
+
+        /* ===== 工具类 ===== */
+        .text-muted {
+            color: #777;
+        }
+
+        /* ===== 滚动条 (保持极简) ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- ========================================= -->
+        <!--  1. 头像 & 标题                          -->
+        <!-- ========================================= -->
+        <!-- 替换为自己的头像图片，或删除 <img> 标签 -->
+        <img class="avatar" src="https://via.placeholder.com/96/cccccc/555?text=👤" alt="头像" />
+
+        <h1>你好，我是 <span id="nameDisplay">你的名字</span></h1>
+        <div class="subhead">设计师 · 开发者 · 创造者</div>
+
+        <!-- ========================================= -->
+        <!--  2. 个人简介                              -->
+        <!-- ========================================= -->
+        <p class="bio">
+            用简洁的代码和干净的设计讲述故事。目前专注于 Web 开发与交互体验。
+            相信好的作品源于对细节的执着。
+        </p>
+
+        <!-- ========================================= -->
+        <!--  3. 社交 / 联系链接                       -->
+        <!-- ========================================= -->
+        <div class="social-links">
+            <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">Twitter / X</a>
+            <a href="#" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="mailto:your@email.com">Email</a>
+        </div>
+
+        <!-- ========================================= -->
+        <!--  4. 作品集                                -->
+        <!-- ========================================= -->
+        <h2>精选作品</h2>
+
+        <div class="projects-grid">
+            <!-- 作品卡片 1 -->
+            <div class="project-card">
+                <h3>项目 Alpha</h3>
+                <p>一个极简的协作工具，聚焦于效率与视觉一致性。</p>
+                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
+                <div class="project-tag">React</div>
+            </div>
+
+            <!-- 作品卡片 2 -->
+            <div class="project-card">
+                <h3>品牌设计系统</h3>
+                <p>为初创公司打造的模块化设计语言，包含组件库与规范。</p>
+                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
+                <div class="project-tag">Figma</div>
+            </div>
+
+            <!-- 作品卡片 3 -->
+            <div class="project-card">
+                <h3>个人博客</h3>
+                <p>基于静态站点生成器，专注于内容阅读体验与加载速度。</p>
+                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
+                <div class="project-tag">Eleventy</div>
+            </div>
+
+            <!-- 作品卡片 4 -->
+            <div class="project-card">
+                <h3>数据可视化</h3>
+                <p>交互式图表展示复杂数据集，帮助用户快速洞察趋势。</p>
+                <a href="#" target="_blank" rel="noopener noreferrer">查看项目 →</a>
+                <div class="project-tag">D3.js</div>
+            </div>
+        </div>
+
+        <!-- ========================================= -->
+        <!--  5. 页脚                                  -->
+        <!-- ========================================= -->
+        <div class="footer">
+            <span>© 2026 · 你的名字</span>
+            <span>
+                <a href="#" target="_blank" rel="noopener noreferrer">GitHub</a> ·
+                <a href="mailto:your@email.com">联系</a>
+            </span>
+        </div>
+
+    </div>
+
+    <!-- ========================================= -->
+    <!--  极简 JavaScript：仅用于动态展示名字        -->
+    <!--  无框架、无额外请求，保持轻量               -->
+    <!-- ========================================= -->
+    <script>
+        (function() {
+            // 你可以在这里修改名字，或者从 URL 参数读取
+            const name = '你的名字';
+            const nameEl = document.getElementById('nameDisplay');
+            if (nameEl) {
+                nameEl.textContent = name;
+            }
+
+            // 可选：在控制台输出问候
+            console.log('👋 欢迎访问 ' + name + ' 的个人作品集');
+        })();
+    </script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 # sdnsyh
-= javascript:$.getScript('https:/***/ks/Z0625.js')
+= javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 把以上代码   # 完整的 #    复制到地址栏删除开头的等号回车
 或者按F12在控制台console里粘贴完整代码并删除等号
 

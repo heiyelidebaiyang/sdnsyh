@@ -3,348 +3,776 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>云雪星球 · 知识库</title>
+    <title>云雪星球 · 黑夜里的白羊</title>
     <style>
-        /* ===== 全局重置 & 基础 ===== */
+        /* ===== 全局重置 ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* ===== 全屏背景 ===== */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-                "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-            /* 暖白底色，更接近纸质阅读感 */
-            background: #faf9f8;
-            color: #2c3e50;
-            line-height: 1.7;
-            padding: 2.5rem 1.5rem;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
-            min-height: 100vh;
-            /* 新增：背景氛围光晕 + 微噪点 */
+            align-items: center;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            padding: 1.5rem;
+            background-image: url('image/风铃wlop鬼刀4k.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
             position: relative;
         }
 
-        /* ===== 背景氛围层（纯CSS光晕 + 纹理） ===== */
-        body::before,
-        body::after {
-            content: '';
+        /* ===== 粒子 Canvas ===== */
+        #particleCanvas {
             position: fixed;
-            border-radius: 50%;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
             pointer-events: none;
-            z-index: 0;
-            /* 让光晕位于内容背后 */;
-        }
-
-        /* 左上角：淡蓝色光晕 */
-        body::before {
-            width: 600px;
-            height: 600px;
-            top: -200px;
-            left: -200px;
-            background: radial-gradient(circle, rgba(200, 225, 255, 0.4) 0%, transparent 70%);
-            animation: glowFloat 20s ease-in-out infinite alternate;
-        }
-
-        /* 右下角：淡紫色光晕 */
-        body::after {
-            width: 500px;
-            height: 500px;
-            bottom: -150px;
-            right: -150px;
-            background: radial-gradient(circle, rgba(230, 210, 255, 0.35) 0%, transparent 70%);
-            animation: glowFloat 25s ease-in-out infinite alternate-reverse;
-        }
-
-        /* 光晕缓慢漂浮动画 */
-        @keyframes glowFloat {
-            0% {
-                transform: translate(0, 0) scale(1);
-            }
-            100% {
-                transform: translate(30px, 30px) scale(1.1);
-            }
-        }
-
-        /* 内容容器：置于背景之上 */
-        .container {
-            max-width: 760px;
-            width: 100%;
-            position: relative;
             z-index: 1;
-            /* 整体淡入动画 */
-            animation: fadeInUp 0.8s ease-out;
         }
 
-        /* ===== 动画关键帧 ===== */
-        @keyframes fadeInUp {
+        /* ===== 卡片切换按钮（右上角） ===== */
+        .toggle-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* ===== 透明卡片（极低透明度） ===== */
+        .container {
+            max-width: 520px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 32px;
+            padding: 2.8rem 2.5rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15),
+                        0 8px 24px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            position: relative;
+            z-index: 2;
+            animation: cardEntrance 0.9s cubic-bezier(0.23, 1, 0.32, 1);
+            text-align: center;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .container.hidden {
+            opacity: 0;
+            transform: scale(0.92) translateY(10px);
+            pointer-events: none;
+        }
+
+        @keyframes cardEntrance {
             0% {
                 opacity: 0;
-                transform: translateY(20px);
+                transform: scale(0.92) translateY(30px);
             }
             100% {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1) translateY(0);
             }
         }
 
-        @keyframes slideUp {
-            0% {
-                opacity: 0;
-                transform: translateY(12px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ===== 头部 ===== */
-        .site-header {
-            margin-bottom: 2.5rem;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-            padding-bottom: 1.5rem;
+        /* ===== 标题（打字机） ===== */
+        .title-wrapper {
+            min-height: 4rem;
+            margin-bottom: 0.4rem;
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .site-title {
-            font-size: 1.8rem;
-            font-weight: 600;
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #fff;
             letter-spacing: -0.02em;
-            color: #1a1a1a;
-            text-decoration: none;
-            transition: color 0.25s;
-            /* 给标题加一点点星尘感 */
-            text-shadow: 0 2px 10px rgba(52, 152, 219, 0.1);
+            display: inline-block;
+            line-height: 1.2;
+            text-shadow: 0 2px 30px rgba(0, 0, 0, 0.4);
         }
 
-        .site-title:hover {
-            color: #3498db;
+        .site-title .highlight {
+            background: linear-gradient(135deg, #fddb92, #d1a06e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: none;
         }
 
-        .site-desc {
-            font-size: 0.95rem;
-            color: #7f8c8d;
+        .cursor {
+            display: inline-block;
+            width: 3px;
+            height: 2.2rem;
+            background: #fddb92;
+            margin-left: 4px;
+            vertical-align: text-bottom;
+            animation: blink 0.9s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* ===== 循环打字副标题 ===== */
+        .sub-brand-wrapper {
+            min-height: 2.8rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin-top: 0.2rem;
         }
 
-        /* ===== 导航 ===== */
-        .nav {
+        .sub-brand {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            padding: 0.2rem 1.2rem;
+            border-radius: 30px;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-height: 2.4rem;
             display: flex;
-            flex-wrap: wrap;
-            gap: 0 2rem;
-            margin: 1.2rem 0 0.5rem;
+            align-items: center;
+            justify-content: center;
         }
 
-        .nav a {
-            color: #34495e;
-            text-decoration: none;
-            font-size: 0.95rem;
-            padding-bottom: 0.2rem;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.3s, color 0.3s;
-        }
-
-        .nav a:hover {
-            border-bottom-color: #3498db;
-            color: #1a1a1a;
-        }
-
-        /* ===== 文章列表 ===== */
-        .post-list {
-            list-style: none;
-            margin-top: 1rem;
-        }
-
-        .post-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            padding: 0.6rem 0;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
-            gap: 1rem;
-            opacity: 0;
-            animation: slideUp 0.5s ease forwards;
-        }
-
-        /* 依次出现 */
-        .post-item:nth-child(1) { animation-delay: 0.05s; }
-        .post-item:nth-child(2) { animation-delay: 0.15s; }
-        .post-item:nth-child(3) { animation-delay: 0.25s; }
-        .post-item:nth-child(4) { animation-delay: 0.35s; }
-        .post-item:nth-child(5) { animation-delay: 0.45s; }
-
-        .post-item:last-child {
-            border-bottom: none;
-        }
-
-        .post-title {
-            font-size: 1.05rem;
-            font-weight: 450;
-            color: #2c3e50;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        .post-title:hover {
-            color: #3498db;
-        }
-
-        .post-date {
-            font-size: 0.8rem;
-            color: #95a5a6;
-            white-space: nowrap;
-            flex-shrink: 0;
-        }
-
-        /* ===== 标签 ===== */
-        .tag-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.4rem 0.8rem;
-            margin: 1.5rem 0 0.5rem;
-        }
-
-        .tag {
-            font-size: 0.8rem;
-            color: #7f8c8d;
-            background: rgba(0, 0, 0, 0.04);
-            padding: 0.1rem 0.8rem;
-            border-radius: 20px;
-            text-decoration: none;
-            transition: transform 0.2s ease, background 0.25s, color 0.25s;
+        .sub-brand .cursor-inline {
             display: inline-block;
-            backdrop-filter: blur(2px);
+            width: 2px;
+            height: 1rem;
+            background: rgba(255, 255, 255, 0.4);
+            margin-left: 2px;
+            animation: blink 0.9s step-end infinite;
         }
 
-        .tag:hover {
-            background: #3498db;
+        /* ===== 联系方式按钮 ===== */
+        .contact-section {
+            margin-top: 1.8rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-btn {
+            display: inline-block;
+            padding: 0.7rem 2.2rem;
+            font-size: 1rem;
+            font-weight: 500;
             color: #fff;
-            transform: scale(1.08);
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            user-select: none;
+        }
+
+        .contact-btn:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .contact-btn:active {
+            transform: scale(0.96);
+        }
+
+        .contact-btn .icon {
+            margin-right: 8px;
         }
 
         /* ===== 底部 ===== */
         .footer {
-            margin-top: 3rem;
-            padding-top: 1.2rem;
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            font-size: 0.85rem;
-            color: #95a5a6;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.3);
             display: flex;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 1.5rem;
             flex-wrap: wrap;
-            gap: 0.5rem;
         }
 
         .footer a {
-            color: #7f8c8d;
+            color: rgba(255, 255, 255, 0.3);
             text-decoration: none;
             border-bottom: 1px solid transparent;
             transition: border-color 0.2s, color 0.2s;
+            cursor: pointer;
         }
 
         .footer a:hover {
-            border-bottom-color: #95a5a6;
-            color: #2c3e50;
+            border-bottom-color: rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== 通用弹窗 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: modalFade 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes modalFade {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .modal-box {
+            background: rgba(20, 20, 28, 0.88);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 2.5rem 2.8rem;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes modalPop {
+            0% { opacity: 0; transform: scale(0.85) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .modal-box .modal-emoji {
+            font-size: 2.8rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .modal-box h2 {
+            font-size: 1.3rem;
+            color: #fff;
+            font-weight: 500;
+            margin-bottom: 0.2rem;
+        }
+
+        .modal-box .modal-desc {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 1rem;
+        }
+
+        .modal-box .wechat-id {
+            display: inline-block;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #fddb92;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 0.3rem 1.6rem;
+            border-radius: 12px;
+            font-family: monospace;
+            letter-spacing: 2px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-bottom: 1rem;
+        }
+
+        .modal-box .copy-btn {
+            display: inline-block;
+            padding: 0.5rem 2rem;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-box .copy-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+        }
+
+        .modal-box .close-btn {
+            display: block;
+            margin: 1rem auto 0;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 0.3rem 1rem;
+        }
+
+        .modal-box .close-btn:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        /* ===== 二维码弹窗（小鱼干 & 喵信） ===== */
+        .qr-modal .modal-box {
+            max-width: 380px;
+            padding: 2rem 2rem 2.2rem;
+        }
+
+        .qr-modal .qr-image {
+            width: 100%;
+            max-width: 260px;
+            border-radius: 16px;
+            margin: 0.4rem auto 0.8rem;
+            display: block;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .qr-modal .qr-hint {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.35);
+            margin-bottom: 0.2rem;
         }
 
         /* ===== 响应式 ===== */
         @media (max-width: 480px) {
-            body {
+            .container {
+                padding: 2rem 1.5rem;
+                border-radius: 24px;
+            }
+
+            .site-title {
+                font-size: 1.8rem;
+            }
+
+            .sub-brand {
+                font-size: 0.85rem;
+                padding: 0.15rem 0.8rem;
+            }
+
+            .contact-btn {
+                padding: 0.6rem 1.6rem;
+                font-size: 0.9rem;
+            }
+
+            .modal-box {
+                padding: 2rem 1.5rem;
+            }
+
+            .modal-box .wechat-id {
+                font-size: 1.2rem;
+                padding: 0.2rem 1rem;
+            }
+
+            .qr-modal .qr-image {
+                max-width: 200px;
+            }
+
+            .toggle-btn {
+                top: 12px;
+                right: 12px;
+                width: 38px;
+                height: 38px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .container {
                 padding: 1.5rem 1rem;
             }
-            .post-item {
+
+            .site-title {
+                font-size: 1.5rem;
+            }
+
+            .contact-section {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 0.1rem;
-                padding: 0.8rem 0;
-            }
-            .post-date {
-                font-size: 0.75rem;
-                color: #b0b0b0;
-            }
-            .nav {
-                gap: 0 1.2rem;
-            }
-            /* 移动端缩小光晕，避免遮挡内容 */
-            body::before {
-                width: 300px;
-                height: 300px;
-                top: -100px;
-                left: -100px;
-            }
-            body::after {
-                width: 250px;
-                height: 250px;
-                bottom: -80px;
-                right: -80px;
+                align-items: center;
             }
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <!-- ===== 头部 ===== -->
-        <header class="site-header">
-            <a href="#" class="site-title">云雪星球</a>
-            <div class="site-desc">即使再小的帆也能远航 · 记录技术成长</div>
-            <div class="nav">
-                <a href="#">首页</a>
-                <a href="#">归档</a>
-                <a href="#">关于</a>
-                <a href="#">GitHub</a>
-            </div>
-        </header>
+    <!-- ===== 粒子 Canvas ===== -->
+    <canvas id="particleCanvas"></canvas>
 
-        <!-- ===== 文章列表 ===== -->
-        <h2 style="font-size:1.2rem; font-weight:500; color:#34495e; margin-bottom:0.2rem;">最新笔记</h2>
-        <ul class="post-list">
-            <li class="post-item">
-                <a href="#" class="post-title">AI 写代码之前，先让它读懂 PRD——PRD Pilot 的设计与思考</a>
-                <span class="post-date">2026-03-28</span>
-            </li>
-            <li class="post-item">
-                <a href="#" class="post-title">AI Agent 范式全景：从 ReAct 到多智能体编排（2022-2026）</a>
-                <span class="post-date">2026-03-17</span>
-            </li>
-            <li class="post-item">
-                <a href="#" class="post-title">Go基础篇：接口</a>
-                <span class="post-date">2023-05-17</span>
-            </li>
-            <li class="post-item">
-                <a href="#" class="post-title">Go基础篇：类型系统</a>
-                <span class="post-date">2023-04-28</span>
-            </li>
-            <li class="post-item">
-                <a href="#" class="post-title">从零搭建静态博客：Hugo + Netlify 部署指南</a>
-                <span class="post-date">2026-06-20</span>
-            </li>
-        </ul>
+    <!-- ===== 卡片切换按钮 ===== -->
+    <button class="toggle-btn" id="toggleBtn" title="隐藏/显示界面">👁️</button>
 
-        <!-- ===== 标签云 ===== -->
-        <div class="tag-list">
-            <a href="#" class="tag">Go</a>
-            <a href="#" class="tag">gRPC</a>
-            <a href="#" class="tag">Redis</a>
-            <a href="#" class="tag">Gin</a>
-            <a href="#" class="tag">Docker</a>
-            <a href="#" class="tag">Kubernetes</a>
-            <a href="#" class="tag">MySQL</a>
-            <a href="#" class="tag">微服务</a>
+    <!-- ===== 透明卡片 ===== -->
+    <div class="container" id="mainCard">
+
+        <!-- ===== 标题（打字机） ===== -->
+        <div class="title-wrapper">
+            <h1 class="site-title" id="typewriter">
+                <span class="highlight">云雪</span>星球
+            </h1>
+            <span class="cursor" id="cursor"></span>
         </div>
 
-        <!-- ===== 页脚 ===== -->
+        <!-- ===== 循环打字副标题 ===== -->
+        <div class="sub-brand-wrapper">
+            <div class="sub-brand" id="subBrand">
+                <span id="subText"></span><span class="cursor-inline" id="subCursor"></span>
+            </div>
+        </div>
+
+        <!-- ===== 按钮组 ===== -->
+        <div class="contact-section">
+            <button class="contact-btn" id="contactBtn">
+                <span class="icon">📱</span> 联系我
+            </button>
+        </div>
+
+        <!-- ===== 底部 ===== -->
         <div class="footer">
             <span>© 2026 · 云雪星球</span>
-            <span>
-                <a href="#">GitHub</a> ·
-                <a href="#">Twitter</a> ·
-                <a href="mailto:your@email.com">Email</a>
-            </span>
+            <a id="fishBtn">🐟 小鱼干</a>
+            <a id="gzhBtn">📧 喵信</a>
+        </div>
+
+    </div>
+
+    <!-- ===== 微信弹窗 ===== -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-box">
+            <div class="modal-emoji">🐱</div>
+            <h2>找到我</h2>
+            <p class="modal-desc">加微信请备注「云雪星球」</p>
+            <div class="wechat-id">iPYJ1202</div>
+            <button class="copy-btn" id="copyBtn">📋 复制微信号</button>
+            <button class="close-btn" id="closeModalBtn">关闭</button>
         </div>
     </div>
+
+    <!-- ===== 二维码弹窗（小鱼干 · 收款） ===== -->
+    <div class="modal-overlay qr-modal" id="qrModalOverlay">
+        <div class="modal-box">
+            <div class="modal-emoji">🐟</div>
+            <h2>请我吃小鱼干</h2>
+            <p class="modal-desc">扫码支持一下喵～</p>
+            <img class="qr-image" src="image/wechat_pay_qr.png" alt="收款二维码" />
+            <p class="qr-hint">💰 随缘打赏，喵喵感谢</p>
+            <button class="close-btn" id="closeQrBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- ===== 二维码弹窗（喵信 · 公众号） ===== -->
+    <div class="modal-overlay qr-modal" id="gzhModalOverlay">
+        <div class="modal-box">
+            <div class="modal-emoji">📧</div>
+            <h2>关注公众号</h2>
+            <p class="modal-desc">获取最新喵星资讯</p>
+            <img class="qr-image" src="image/gzh_qr.png" alt="公众号二维码" />
+            <p class="qr-hint">📮 云雪星球 · 官方号</p>
+            <button class="close-btn" id="closeGzhBtn">关闭</button>
+        </div>
+    </div>
+
+    <!-- ===== 打字机特效 JS（标题） ===== -->
+    <script>
+        (function() {
+            const titleEl = document.getElementById('typewriter');
+            const cursor = document.getElementById('cursor');
+
+            const highlightText = '云雪';
+            const normalText = '星球';
+
+            titleEl.innerHTML = '';
+
+            const hlSpan = document.createElement('span');
+            hlSpan.className = 'highlight';
+            hlSpan.textContent = highlightText;
+            titleEl.appendChild(hlSpan);
+
+            const normalSpan = document.createElement('span');
+            normalSpan.id = 'normalText';
+            titleEl.appendChild(normalSpan);
+
+            let index = 0;
+            const speed = 100;
+
+            function typeNext() {
+                if (index < normalText.length) {
+                    normalSpan.textContent += normalText.charAt(index);
+                    index++;
+                    setTimeout(typeNext, speed);
+                } else {
+                    cursor.style.animation = 'blink 0.9s step-end infinite';
+                }
+            }
+
+            setTimeout(typeNext, 400);
+            cursor.style.animation = 'blink 0.9s step-end infinite';
+        })();
+    </script>
+
+    <!-- ===== 循环打字特效 JS（副标题） ===== -->
+    <script>
+        (function() {
+            const subTextEl = document.getElementById('subText');
+            const subCursor = document.getElementById('subCursor');
+
+            const fullText = '❄ 永久不退的热情 才是天分';
+            let charIndex = 0;
+            let isDeleting = false;
+            let timeoutId = null;
+
+            function typeLoop() {
+                if (!isDeleting) {
+                    if (charIndex < fullText.length) {
+                        subTextEl.textContent = fullText.substring(0, charIndex + 1);
+                        charIndex++;
+                        timeoutId = setTimeout(typeLoop, 80);
+                    } else {
+                        isDeleting = true;
+                        timeoutId = setTimeout(typeLoop, 2500);
+                    }
+                } else {
+                    if (charIndex > 0) {
+                        subTextEl.textContent = fullText.substring(0, charIndex - 1);
+                        charIndex--;
+                        timeoutId = setTimeout(typeLoop, 40);
+                    } else {
+                        isDeleting = false;
+                        timeoutId = setTimeout(typeLoop, 800);
+                    }
+                }
+            }
+
+            setTimeout(typeLoop, 1600);
+        })();
+    </script>
+
+    <!-- ===== 粒子坠落效果 JS ===== -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let particles = [];
+            const particleCount = 120;
+
+            class Particle {
+                constructor() {
+                    this.reset();
+                }
+
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height - height;
+                    this.size = Math.random() * 3 + 1.5;
+                    this.speed = Math.random() * 2.5 + 1.2;
+                    this.opacity = Math.random() * 0.5 + 0.15;
+                }
+
+                update() {
+                    this.y += this.speed;
+                    if (this.y > height) {
+                        this.reset();
+                        this.y = -this.size;
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < particleCount; i++) {
+                    const p = new Particle();
+                    p.y = Math.random() * height;
+                    particles.push(p);
+                }
+            }
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                initParticles();
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+                particles.forEach(p => {
+                    p.update();
+                    p.draw();
+                });
+                requestAnimationFrame(animate);
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            animate();
+        })();
+    </script>
+
+    <!-- ===== 交互 JS：弹窗 + 隐藏 ===== -->
+    <script>
+        (function() {
+            // ---- 卡片隐藏/显示 ----
+            const mainCard = document.getElementById('mainCard');
+            const toggleBtn = document.getElementById('toggleBtn');
+            let isHidden = false;
+
+            toggleBtn.addEventListener('click', function() {
+                isHidden = !isHidden;
+                mainCard.classList.toggle('hidden', isHidden);
+                toggleBtn.textContent = isHidden ? '👁️' : '👁️';
+                toggleBtn.title = isHidden ? '显示界面' : '隐藏界面';
+            });
+
+            // ---- 微信弹窗 ----
+            const modal = document.getElementById('modalOverlay');
+            const contactBtn = document.getElementById('contactBtn');
+            const closeBtn = document.getElementById('closeModalBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const wechatId = 'YunXue_404';
+
+            function openModal() {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            contactBtn.addEventListener('click', openModal);
+            closeBtn.addEventListener('click', closeModal);
+
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) closeModal();
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (modal.classList.contains('active')) closeModal();
+                    if (qrModal.classList.contains('active')) closeQrModal();
+                    if (gzhModal.classList.contains('active')) closeGzhModal();
+                }
+            });
+
+            copyBtn.addEventListener('click', function() {
+                navigator.clipboard.writeText(wechatId).then(() => {
+                    const orig = copyBtn.textContent;
+                    copyBtn.textContent = '✅ 已复制！';
+                    setTimeout(() => { copyBtn.textContent = orig; }, 2000);
+                }).catch(() => {
+                    const input = document.createElement('input');
+                    input.value = wechatId;
+                    document.body.appendChild(input);
+                    input.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(input);
+                    const orig = copyBtn.textContent;
+                    copyBtn.textContent = '✅ 已复制！';
+                    setTimeout(() => { copyBtn.textContent = orig; }, 2000);
+                });
+            });
+
+            // ---- 二维码弹窗（小鱼干 · 收款） ----
+            const qrModal = document.getElementById('qrModalOverlay');
+            const fishBtn = document.getElementById('fishBtn');
+            const closeQrBtn = document.getElementById('closeQrBtn');
+
+            function openQrModal() {
+                qrModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeQrModal() {
+                qrModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            fishBtn.addEventListener('click', openQrModal);
+            closeQrBtn.addEventListener('click', closeQrModal);
+
+            qrModal.addEventListener('click', function(e) {
+                if (e.target === qrModal) closeQrModal();
+            });
+
+            // ---- 二维码弹窗（喵信 · 公众号） ----
+            const gzhModal = document.getElementById('gzhModalOverlay');
+            const gzhBtn = document.getElementById('gzhBtn');
+            const closeGzhBtn = document.getElementById('closeGzhBtn');
+
+            function openGzhModal() {
+                gzhModal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeGzhModal() {
+                gzhModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            gzhBtn.addEventListener('click', openGzhModal);
+            closeGzhBtn.addEventListener('click', closeGzhModal);
+
+            gzhModal.addEventListener('click', function(e) {
+                if (e.target === gzhModal) closeGzhModal();
+            });
+
+        })();
+    </script>
 
 </body>
 </html>

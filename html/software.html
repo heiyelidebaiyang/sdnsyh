@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>软件下载 · 云雪星球</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+            min-height: 100vh;
+            background-image: url('../image/风铃wlop鬼刀4k.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            color: #e0e0e0;
+            position: relative;
+        }
+
+        #particleCanvas {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 2;
+        }
+
+        .sidebar {
+            width: 240px;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            border-right: 1px solid rgba(255,255,255,0.08);
+            padding: 2rem 1.5rem;
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .sidebar-logo {
+            width: 70px;
+            height: 70px;
+            margin-bottom: 0.8rem;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(253,219,146,0.4);
+        }
+
+        .sidebar-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+            line-height: 1.4;
+        }
+
+        .sidebar-brand .brand-main {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-brand .brand-sub {
+            font-size: 0.9rem;
+            color: #fddb92;
+            font-weight: 400;
+        }
+
+        .nav-item {
+            display: block;
+            width: 100%;
+            padding: 0.8rem 1rem;
+            margin-bottom: 0.4rem;
+            color: #bbb;
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: all 0.15s;
+            border-radius: 6px;
+            text-align: left;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+        }
+
+        .nav-item.active {
+            background: rgba(253,219,146,0.15);
+            color: #fddb92;
+        }
+
+        .nav-item .nav-icon {
+            margin-right: 10px;
+        }
+
+        .main-content {
+            margin-left: 240px;
+            flex: 1;
+            padding: 3rem 3rem 2rem;
+            min-height: 100vh;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+        }
+
+        .page-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.6rem;
+        }
+
+        .page-subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.95rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .software-list {
+            list-style: none;
+            padding: 0;
+            max-width: 500px;
+        }
+
+        .software-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 1rem 1.3rem;
+            margin-bottom: 0.8rem;
+            transition: background 0.2s;
+        }
+
+        .software-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .software-info {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+
+        .software-icon {
+            font-size: 1.6rem;
+        }
+
+        .software-name {
+            color: #fff;
+            font-weight: 500;
+        }
+
+        .software-version {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            margin-top: 0.15rem;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(253,219,146,0.15);
+            border: 1px solid rgba(253,219,146,0.3);
+            color: #fddb92;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .download-btn:hover {
+            background: rgba(253,219,146,0.25);
+            border-color: rgba(253,219,146,0.5);
+        }
+
+        @media (max-width: 700px) {
+            .layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: static;
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                padding: 1rem 1.2rem;
+                gap: 0.8rem;
+            }
+            .sidebar-logo {
+                width: 40px;
+                height: 40px;
+                margin-bottom: 0;
+            }
+            .sidebar-brand {
+                display: flex;
+                gap: 0.5rem;
+                align-items: baseline;
+                margin-bottom: 0;
+            }
+            .nav-item {
+                width: auto;
+                padding: 0.5rem 0.9rem;
+                font-size: 0.85rem;
+            }
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="particleCanvas"></canvas>
+
+    <div class="layout">
+        <nav class="sidebar">
+            <img src="../image/logo.png" alt="Logo" class="sidebar-logo">
+            <div class="sidebar-brand">
+                <div class="brand-main">云雪星球</div>
+                <div class="brand-sub">白羊的小站</div>
+            </div>
+            <a class="nav-item" href="../index.html"><span class="nav-icon">🏠</span> 首页</a>
+            <a class="nav-item active" href="software.html"><span class="nav-icon">📱</span> 软件下载</a>
+            <a class="nav-item" href="github.html"><span class="nav-icon">🐙</span> GitHub</a>
+            <a class="nav-item" href="author.html"><span class="nav-icon">✍️</span> 作者的话</a>
+            <a class="nav-item" href="contact.html"><span class="nav-icon">💬</span> 联系作者</a>
+        </nav>
+
+        <main class="main-content">
+            <h1 class="page-title">📱 软件下载</h1>
+            <p class="page-subtitle">请选择需要的版本下载</p>
+
+            <ul class="software-list">
+                <li class="software-item">
+                    <div class="software-info">
+                        <span class="software-icon">📦</span>
+                        <div>
+                            <div class="software-name">营销助手</div>
+                            <div class="software-version">v3.1.1</div>
+                        </div>
+                    </div>
+                    <a class="download-btn" href="../app/营销助手_v3.1.1.zip" download>⬇️ 下载</a>
+                </li>
+                <li class="software-item">
+                    <div class="software-info">
+                        <span class="software-icon">📦</span>
+                        <div>
+                            <div class="software-name">营销助手</div>
+                            <div class="software-version">v3.1.2</div>
+                        </div>
+                    </div>
+                    <a class="download-btn" href="../app/营销助手_v3.1.2.zip" download>⬇️ 下载</a>
+                </li>
+            </ul>
+            <p style="color:rgba(255,255,255,0.35); font-size:0.8rem; margin-top:1.5rem;">iOS 版本敬请期待</p>
+        </main>
+    </div>
+
+    <script>
+        (function() {
+            const canvas = document.getElementById('particleCanvas');
+            const ctx = canvas.getContext('2d');
+            let width, height, particles = [];
+            const particleCount = 120;
+
+            class Particle {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height - height;
+                    this.size = Math.random() * 3 + 1.5;
+                    this.speed = Math.random() * 2.5 + 1.2;
+                    this.opacity = Math.random() * 0.5 + 0.15;
+                }
+                update() {
+                    this.y += this.speed;
+                    if (this.y > height) { this.reset(); this.y = -this.size; }
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI*2);
+                    ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+                    ctx.fill();
+                }
+            }
+            function init() {
+                particles = [];
+                for (let i=0; i<particleCount; i++) {
+                    let p = new Particle();
+                    p.y = Math.random() * height;
+                    particles.push(p);
+                }
+            }
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+                init();
+            }
+            function animate() {
+                ctx.clearRect(0,0,width,height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                requestAnimationFrame(animate);
+            }
+            window.addEventListener('resize', resize);
+            resize(); animate();
+        })();
+    </script>
+</body>
+</html>

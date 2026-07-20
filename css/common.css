@@ -1,0 +1,123 @@
+/* ========== 全局重置 ========== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
+    min-height: 100vh;
+    background-image: url('../image/风铃wlop鬼刀4k.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    position: relative;
+}
+
+#particleCanvas {
+    position: fixed; top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 1;
+}
+
+/* ========== 主布局 ========== */
+.layout {
+    display: flex;
+    min-height: 100vh;
+    position: relative;
+    z-index: 2;
+}
+
+/* ========== 侧边栏 ========== */
+.sidebar {
+    width: 240px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding: 2rem 1.5rem;
+    position: fixed; top: 0; left: 0;
+    height: 100vh; overflow-y: auto;
+    z-index: 10;
+    display: flex; flex-direction: column; align-items: center;
+}
+
+.sidebar-logo {
+    width: 70px; height: 70px;
+    margin-bottom: 0.8rem;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(253,219,146,0.4);
+}
+
+.sidebar-brand {
+    text-align: center;
+    margin-bottom: 2rem;
+    line-height: 1.4;
+}
+.sidebar-brand .brand-main {
+    font-size: 1.2rem; font-weight: 700; color: #fff;
+    letter-spacing: 0.5px;
+}
+.sidebar-brand .brand-sub {
+    font-size: 0.9rem; color: #fddb92; font-weight: 400;
+}
+
+.nav-item {
+    display: block; width: 100%;
+    padding: 0.8rem 1rem;
+    margin-bottom: 0.4rem;
+    color: #bbb; text-decoration: none;
+    font-size: 0.95rem; transition: 0.15s;
+    border-radius: 6px; text-align: left;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(253,219,146,0.15); color: #fddb92; }
+.nav-item .nav-icon { margin-right: 10px; }
+
+/* ========== 右侧内容区 ========== */
+.main-content {
+    margin-left: 240px;
+    flex: 1;
+    padding: 3rem 3rem 2rem;
+    min-height: 100vh;
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+}
+
+.page-title {
+    font-size: 1.8rem; font-weight: 600; color: #fff; margin-bottom: 0.6rem;
+}
+.page-subtitle {
+    color: rgba(255,255,255,0.5); font-size: 0.95rem; margin-bottom: 2.5rem;
+}
+
+/* ========== 通用按钮 ========== */
+.btn {
+    display: inline-block; padding: 0.6rem 2rem;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #ddd; cursor: pointer; font-size: 0.9rem;
+    transition: 0.2s; text-decoration: none;
+}
+.btn:hover { background: rgba(255,255,255,0.15); }
+
+.qr-image {
+    width: 100%; max-width: 180px;
+    border-radius: 12px; margin: 0.5rem auto;
+    display: block; border: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 700px) {
+    .layout { flex-direction: column; }
+    .sidebar {
+        position: static; width: 100%; height: auto;
+        flex-direction: row; flex-wrap: wrap;
+        align-items: center; padding: 1rem 1.2rem; gap: 0.8rem;
+    }
+    .sidebar-logo { width: 40px; height: 40px; margin-bottom: 0; }
+    .sidebar-brand { display: flex; gap: 0.5rem; align-items: baseline; margin-bottom: 0; }
+    .nav-item { width: auto; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+    .main-content { margin-left: 0; padding: 1.5rem 1.2rem; }
+}

@@ -20,7 +20,7 @@ const navLinks = [
     {
         category: '📮 社交媒体',
         links: [
-            { title: '我的公众号', desc: '云雪星球', icon: '💬', url: 'https://weixin.qq.com' },
+            { title: '我的公众号', desc: '云雪星球', icon: '💬', url: '../image/gzh_qr.png' },
             { title: '我的知乎', desc: '有问题，上知乎', icon: '❓', url: 'https://www.zhihu.com' }
         ]
     }

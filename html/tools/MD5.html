@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MD5 工具箱 · 云雪星球</title>
+    <!-- 引入 CryptoJS (MD5) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js">
+    </script>
+    <style>
+        /* ----- 全局重置 & 字体 (深色主题, 参考白羊导航风格) ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'PingFang SC', Roboto, 'Helvetica Neue', sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 24px 16px;
+        }
+
+        /* ----- 主容器 (毛玻璃卡片) ----- */
+        .container {
+            max-width: 960px;
+            width: 100%;
+            background: rgba(22, 27, 34, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 32px 36px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            margin-top: 20px;
+        }
+
+        /* ----- 头部 ----- */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin-bottom: 28px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #f0f6fc;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1 .badge {
+            font-size: 13px;
+            font-weight: 500;
+            background: rgba(253, 219, 146, 0.15);
+            color: #fddb92;
+            padding: 2px 14px;
+            border-radius: 40px;
+            letter-spacing: 0.3px;
+            border: 1px solid rgba(253, 219, 146, 0.15);
+        }
+
+        .header .sub {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 16px;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        /* ----- 选项卡导航 (参考导航卡片风格) ----- */
+        .tabs {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 28px;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 4px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 100px;
+            font-family: inherit;
+        }
+
+        .tab-btn:hover {
+            color: #f0f6fc;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .tab-btn.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fddb92;
+            box-shadow: 0 0 0 1px rgba(253, 219, 146, 0.15);
+        }
+
+        .tab-btn .icon {
+            font-size: 16px;
+        }
+
+        /* ----- 面板容器 ----- */
+        .panels {
+            position: relative;
+        }
+
+        .panel {
+            display: none;
+            animation: fadeUp 0.3s ease forwards;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ----- 卡片 (参考 .nav-card 风格) ----- */
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 16px;
+            padding: 22px 26px 26px;
+            margin-bottom: 20px;
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            border-color: rgba(253, 219, 146, 0.15);
+        }
+
+        .card:last-child {
+            margin-bottom: 0;
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f0f6fc;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .tag {
+            font-size: 11px;
+            font-weight: 500;
+            color: #0d1117;
+            background: #fddb92;
+            padding: 0 12px;
+            border-radius: 30px;
+            line-height: 22px;
+        }
+
+        .card-title .tag.green {
+            background: #3fb950;
+            color: #0d1117;
+        }
+
+        .card-title .tag.orange {
+            background: #d29922;
+            color: #0d1117;
+        }
+
+        .card-title .tag.purple {
+            background: #bc8cff;
+            color: #0d1117;
+        }
+
+        /* ----- 表单元素 ----- */
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 5px;
+            letter-spacing: 0.2px;
+        }
+
+        .form-group .hint {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.35);
+            margin-top: 4px;
+            font-weight: 400;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .input-row .input-wrap {
+            flex: 1;
+            min-width: 180px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-family: inherit;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.04);
+            color: #f0f6fc;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        input[type="text"]:focus,
+        input[type="password"]:focus {
+            border-color: rgba(253, 219, 146, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(253, 219, 146, 0.05);
+        }
+
+        input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        /* ----- 按钮 (参考导航卡片悬浮效果) ----- */
+        .btn {
+            padding: 10px 22px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            white-space: nowrap;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.06);
+            color: #f0f6fc;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateY(-1px);
+            border-color: rgba(253, 219, 146, 0.2);
+        }
+
+        .btn-primary {
+            background: rgba(253, 219, 146, 0.12);
+            color: #fddb92;
+            border-color: rgba(253, 219, 146, 0.15);
+        }
+
+        .btn-primary:hover {
+            background: rgba(253, 219, 146, 0.2);
+            border-color: rgba(253, 219, 146, 0.3);
+        }
+
+        .btn-success {
+            background: rgba(63, 185, 80, 0.15);
+            color: #3fb950;
+            border-color: rgba(63, 185, 80, 0.15);
+        }
+
+        .btn-success:hover {
+            background: rgba(63, 185, 80, 0.25);
+            border-color: rgba(63, 185, 80, 0.3);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #f0f6fc;
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.04);
+            color: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #f0f6fc;
+        }
+
+        .btn-sm {
+            padding: 6px 14px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* ----- 结果显示 (类似 .nav-card 风格) ----- */
+        .result-box {
+            margin-top: 14px;
+            padding: 14px 18px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+
+        .result-box .code {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 18px;
+            font-weight: 600;
+            color: #fddb92;
+            letter-spacing: 0.5px;
+            word-break: break-all;
+        }
+
+        .result-box .code.small {
+            font-size: 15px;
+        }
+
+        .result-box .actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .result-box .actions .btn {
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+        }
+
+        .result-box .status {
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status.success {
+            color: #3fb950;
+        }
+
+        .status.error {
+            color: #f85149;
+        }
+
+        .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status .dot.green {
+            background: #3fb950;
+        }
+        .status .dot.red {
+            background: #f85149;
+        }
+        .status .dot.gray {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 16px 0;
+        }
+
+        .flex-center {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .mb-8 {
+            margin-bottom: 8px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+
+        /* ----- SECRET_KEY 特殊样式 (可编辑) ----- */
+        .secret-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 14px 4px 18px;
+            border-radius: 40px;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fddb92;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .secret-display:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(253, 219, 146, 0.2);
+        }
+
+        .secret-display .key {
+            font-weight: 700;
+            color: #fddb92;
+        }
+
+        .secret-display .edit-hint {
+            font-size: 11px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.25);
+            margin-left: 4px;
+        }
+
+        /* ----- 历史记录 (深色风格) ----- */
+        .history-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 160px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            font-size: 13px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .history-item .h-device {
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        .history-item .h-code {
+            font-family: monospace;
+            font-weight: 600;
+            color: #fddb92;
+            letter-spacing: 0.5px;
+        }
+
+        .history-item .h-time {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 11px;
+        }
+
+        /* ----- Toast 消息 (深色) ----- */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #1c2333;
+            color: #f0f6fc;
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+            pointer-events: none;
+            z-index: 999;
+            white-space: nowrap;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        /* ----- 辅助类 ----- */
+        .hidden {
+            display: none !important;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .text-muted {
+            color: rgba(255, 255, 255, 0.35);
+            font-size: 13px;
+        }
+        .w-full {
+            width: 100%;
+        }
+
+        /* ----- 响应式 ----- */
+        @media (max-width: 640px) {
+            .container {
+                padding: 18px 14px 24px;
+                border-radius: 18px;
+            }
+
+            .header h1 {
+                font-size: 20px;
+                flex-wrap: wrap;
+            }
+
+            .header h1 .badge {
+                font-size: 11px;
+                padding: 1px 10px;
+            }
+
+            .header .sub {
+                font-size: 11px;
+                padding: 3px 12px;
+                margin-top: 4px;
+            }
+
+            .tabs {
+                gap: 4px;
+                padding: 4px;
+                border-radius: 12px;
+            }
+
+            .tab-btn {
+                font-size: 12px;
+                padding: 8px 12px;
+                min-width: 60px;
+                flex: 1 1 auto;
+            }
+
+            .tab-btn .icon {
+                font-size: 14px;
+            }
+
+            .card {
+                padding: 16px 14px 18px;
+                border-radius: 12px;
+            }
+
+            .card-title {
+                font-size: 14px;
+            }
+
+            .input-row {
+                flex-direction: column;
+            }
+
+            .input-row .input-wrap {
+                min-width: unset;
+            }
+
+            .btn {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+
+            .result-box {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .result-box .code {
+                font-size: 16px;
+                text-align: center;
+            }
+
+            .result-box .actions {
+                justify-content: center;
+            }
+
+            .secret-display {
+                font-size: 12px;
+                padding: 3px 10px 3px 14px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container {
+                padding: 12px 8px 16px;
+            }
+
+            .tab-btn {
+                font-size: 11px;
+                padding: 6px 8px;
+            }
+
+            .tab-btn .icon {
+                font-size: 12px;
+            }
+
+            .card {
+                padding: 12px 10px 14px;
+            }
+
+            .result-box .code {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== Toast ===== -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ===== 主容器 ===== -->
+    <div class="container">
+
+        <!-- 头部 -->
+        <div class="header">
+            <h1>
+                🔐 MD5 工具箱
+                <span class="badge">v2.0</span>
+            </h1>
+            <span class="sub">加密 · 验证 · 授权</span>
+        </div>
+
+        <!-- 选项卡 -->
+        <div class="tabs" id="tabNav">
+            <button class="tab-btn active" data-tab="tabMD5">
+                <span class="icon">🔑</span> MD5 加密
+            </button>
+            <button class="tab-btn" data-tab="tabVerify">
+                <span class="icon">✅</span> MD5 验证
+            </button>
+            <button class="tab-btn" data-tab="tabAuth">
+                <span class="icon">⚡</span> 授权码
+            </button>
+        </div>
+
+        <!-- 面板 -->
+        <div class="panels">
+
+            <!-- ============================================================ -->
+            <!-- 面板 1：MD5 加密 (默认第一个) -->
+            <!-- ============================================================ -->
+            <div class="panel active" id="tabMD5">
+                <div class="card">
+                    <div class="card-title">
+                        🔑 MD5 加密
+                        <span class="tag">哈希</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>输入文本</label>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="md5Input" placeholder="请输入要加密的文本..." />
+                            </div>
+                            <button class="btn btn-primary" id="md5EncryptBtn">加密</button>
+                        </div>
+                    </div>
+
+                    <div id="md5Result" class="result-box hidden">
+                        <span class="code small" id="md5Output">------</span>
+                        <div class="actions">
+                            <button class="btn btn-secondary btn-sm" id="copyMd5Btn">📋 复制</button>
+                            <button class="btn btn-outline btn-sm" id="clearMd5Btn">清除</button>
+                        </div>
+                    </div>
+
+                    <div class="divider"></div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>🔁 快速验证 (输入 MD5 值)</label>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="md5QuickInput" placeholder="粘贴 MD5 哈希值..." />
+                            </div>
+                            <button class="btn btn-success" id="md5QuickVerifyBtn">验证匹配</button>
+                        </div>
+                        <div id="md5QuickResult" class="text-muted mt-8" style="font-weight:500;">等待验证...</div>
+                    </div>
+                </div>
+
+                <div class="card" style="background:rgba(255,255,255,0.02);">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.4);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <span>💡 MD5 是单向哈希函数，不可逆。验证通过重新计算哈希值比对。</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- 面板 2：MD5 验证 (独立) -->
+            <!-- ============================================================ -->
+            <div class="panel" id="tabVerify">
+                <div class="card">
+                    <div class="card-title">
+                        ✅ MD5 哈希验证
+                        <span class="tag green">比对</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>原始文本</label>
+                        <input type="text" id="verifyMd5Text" placeholder="输入原始文本" />
+                    </div>
+                    <div class="form-group">
+                        <label>MD5 哈希值</label>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="verifyMd5Hash" placeholder="粘贴 MD5 哈希值" />
+                            </div>
+                            <button class="btn btn-success" id="verifyMd5Btn">验证</button>
+                        </div>
+                    </div>
+
+                    <div id="verifyMd5Result" class="result-box hidden">
+                        <span class="status" id="verifyMd5Status">
+                            <span class="dot gray"></span> 等待验证
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card" style="background:rgba(255,255,255,0.02);">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.4);">
+                        ⚡ 验证原理：对「原始文本」重新计算 MD5，与输入的「哈希值」比对。
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============================================================ -->
+            <!-- 面板 3：授权码生成 & 验证 (放在最后) -->
+            <!-- ============================================================ -->
+            <div class="panel" id="tabAuth">
+                <div class="card">
+                    <div class="card-title">
+                        🚀 生成授权码
+                        <span class="tag">加密</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>设备 ID (Device ID)</label>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="deviceIdInput" placeholder="例如：ABC-1234-XYZ" />
+                            </div>
+                            <button class="btn btn-primary" id="genAuthBtn">生成授权码</button>
+                        </div>
+                        <div class="hint">
+                            ⚙️ 密钥 (SECRET_KEY)：
+                            <span class="secret-display" id="secretKeyDisplay">
+                                🔑 <span class="key" id="secretKeySpan">YunXueXingQiu</span>
+                                <span class="edit-hint">✎ 点击修改</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- 授权码结果 -->
+                    <div id="authResult" class="result-box hidden">
+                        <span class="code" id="authCodeDisplay">------</span>
+                        <div class="actions">
+                            <button class="btn btn-secondary btn-sm" id="copyAuthBtn">📋 复制</button>
+                            <button class="btn btn-outline btn-sm" id="clearAuthBtn">清除</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 验证授权码 -->
+                <div class="card">
+                    <div class="card-title">
+                        ✅ 验证授权码
+                        <span class="tag green">验证</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>设备 ID</label>
+                        <input type="text" id="verifyDeviceId" placeholder="输入设备 ID" />
+                    </div>
+                    <div class="form-group">
+                        <label>授权码 (8 位)</label>
+                        <div class="input-row">
+                            <div class="input-wrap">
+                                <input type="text" id="verifyAuthCode" placeholder="例如：A1B2C3D4" maxlength="8" style="text-transform:uppercase;" />
+                            </div>
+                            <button class="btn btn-success" id="verifyAuthBtn">验证</button>
+                        </div>
+                    </div>
+
+                    <div id="verifyAuthResult" class="result-box hidden">
+                        <span class="status" id="verifyAuthStatus">
+                            <span class="dot gray"></span> 等待验证
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 历史记录 -->
+                <div class="card">
+                    <div class="card-title">
+                        📜 生成历史
+                        <span class="tag orange">最近 6 条</span>
+                    </div>
+                    <div id="historyList" class="history-list">
+                        <div class="text-muted text-center" style="padding:20px 0;">暂无记录</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm mt-8" id="clearHistoryBtn" style="width:auto;">🗑️ 清空历史</button>
+                </div>
+            </div>
+
+        </div><!-- /panels -->
+
+        <!-- 底部 -->
+        <div style="margin-top:24px;border-top:1px solid rgba(255,255,255,0.06);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:13px;color:rgba(255,255,255,0.3);">
+            <span>🔒 所有计算在本地浏览器完成，数据不上传。</span>
+            <span>SECRET_KEY = <strong style="color:rgba(255,255,255,0.5);font-family:monospace;">YunXueXingQiu</strong></span>
+        </div>
+
+    </div><!-- /container -->
+
+
+    <!-- ============================================================ -->
+    <!-- JavaScript -->
+    <!-- ============================================================ -->
+    <script>
+        (function() {
+            'use strict';
+
+            // ----- 常量 -----
+            const DEFAULT_SECRET_KEY = 'YunXueXingQiu';
+            const STORAGE_KEY = 'md5_auth_history';
+            const SECRET_KEY_STORAGE_KEY = 'md5_secret_key';
+
+            // ----- DOM 引用 -----
+            const $ = (id) => document.getElementById(id);
+
+            // 授权码面板
+            const deviceIdInput = $('deviceIdInput');
+            const genAuthBtn = $('genAuthBtn');
+            const authResult = $('authResult');
+            const authCodeDisplay = $('authCodeDisplay');
+            const copyAuthBtn = $('copyAuthBtn');
+            const clearAuthBtn = $('clearAuthBtn');
+            const secretKeySpan = $('secretKeySpan');
+            const secretKeyDisplay = $('secretKeyDisplay');
+
+            const verifyDeviceId = $('verifyDeviceId');
+            const verifyAuthCode = $('verifyAuthCode');
+            const verifyAuthBtn = $('verifyAuthBtn');
+            const verifyAuthResult = $('verifyAuthResult');
+            const verifyAuthStatus = $('verifyAuthStatus');
+
+            const historyList = $('historyList');
+            const clearHistoryBtn = $('clearHistoryBtn');
+
+            // MD5 加密面板
+            const md5Input = $('md5Input');
+            const md5EncryptBtn = $('md5EncryptBtn');
+            const md5Result = $('md5Result');
+            const md5Output = $('md5Output');
+            const copyMd5Btn = $('copyMd5Btn');
+            const clearMd5Btn = $('clearMd5Btn');
+            const md5QuickInput = $('md5QuickInput');
+            const md5QuickVerifyBtn = $('md5QuickVerifyBtn');
+            const md5QuickResult = $('md5QuickResult');
+
+            // MD5 验证面板
+            const verifyMd5Text = $('verifyMd5Text');
+            const verifyMd5Hash = $('verifyMd5Hash');
+            const verifyMd5Btn = $('verifyMd5Btn');
+            const verifyMd5Result = $('verifyMd5Result');
+            const verifyMd5Status = $('verifyMd5Status');
+
+            // Toast
+            const toastEl = $('toast');
+            let toastTimer = null;
+
+            // ----- 密钥管理 (持久化存储) -----
+
+            function getSecretKey() {
+                const stored = localStorage.getItem(SECRET_KEY_STORAGE_KEY);
+                if (stored && stored.trim()) {
+                    return stored.trim();
+                }
+                return DEFAULT_SECRET_KEY;
+            }
+
+            function setSecretKey(newKey) {
+                if (newKey && newKey.trim()) {
+                    localStorage.setItem(SECRET_KEY_STORAGE_KEY, newKey.trim());
+                } else {
+                    localStorage.removeItem(SECRET_KEY_STORAGE_KEY);
+                }
+                updateSecretDisplay();
+                // 重新生成授权码逻辑会使用新密钥
+            }
+
+            function updateSecretDisplay() {
+                const key = getSecretKey();
+                secretKeySpan.textContent = key;
+            }
+
+            // ----- 工具函数 -----
+
+            // MD5 哈希 (使用 CryptoJS)
+            function md5Hash(text) {
+                if (!text) return '';
+                return CryptoJS.MD5(text).toString();
+            }
+
+            // 生成授权码 (使用动态密钥)
+            function generateAuthCode(deviceId) {
+                const key = getSecretKey();
+                const raw = deviceId.trim() + key;
+                const hash = md5Hash(raw);
+                return hash.substring(0, 8).toUpperCase();
+            }
+
+            // 显示 Toast
+            function showToast(msg, duration) {
+                duration = duration || 2000;
+                toastEl.textContent = msg;
+                toastEl.classList.add('show');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    toastEl.classList.remove('show');
+                }, duration);
+            }
+
+            // 复制到剪贴板
+            function copyToClipboard(text) {
+                if (!text) return false;
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        showToast('✅ 已复制到剪贴板');
+                    }).catch(() => {
+                        fallbackCopy(text);
+                    });
+                    return true;
+                } else {
+                    fallbackCopy(text);
+                    return true;
+                }
+            }
+
+            function fallbackCopy(text) {
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                ta.style.position = 'fixed';
+                ta.style.opacity = '0';
+                document.body.appendChild(ta);
+                ta.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('✅ 已复制到剪贴板');
+                } catch (e) {
+                    showToast('❌ 复制失败，请手动选择');
+                }
+                document.body.removeChild(ta);
+            }
+
+            // ----- 历史记录 -----
+
+            function getHistory() {
+                try {
+                    const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+                    return Array.isArray(data) ? data : [];
+                } catch { return []; }
+            }
+
+            function saveHistory(history) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+            }
+
+            function addHistory(deviceId, code) {
+                const history = getHistory();
+                history.unshift({
+                    deviceId: deviceId.trim(),
+                    code: code,
+                    time: new Date().toLocaleString('zh-CN')
+                });
+                if (history.length > 20) history.length = 20;
+                saveHistory(history);
+                renderHistory();
+            }
+
+            function renderHistory() {
+                const history = getHistory();
+                if (history.length === 0) {
+                    historyList.innerHTML =
+                        '<div class="text-muted text-center" style="padding:20px 0;">暂无记录</div>';
+                    return;
+                }
+                let html = '';
+                const show = history.slice(0, 6);
+                show.forEach(item => {
+                    html += `
+                        <div class="history-item">
+                            <span class="h-device">📱 ${escapeHtml(item.deviceId)}</span>
+                            <span class="h-code">${escapeHtml(item.code)}</span>
+                            <span class="h-time">${escapeHtml(item.time)}</span>
+                        </div>
+                    `;
+                });
+                historyList.innerHTML = html;
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            function clearHistory() {
+                if (getHistory().length === 0) {
+                    showToast('📭 历史已是空的');
+                    return;
+                }
+                if (confirm('确定要清空所有历史记录吗？')) {
+                    saveHistory([]);
+                    renderHistory();
+                    showToast('🗑️ 已清空历史');
+                }
+            }
+
+            // ----- 授权码生成 -----
+
+            function handleGenerateAuth() {
+                const deviceId = deviceIdInput.value.trim();
+                if (!deviceId) {
+                    showToast('⚠️ 请输入设备 ID');
+                    deviceIdInput.focus();
+                    return;
+                }
+                const code = generateAuthCode(deviceId);
+                authCodeDisplay.textContent = code;
+                authResult.classList.remove('hidden');
+
+                addHistory(deviceId, code);
+
+                verifyDeviceId.value = deviceId;
+                verifyAuthCode.value = code;
+
+                showToast('✅ 授权码已生成');
+            }
+
+            // ----- 授权码验证 -----
+
+            function handleVerifyAuth() {
+                const deviceId = verifyDeviceId.value.trim();
+                const inputCode = verifyAuthCode.value.trim().toUpperCase();
+
+                if (!deviceId) {
+                    showToast('⚠️ 请输入设备 ID');
+                    verifyDeviceId.focus();
+                    return;
+                }
+                if (!inputCode || inputCode.length !== 8) {
+                    showToast('⚠️ 请输入 8 位授权码');
+                    verifyAuthCode.focus();
+                    return;
+                }
+
+                const expected = generateAuthCode(deviceId);
+                const match = (inputCode === expected);
+
+                verifyAuthResult.classList.remove('hidden');
+                if (match) {
+                    verifyAuthStatus.innerHTML = `
+                        <span class="status success">
+                            <span class="dot green"></span> ✅ 授权码有效！匹配成功
+                        </span>
+                    `;
+                    showToast('✅ 授权码验证通过');
+                } else {
+                    verifyAuthStatus.innerHTML = `
+                        <span class="status error">
+                            <span class="dot red"></span> ❌ 授权码无效！不匹配
+                        </span>
+                    `;
+                    showToast('❌ 授权码无效');
+                }
+            }
+
+            // ----- MD5 加密 -----
+
+            function handleMd5Encrypt() {
+                const text = md5Input.value.trim();
+                if (!text) {
+                    showToast('⚠️ 请输入要加密的文本');
+                    md5Input.focus();
+                    return;
+                }
+                const hash = md5Hash(text);
+                md5Output.textContent = hash;
+                md5Result.classList.remove('hidden');
+                showToast('🔑 MD5 已生成');
+            }
+
+            // ----- MD5 快速验证 (在加密面板内) -----
+
+            function handleMd5QuickVerify() {
+                const hash = md5QuickInput.value.trim();
+                if (!hash) {
+                    showToast('⚠️ 请输入 MD5 哈希值');
+                    md5QuickInput.focus();
+                    return;
+                }
+                const originalText = md5Input.value.trim();
+                if (!originalText) {
+                    showToast('⚠️ 请先在「输入文本」中填写原始内容');
+                    md5Input.focus();
+                    return;
+                }
+                const computed = md5Hash(originalText);
+                if (computed === hash) {
+                    md5QuickResult.innerHTML = '✅ <span style="color:#3fb950;font-weight:600;">匹配成功！</span> 输入的 MD5 与当前文本一致。';
+                    showToast('✅ MD5 匹配');
+                } else {
+                    md5QuickResult.innerHTML = '❌ <span style="color:#f85149;font-weight:600;">不匹配！</span> 请检查文本或哈希值。';
+                    showToast('❌ MD5 不匹配');
+                }
+            }
+
+            // ----- MD5 独立验证 (面板3) -----
+
+            function handleVerifyMd5() {
+                const text = verifyMd5Text.value.trim();
+                const hash = verifyMd5Hash.value.trim();
+
+                if (!text) {
+                    showToast('⚠️ 请输入原始文本');
+                    verifyMd5Text.focus();
+                    return;
+                }
+                if (!hash) {
+                    showToast('⚠️ 请输入 MD5 哈希值');
+                    verifyMd5Hash.focus();
+                    return;
+                }
+
+                const computed = md5Hash(text);
+                const match = (computed === hash);
+
+                verifyMd5Result.classList.remove('hidden');
+                if (match) {
+                    verifyMd5Status.innerHTML = `
+                        <span class="status success">
+                            <span class="dot green"></span> ✅ 验证通过！哈希值匹配
+                        </span>
+                    `;
+                    showToast('✅ MD5 验证通过');
+                } else {
+                    verifyMd5Status.innerHTML = `
+                        <span class="status error">
+                            <span class="dot red"></span> ❌ 验证失败！哈希值不匹配
+                        </span>
+                    `;
+                    showToast('❌ MD5 验证失败');
+                }
+            }
+
+            // ----- 清空/重置 -----
+
+            function clearAuthResult() {
+                authResult.classList.add('hidden');
+                authCodeDisplay.textContent = '------';
+                deviceIdInput.value = '';
+                deviceIdInput.focus();
+            }
+
+            function clearMd5Result() {
+                md5Result.classList.add('hidden');
+                md5Output.textContent = '------';
+                md5Input.value = '';
+                md5QuickInput.value = '';
+                md5QuickResult.textContent = '等待验证...';
+                md5Input.focus();
+            }
+
+            // ----- 密钥修改 (点击修改) -----
+
+            secretKeyDisplay.addEventListener('click', function(e) {
+                // 防止冒泡
+                e.stopPropagation();
+
+                const currentKey = getSecretKey();
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = currentKey;
+                input.style.cssText = `
+                        font-family: 'SF Mono','Fira Code',monospace;
+                        font-size:14px;font-weight:600;
+                        background:rgba(255,255,255,0.06);
+                        border:1px solid rgba(253,219,146,0.2);
+                        border-radius:8px;
+                        outline:none;
+                        padding:2px 10px;
+                        width:180px;
+                        color:#fddb92;
+                    `;
+                input.maxLength = 64;
+
+                const parent = this;
+                // 保存原有内容，替换为输入框
+                const keySpan = parent.querySelector('.key');
+                const editHint = parent.querySelector('.edit-hint');
+                const iconSpan = parent.querySelector('span:first-child');
+
+                // 隐藏原有内容
+                keySpan.style.display = 'none';
+                if (editHint) editHint.style.display = 'none';
+
+                // 插入输入框
+                parent.insertBefore(input, keySpan);
+
+                input.focus();
+                input.select();
+
+                const done = () => {
+                    const val = input.value.trim();
+                    if (val) {
+                        setSecretKey(val);
+                        showToast('🔑 密钥已更新: ' + val);
+                    } else {
+                        // 如果为空，恢复默认
+                        setSecretKey(DEFAULT_SECRET_KEY);
+                        showToast('🔑 已恢复默认密钥');
+                    }
+                    // 移除输入框，恢复显示
+                    input.remove();
+                    keySpan.style.display = '';
+                    if (editHint) editHint.style.display = '';
+                    updateSecretDisplay();
+                };
+
+                input.addEventListener('blur', done);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        input.blur();
+                    }
+                    if (e.key === 'Escape') {
+                        input.value = getSecretKey();
+                        input.blur();
+                    }
+                });
+            });
+
+            // ----- 选项卡切换 -----
+
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            const panels = {
+                tabMD5: document.getElementById('tabMD5'),
+                tabVerify: document.getElementById('tabVerify'),
+                tabAuth: document.getElementById('tabAuth'),
+            };
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+
+                    const target = this.dataset.tab;
+                    Object.keys(panels).forEach(key => {
+                        panels[key].classList.toggle('active', key === target);
+                    });
+                });
+            });
+
+            // ----- 绑定事件 -----
+
+            // 授权码生成
+            genAuthBtn.addEventListener('click', handleGenerateAuth);
+            deviceIdInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleGenerateAuth();
+            });
+
+            copyAuthBtn.addEventListener('click', () => {
+                const code = authCodeDisplay.textContent;
+                if (code && code !== '------') copyToClipboard(code);
+                else showToast('⚠️ 没有可复制的授权码');
+            });
+
+            clearAuthBtn.addEventListener('click', clearAuthResult);
+
+            verifyAuthBtn.addEventListener('click', handleVerifyAuth);
+            verifyAuthCode.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleVerifyAuth();
+            });
+            verifyDeviceId.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') verifyAuthCode.focus();
+            });
+
+            clearHistoryBtn.addEventListener('click', clearHistory);
+
+            // MD5 加密
+            md5EncryptBtn.addEventListener('click', handleMd5Encrypt);
+            md5Input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleMd5Encrypt();
+            });
+
+            copyMd5Btn.addEventListener('click', () => {
+                const hash = md5Output.textContent;
+                if (hash && hash !== '------') copyToClipboard(hash);
+                else showToast('⚠️ 没有可复制的 MD5');
+            });
+
+            clearMd5Btn.addEventListener('click', clearMd5Result);
+
+            md5QuickVerifyBtn.addEventListener('click', handleMd5QuickVerify);
+            md5QuickInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleMd5QuickVerify();
+            });
+
+            verifyMd5Btn.addEventListener('click', handleVerifyMd5);
+            verifyMd5Hash.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') handleVerifyMd5();
+            });
+            verifyMd5Text.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') verifyMd5Hash.focus();
+            });
+
+            // ----- 初始化 -----
+
+            function init() {
+                // 恢复密钥显示
+                updateSecretDisplay();
+                renderHistory();
+
+                // 清空验证结果初始状态
+                verifyAuthResult.classList.add('hidden');
+                verifyMd5Result.classList.add('hidden');
+                md5Result.classList.add('hidden');
+                authResult.classList.add('hidden');
+
+                // 如果 URL 有参数 ?device=xxx 自动填充并切换到授权码面板
+                const params = new URLSearchParams(window.location.search);
+                const deviceParam = params.get('device');
+                if (deviceParam) {
+                    deviceIdInput.value = deviceParam;
+                    // 切换到授权码面板
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    document.querySelector('[data-tab="tabAuth"]').classList.add('active');
+                    Object.keys(panels).forEach(key => {
+                        panels[key].classList.toggle('active', key === 'tabAuth');
+                    });
+                    setTimeout(handleGenerateAuth, 300);
+                }
+            }
+
+            init();
+
+            // 暴露函数到全局 (便于调试)
+            window._tools = {
+                md5Hash,
+                generateAuthCode,
+                getSecretKey,
+                setSecretKey,
+                DEFAULT_SECRET_KEY,
+            };
+
+        })();
+    </script>
+
+</body>
+</html>

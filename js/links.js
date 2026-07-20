@@ -2,8 +2,8 @@ const navLinks = [
     {
         category: '🛠️ 常用工具',
         links: [
+            { title: '公众号编辑器', desc: '排版编辑工具', icon: '📝', url: '../html/tools/editor.html' },
             { title: '百度搜索', desc: '百度一下，你就知道', icon: '🔍', url: 'https://www.baidu.com' },
-            { title: '公众号编辑器', desc: '排版编辑工具', icon: '📝', url: 'editor.html' },
             { title: 'TinyPNG', desc: '图片在线压缩', icon: '🖼️', url: 'https://tinypng.com' },
             { title: 'JSON格式化', desc: '在线校验与格式化', icon: '🔧', url: 'https://www.json.cn' }
         ]
@@ -12,7 +12,7 @@ const navLinks = [
         category: '💻 开发资源',
         links: [
             { title: '我的 GitHub', desc: 'heiyelidebaiyang', icon: '🐙', url: 'https://github.com/heiyelidebaiyang' },
-            { title: 'Stack Overflow', desc: '程序员问答社区', icon: '📚', url: 'https://stackoverflow.com' },
+            { title: '博客园', desc: '橘白的博客', icon: '📚', url: 'https://www.cnblogs.com/jubai' },
             { title: 'MDN 文档', desc: 'Web 开发权威参考', icon: '📖', url: 'https://developer.mozilla.org/zh-CN/' },
             { title: 'Can I Use', desc: '浏览器兼容性查询', icon: '🌐', url: 'https://caniuse.com' }
         ]
@@ -20,8 +20,8 @@ const navLinks = [
     {
         category: '📮 社交媒体',
         links: [
-            { title: '微信', desc: 'WeChat 官方', icon: '💬', url: 'https://weixin.qq.com' },
-            { title: '知乎', desc: '有问题，上知乎', icon: '❓', url: 'https://www.zhihu.com' }
+            { title: '我的公众号', desc: '云雪星球', icon: '💬', url: 'https://weixin.qq.com' },
+            { title: '我的知乎', desc: '有问题，上知乎', icon: '❓', url: 'https://www.zhihu.com' }
         ]
     }
 ];

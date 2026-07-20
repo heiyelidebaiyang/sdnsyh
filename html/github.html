@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>导航 · 云雪星球</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* 导航网格 */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1.2rem;
+        }
+        .nav-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 1.3rem 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: #ddd;
+            transition: all 0.2s;
+            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+        }
+        .nav-card:hover {
+            background: rgba(255,255,255,0.12);
+            transform: translateY(-2px);
+            border-color: rgba(253,219,146,0.3);
+            color: #fff;
+        }
+        .nav-card-icon { font-size: 1.8rem; }
+        .nav-card-title { font-weight: 500; font-size: 0.95rem; }
+        .nav-card-desc { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+        .section-title {
+            font-size: 1.1rem; color: #fddb92;
+            margin: 2rem 0 1rem;
+            padding-bottom: 0.3rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        @media (max-width: 480px) {
+            .nav-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+        }
+    </style>
+</head>
+<body data-page="github">
+
+    <canvas id="particleCanvas"></canvas>
+    <div class="layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <main class="main-content">
+            <h1 class="page-title">🔗 白羊导航</h1>
+            <p class="page-subtitle">常用工具与资源快速入口</p>
+            <div id="navLinksContainer"></div>
+        </main>
+    </div>
+
+    <script src="../js/particles.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/links.js"></script>
+</body>
+</html>

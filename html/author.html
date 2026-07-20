@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>作者的话 · 云雪星球</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* 作者内容样式 */
+        .author-content {
+            max-width: 600px;
+            line-height: 1.8;
+            color: rgba(255,255,255,0.75);
+        }
+        .author-content h1,
+        .author-content h2,
+        .author-content h3 {
+            color: #fddb92;
+            margin: 1.5rem 0 0.8rem;
+        }
+        .author-content p {
+            margin-bottom: 1rem;
+        }
+        .author-content a {
+            color: #fddb92;
+            text-decoration: underline;
+        }
+        .author-content ul,
+        .author-content ol {
+            margin: 0.8rem 0;
+            padding-left: 1.5rem;
+        }
+        .author-content blockquote {
+            border-left: 3px solid rgba(253,219,146,0.4);
+            padding-left: 1rem;
+            color: rgba(255,255,255,0.5);
+            margin: 1rem 0;
+        }
+        .author-content code {
+            background: rgba(255,255,255,0.1);
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .author-content pre {
+            background: rgba(0,0,0,0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        /* 适配响应式 */
+        @media (max-width: 700px) {
+            .author-content {
+                max-width: 100%;
+            }
+        }
+    </style>
+    <!-- 引入 Markdown 解析库 -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body data-page="author">
+
+    <canvas id="particleCanvas"></canvas>
+    <div class="layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <main class="main-content">
+            <h1 class="page-title">✍️ 作者的话</h1>
+            <p class="page-subtitle">一些随想与碎碎念</p>
+            <div class="author-content" id="authorContent"></div>
+        </main>
+    </div>
+
+    <script src="../js/particles.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/author-content.js"></script>
+    <script>
+        // 渲染 Markdown
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof authorMarkdown !== 'undefined') {
+                document.getElementById('authorContent').innerHTML = marked.parse(authorMarkdown);
+            } else {
+                document.getElementById('authorContent').innerHTML = '<p>内容加载失败。</p>';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>软件下载 · 云雪星球</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* 软件页特有样式 */
+        .software-list {
+            list-style: none; padding: 0; max-width: 500px;
+        }
+        .software-item {
+            display: flex; align-items: center; justify-content: space-between;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 1rem 1.3rem;
+            margin-bottom: 0.8rem;
+            transition: background 0.2s;
+        }
+        .software-item:hover { background: rgba(255,255,255,0.1); }
+        .software-info {
+            display: flex; align-items: center; gap: 0.9rem;
+        }
+        .software-icon { font-size: 1.6rem; }
+        .software-name { color: #fff; font-weight: 500; }
+        .software-version {
+            color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 0.15rem;
+        }
+        .download-btn {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(253,219,146,0.15);
+            border: 1px solid rgba(253,219,146,0.3);
+            color: #fddb92; text-decoration: none;
+            font-size: 0.85rem; font-weight: 500;
+            transition: all 0.2s; white-space: nowrap;
+        }
+        .download-btn:hover {
+            background: rgba(253,219,146,0.25);
+            border-color: rgba(253,219,146,0.5);
+        }
+        @media (max-width: 480px) {
+            .software-item { flex-direction: column; align-items: flex-start; gap: 0.8rem; }
+            .download-btn { align-self: flex-end; }
+        }
+    </style>
+</head>
+<body data-page="software">
+
+    <canvas id="particleCanvas"></canvas>
+    <div class="layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <main class="main-content">
+            <h1 class="page-title">📱 软件下载</h1>
+            <p class="page-subtitle">请选择需要的版本下载</p>
+            <ul class="software-list" id="softwareList"></ul>
+            <p style="color:rgba(255,255,255,0.35); font-size:0.8rem; margin-top:1.5rem;">iOS 版本敬请期待</p>
+        </main>
+    </div>
+
+    <script src="../js/particles.js"></script>
+    <script src="../js/menu.js"></script>
+    <script src="../js/downloads.js"></script>
+</body>
+</html>

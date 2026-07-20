@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>留言板 · 云雪星球</title>
+    <link rel="stylesheet" href="../css/common.css">
+    <style>
+        /* 留言板容器样式 */
+        .giscus-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .giscus-wrapper iframe {
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 700px) {
+            .giscus-wrapper {
+                padding: 0 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body data-page="message">
+
+    <canvas id="particleCanvas"></canvas>
+    <div class="layout">
+        <nav class="sidebar" id="sidebar"></nav>
+        <main class="main-content">
+            <h1 class="page-title">💬 留言板</h1>
+            <p class="page-subtitle">说点什么吧～ 我会在这里看到。</p>
+            <div class="giscus-wrapper" id="giscus-container"></div>
+        </main>
+    </div>
+
+    <!-- 引入 Giscus -->
+<script src="https://giscus.app/client.js"
+        data-repo="heiyelidebaiyang/sdnsyh"
+        data-repo-id="R_kgDOTYyzCQ"
+        data-category="Announcements"
+        data-category-id="DIC_kwDOTYyzCc4DBkBM"
+        data-mapping="url"
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="bottom"
+        data-theme="preferred_color_scheme"
+        data-lang="zh-CN"
+        crossorigin="anonymous"
+        async>
+</script>
+
+    <script src="../js/particles.js"></script>
+    <script src="../js/menu.js"></script>
+</body>
+</html>

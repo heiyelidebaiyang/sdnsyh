@@ -3,7 +3,7 @@ const navLinks = [
         category: '🛠️ 常用工具',
         links: [
             { title: '公众号编辑器', desc: '排版编辑工具', icon: '📝', url: '../html/tools/editor.html' },
-            { title: '百度搜索', desc: '百度一下，你就知道', icon: '🔍', url: 'https://www.baidu.com' },
+            { title: 'MD5 加密解密', desc: 'MD5 哈希计算', icon: '🔑', url: '../html/tools/MD5.html' },
             { title: 'TinyPNG', desc: '图片在线压缩', icon: '🖼️', url: 'https://tinypng.com' },
             { title: 'JSON格式化', desc: '在线校验与格式化', icon: '🔧', url: 'https://www.json.cn' }
         ]

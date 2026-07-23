@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>试卷照片处理工具 - 去灰底·扶正·A3/A4裁剪</title>
+    <style>
+        :root {
+            --bg: #f5f5f5;
+            --panel-bg: #ffffff;
+            --text: #333;
+            --text-secondary: #666;
+            --border: #e0e0e0;
+            --accent: #4a90d9;
+            --accent-hover: #357abd;
+            --accent-light: #e8f2fb;
+            --danger: #e05555;
+            --danger-hover: #c74444;
+            --success: #4caf84;
+            --success-hover: #3d946b;
+            --warning: #e8a840;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 8px 30px rgba(0, 0, 0, 0.12);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #e8ecf1;
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 16px;
+            user-select: none;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        /* 顶部标题栏 */
+        .header {
+            background: var(--panel-bg);
+            border-radius: var(--radius);
+            padding: 16px 22px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .header .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .header .logo-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #222;
+            letter-spacing: -0.3px;
+        }
+        .header .subtitle {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 主体布局 */
+        .main-content {
+            display: flex;
+            gap: 14px;
+            flex: 1;
+            min-height: 600px;
+        }
+        @media (max-width: 960px) {
+            .main-content {
+                flex-direction: column;
+            }
+        }
+
+        /* 画布面板 */
+        .canvas-panel {
+            flex: 1;
+            min-width: 0;
+            background: var(--panel-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+        .canvas-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            background: #fafbfc;
+        }
+        .canvas-toolbar .tool-group {
+            display: flex;
+            gap: 3px;
+            align-items: center;
+            padding: 0 6px;
+            border-right: 1px solid #eee;
+        }
+        .canvas-toolbar .tool-group:last-child {
+            border-right: none;
+        }
+        .canvas-toolbar .tool-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-right: 4px;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .canvas-wrap {
+            flex: 1;
+            position: relative;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+            background-image: linear-gradient(45deg, #ddd 25%, transparent 25%),
+                linear-gradient(-45deg, #ddd 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #ddd 75%),
+                linear-gradient(-45deg, transparent 75%, #ddd 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            min-height: 420px;
+            cursor: default;
+        }
+        .canvas-wrap.drag-over {
+            outline: 3px dashed var(--accent);
+            outline-offset: -6px;
+        }
+        .canvas-wrap canvas {
+            display: block;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
+            image-rendering: auto;
+        }
+        .canvas-wrap .placeholder {
+            text-align: center;
+            color: #aaa;
+            pointer-events: none;
+        }
+        .canvas-wrap .placeholder .icon {
+            font-size: 64px;
+            display: block;
+            margin-bottom: 12px;
+        }
+        .canvas-wrap .placeholder p {
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* 右侧面板 */
+        .side-panel {
+            width: 340px;
+            min-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        @media (max-width: 960px) {
+            .side-panel {
+                width: 100%;
+                min-width: 0;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .side-panel>* {
+                flex: 1;
+                min-width: 260px;
+            }
+        }
+        .panel-card {
+            background: var(--panel-bg);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow);
+        }
+        .panel-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #444;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: -0.2px;
+        }
+        .panel-card h3 .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            flex-shrink: 0;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid transparent;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-weight: 500;
+            transition: all var(--transition);
+            white-space: nowrap;
+            letter-spacing: -0.2px;
+            font-family: inherit;
+            outline: none;
+            position: relative;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+            border-color: var(--accent);
+        }
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            box-shadow: 0 3px 10px rgba(74, 144, 217, 0.3);
+        }
+        .btn-outline {
+            background: #fff;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .btn-outline:hover {
+            background: var(--accent-light);
+        }
+        .btn-success {
+            background: var(--success);
+            color: #fff;
+            border-color: var(--success);
+        }
+        .btn-success:hover {
+            background: var(--success-hover);
+            box-shadow: 0 3px 10px rgba(76, 175, 132, 0.3);
+        }
+        .btn-danger {
+            background: var(--danger);
+            color: #fff;
+            border-color: var(--danger);
+        }
+        .btn-danger:hover {
+            background: var(--danger-hover);
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: #fff;
+            border-color: var(--warning);
+        }
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 0.74rem;
+            border-radius: 4px;
+        }
+        .btn-xs {
+            padding: 3px 8px;
+            font-size: 0.7rem;
+            border-radius: 3px;
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .btn.active {
+            background: #e8f2fb;
+            border-color: var(--accent);
+            color: var(--accent);
+            font-weight: 700;
+            box-shadow: inset 0 0 0 1px var(--accent);
+        }
+
+        /* 滑块 */
+        .slider-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 6px 0;
+        }
+        .slider-group label {
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            min-width: 50px;
+            font-weight: 500;
+        }
+        .slider-group input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+            height: 6px;
+            cursor: pointer;
+        }
+        .slider-group .val {
+            font-size: 0.75rem;
+            font-weight: 600;
+            min-width: 36px;
+            text-align: center;
+            color: #444;
+        }
+
+        /* 标签 */
+        .tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: -0.2px;
+        }
+        .tag-mode {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .tag-info {
+            background: #e8f2fb;
+            color: #3a6da5;
+        }
+
+        /* 提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: -0.2px;
+            animation: toastIn 0.35s ease, toastOut 0.35s ease 2s forwards;
+            pointer-events: none;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast-success {
+            background: #d4edda;
+            color: #155724;
+        }
+        .toast-info {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+        .toast-warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateX(-50%) translateY(-20px);
+            }
+        }
+
+        /* 分割预览 */
+        .split-previews {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .split-preview-item {
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            background: #fafbfc;
+            border-radius: var(--radius-sm);
+            padding: 8px;
+            border: 1px solid var(--border);
+        }
+        .split-preview-item img {
+            max-width: 100%;
+            max-height: 160px;
+            display: block;
+            margin: 0 auto 6px;
+            border-radius: 3px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+        .split-preview-item .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #555;
+        }
+
+        /* 模式指示器 */
+        .mode-indicator {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: -0.2px;
+            pointer-events: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+        .mode-indicator.protect {
+            background: #4caf84;
+            color: #fff;
+        }
+        .mode-indicator.remove {
+            background: #e05555;
+            color: #fff;
+        }
+        .mode-indicator.crop {
+            background: #e8a840;
+            color: #fff;
+        }
+        .mode-indicator.none {
+            display: none;
+        }
+
+        /* 隐藏canvas用于处理 */
+        .hidden-canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- 顶部 -->
+        <div class="header">
+            <div class="logo-area">
+                <div class="logo-icon">📄</div>
+                <div>
+                    <h1>试卷照片处理工具</h1>
+                    <div class="subtitle">去灰底 · 旋转扶正 · A3/A4裁剪 · 局部精修</div>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-outline btn-sm" id="btnUpload" title="上传新图片">📁 上传图片</button>
+                <button class="btn btn-outline btn-sm" id="btnReset" title="恢复到原始图片">🔄 重置</button>
+                <button class="btn btn-outline btn-sm" id="btnUndo" title="撤销上一步操作">↩ 撤销</button>
+                <button class="btn btn-success btn-sm" id="btnDownload" title="下载当前图片">💾 下载结果</button>
+                <input type="file" id="fileInput" accept="image/*" style="display:none;">
+            </div>
+        </div>
+
+        <!-- 主体 -->
+        <div class="main-content">
+            <!-- 画布面板 -->
+            <div class="canvas-panel" id="canvasPanel">
+                <div class="canvas-toolbar">
+                    <div class="tool-group">
+                        <span class="tool-label">模式：</span>
+                        <button class="btn btn-sm btn-outline" id="btnModeNone" title="普通模式（查看/拖动）">🖐 浏览</button>
+                        <button class="btn btn-sm btn-outline" id="btnModeProtect" title="局部保护：框选区域保持原样，框外去灰底">🛡️ 局部保护</button>
+                        <button class="btn btn-sm btn-outline" id="btnModeRemove" title="局部拆除：仅框选区域去灰底，框外保持原样">🔧 局部拆除</button>
+                    </div>
+                    <div class="tool-group">
+                        <span class="tool-label">裁剪：</span>
+                        <button class="btn btn-sm btn-outline" id="btnCropA4" title="按A4比例裁剪">📐 A4裁剪</button>
+                        <button class="btn btn-sm btn-outline" id="btnCropA3" title="按A3比例裁剪">📐 A3裁剪</button>
+                        <button class="btn btn-sm btn-outline" id="btnSplitA3toA4" title="将A3图片拆分为两个A4">✂️ A3拆A4</button>
+                    </div>
+                    <div class="tool-group">
+                        <button class="btn btn-sm btn-warning" id="btnConfirmRect" title="完成选框，应用当前模式处理">✅ 完成选框</button>
+                        <button class="btn btn-sm btn-outline" id="btnClearRect" title="清除当前选框">❌ 清除选框</button>
+                    </div>
+                </div>
+                <div class="canvas-wrap" id="canvasWrap">
+                    <canvas id="mainCanvas"></canvas>
+                    <div class="placeholder" id="placeholder">
+                        <span class="icon">📷</span>
+                        <p>拖拽图片到此处<br>或点击「上传图片」按钮<br><small style="color:#bbb;">支持 JPG / PNG / WebP</small></p>
+                    </div>
+                </div>
+                <div class="mode-indicator none" id="modeIndicator"></div>
+            </div>
+
+            <!-- 右侧面板 -->
+            <div class="side-panel">
+                <!-- 去灰底参数 -->
+                <div class="panel-card">
+                    <h3><span class="dot"></span>去灰底参数</h3>
+                    <div class="slider-group">
+                        <label>灰度容忍度</label>
+                        <input type="range" id="grayTolerance" min="5" max="60" value="22" step="1">
+                        <span class="val" id="valTolerance">22</span>
+                    </div>
+                    <div class="slider-group">
+                        <label>亮度阈值</label>
+                        <input type="range" id="brightnessThreshold" min="100" max="240" value="155" step="1">
+                        <span class="val" id="valBrightness">155</span>
+                    </div>
+                    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                        <button class="btn btn-primary btn-sm" id="btnRemoveGrayGlobal">🌪 全局去灰底</button>
+                        <button class="btn btn-outline btn-sm" id="btnPreviewGray">👁 预览效果</button>
+                    </div>
+                    <p style="font-size:0.7rem;color:#999;margin-top:6px;">
+                        灰度容忍度越小越严格（仅去除纯灰），亮度阈值越高越容易去除浅灰背景。
+                    </p>
+                </div>
+
+                <!-- 旋转扶正 -->
+                <div class="panel-card">
+                    <h3><span class="dot"></span>旋转扶正</h3>
+                    <div class="slider-group">
+                        <label>旋转角度</label>
+                        <input type="range" id="rotationAngle" min="-15" max="15" value="0" step="0.1">
+                        <span class="val" id="valAngle">0°</span>
+                    </div>
+                    <div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px;">
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="-5">-5°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="-2">-2°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="-1">-1°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="-0.3">-0.3°</button>
+                        <button class="btn btn-xs btn-primary quick-angle" data-angle="0">0°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="0.3">+0.3°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="1">+1°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="2">+2°</button>
+                        <button class="btn btn-xs btn-outline quick-angle" data-angle="5">+5°</button>
+                    </div>
+                    <button class="btn btn-success btn-sm" style="margin-top:8px;width:100%;" id="btnApplyRotation">✅ 应用旋转</button>
+                </div>
+
+                <!-- A3拆A4预览区 -->
+                <div class="panel-card" id="splitPreviewCard" style="display:none;">
+                    <h3><span class="dot"></span>A3拆分A4预览</h3>
+                    <div class="split-previews" id="splitPreviews"></div>
+                    <p style="font-size:0.7rem;color:#999;margin-top:4px;">拆分后分别下载两个A4图片</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 隐藏的离屏canvas用于处理 -->
+    <canvas class="hidden-canvas" id="offscreenCanvas"></canvas>
+    <canvas class="hidden-canvas" id="tempCanvas"></canvas>
+
+    <script>
+        (function() {
+            // ============ DOM元素 ============
+            const mainCanvas = document.getElementById('mainCanvas');
+            const ctx = mainCanvas.getContext('2d');
+            const canvasWrap = document.getElementById('canvasWrap');
+            const placeholder = document.getElementById('placeholder');
+            const modeIndicator = document.getElementById('modeIndicator');
+            const fileInput = document.getElementById('fileInput');
+            const offscreenCanvas = document.getElementById('offscreenCanvas');
+            const offCtx = offscreenCanvas.getContext('2d');
+            const tempCanvas = document.getElementById('tempCanvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            const splitPreviewCard = document.getElementById('splitPreviewCard');
+            const splitPreviews = document.getElementById('splitPreviews');
+
+            // ============ 状态变量 ============
+            let originalImage = null; // 原始上传的图片Image对象
+            let currentImageData = null; // 当前工作状态的ImageData（在离屏canvas上）
+            let workingImage = null; // 当前工作的Image对象（用于显示）
+            let historyStack = []; // 撤销历史栈（存储ImageData）
+            const MAX_HISTORY = 30;
+
+            // 显示相关
+            let displayScale = 1;
+            let displayOffsetX = 0;
+            let displayOffsetY = 0;
+            let imgDrawX = 0; // 图片在canvas上的绘制起始X
+            let imgDrawY = 0; // 图片在canvas上的绘制起始Y
+            let imgDrawW = 0; // 图片在canvas上的绘制宽度
+            let imgDrawH = 0; // 图片在canvas上的绘制高度
+
+            // 模式
+            let currentMode = 'none'; // 'none' | 'protect' | 'remove' | 'crop'
+            let cropRatio = null; // null | 'A4' | 'A3' | {w, h} 裁剪比例
+            let cropRect = null; // {x, y, w, h} 裁剪框（实际图片坐标）
+
+            // 选区（局部保护/拆除）
+            let selectionRect = null; // {x, y, w, h} 选区（实际图片坐标）
+            let isDragging = false;
+            let dragStart = null; // canvas坐标
+            let dragType = 'none'; // 'none' | 'draw' | 'move' | 'resize'
+            let resizeHandle = null; // 调整大小手柄位置
+            let dragOffsetX = 0;
+            let dragOffsetY = 0;
+            let draggingCropRect = false;
+            let cropDragStart = null;
+
+            // 旋转预览角度（实时预览但未应用）
+            let previewRotation = 0;
+
+            // ============ 工具函数 ============
+            function showToast(msg, type = 'info') {
+                const existing = document.querySelector('.toast');
+                if (existing) existing.remove();
+                const toast = document.createElement('div');
+                toast.className = `toast toast-${type}`;
+                toast.textContent = msg;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            }
+
+            function clamp(val, min, max) {
+                return Math.max(min, Math.min(max, val));
+            }
+
+            function saveHistory() {
+                if (!currentImageData) return;
+                // 深拷贝当前ImageData
+                const copy = new ImageData(
+                    new Uint8ClampedArray(currentImageData.data),
+                    currentImageData.width,
+                    currentImageData.height
+                );
+                historyStack.push(copy);
+                if (historyStack.length > MAX_HISTORY) historyStack.shift();
+            }
+
+            function updateWorkingImageFromData() {
+                if (!currentImageData) return;
+                offscreenCanvas.width = currentImageData.width;
+                offscreenCanvas.height = currentImageData.height;
+                offCtx.putImageData(currentImageData, 0, 0);
+                // 更新workingImage
+                const dataUrl = offscreenCanvas.toDataURL('image/png');
+                const img = new Image();
+                img.onload = () => {
+                    workingImage = img;
+                    renderDisplay();
+                };
+                img.src = dataUrl;
+                // 也直接同步更新
+                if (!workingImage || workingImage.width !== currentImageData.width || workingImage.height !==
+                    currentImageData.height) {
+                    workingImage = new Image();
+                    workingImage.src = dataUrl;
+                } else {
+                    workingImage.src = dataUrl;
+                }
+            }
+
+            function loadImageToWorking(img) {
+                workingImage = img;
+                offscreenCanvas.width = img.width;
+                offscreenCanvas.height = img.height;
+                offCtx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                offCtx.drawImage(img, 0, 0);
+                currentImageData = offCtx.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height);
+                // 清空历史
+                historyStack = [];
+                saveHistory();
+                previewRotation = 0;
+                document.getElementById('rotationAngle').value = 0;
+                document.getElementById('valAngle').textContent = '0°';
+                selectionRect = null;
+                cropRect = null;
+                cropRatio = null;
+                currentMode = 'none';
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                placeholder.style.display = 'none';
+            }
+
+            // ============ 渲染显示 ============
+            function renderDisplay() {
+                const wrapW = canvasWrap.clientWidth;
+                const wrapH = canvasWrap.clientHeight;
+                if (wrapW <= 0 || wrapH <= 0) return;
+
+                if (!workingImage) {
+                    mainCanvas.width = wrapW;
+                    mainCanvas.height = wrapH;
+                    ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+                    placeholder.style.display = 'flex';
+                    return;
+                }
+                placeholder.style.display = 'none';
+
+                const imgW = workingImage.width;
+                const imgH = workingImage.height;
+                // 计算适合wrap的缩放
+                const scaleFit = Math.min(wrapW / imgW, wrapH / imgH, 1.0);
+                displayScale = scaleFit;
+                const drawW = imgW * scaleFit;
+                const drawH = imgH * scaleFit;
+                imgDrawW = drawW;
+                imgDrawH = drawH;
+                imgDrawX = (wrapW - drawW) / 2;
+                imgDrawY = (wrapH - drawH) / 2;
+                displayOffsetX = imgDrawX;
+                displayOffsetY = imgDrawY;
+
+                mainCanvas.width = wrapW;
+                mainCanvas.height = wrapH;
+                ctx.clearRect(0, 0, wrapW, wrapH);
+                // 绘制白色背景
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(imgDrawX, imgDrawY, drawW, drawH);
+                // 绘制图片
+                ctx.drawImage(workingImage, imgDrawX, imgDrawY, drawW, drawH);
+
+                // 绘制裁剪框
+                if (currentMode === 'crop' && cropRect) {
+                    drawCropRect();
+                }
+                // 绘制选区
+                if (selectionRect && (currentMode === 'protect' || currentMode === 'remove')) {
+                    drawSelectionRect();
+                }
+
+                // 更新拆分预览（如果在拆分模式）
+                updateSplitPreview();
+            }
+
+            function drawSelectionRect() {
+                if (!selectionRect) return;
+                const rx = imgDrawX + selectionRect.x * displayScale;
+                const ry = imgDrawY + selectionRect.y * displayScale;
+                const rw = selectionRect.w * displayScale;
+                const rh = selectionRect.h * displayScale;
+
+                // 半透明填充
+                ctx.fillStyle = currentMode === 'protect' ?
+                    'rgba(76,175,132,0.25)' : 'rgba(224,85,85,0.25)';
+                ctx.fillRect(rx, ry, rw, rh);
+
+                // 边框虚线
+                ctx.setLineDash([8, 4]);
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = currentMode === 'protect' ? '#4caf84' : '#e05555';
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.setLineDash([]);
+                ctx.lineWidth = 1;
+
+                // 手柄
+                const handleSize = 8;
+                const handles = [
+                    { x: rx, y: ry }, { x: rx + rw / 2, y: ry }, { x: rx + rw, y: ry },
+                    { x: rx, y: ry + rh / 2 }, { x: rx + rw, y: ry + rh / 2 },
+                    { x: rx, y: ry + rh }, { x: rx + rw / 2, y: ry + rh }, { x: rx + rw, y: ry + rh }
+                ];
+                handles.forEach(h => {
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                    ctx.strokeStyle = currentMode === 'protect' ? '#4caf84' : '#e05555';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(h.x - handleSize / 2, h.y - handleSize / 2, handleSize, handleSize);
+                    ctx.lineWidth = 1;
+                });
+            }
+
+            function drawCropRect() {
+                if (!cropRect) return;
+                const rx = imgDrawX + cropRect.x * displayScale;
+                const ry = imgDrawY + cropRect.y * displayScale;
+                const rw = cropRect.w * displayScale;
+                const rh = cropRect.h * displayScale;
+
+                // 外部暗化
+                ctx.fillStyle = 'rgba(0,0,0,0.45)';
+                ctx.fillRect(imgDrawX, imgDrawY, imgDrawW, ry - imgDrawY); // top
+                ctx.fillRect(imgDrawX, ry + rh, imgDrawW, (imgDrawY + imgDrawH) - (ry + rh)); // bottom
+                ctx.fillRect(imgDrawX, ry, rx - imgDrawX, rh); // left
+                ctx.fillRect(rx + rw, ry, (imgDrawX + imgDrawW) - (rx + rw), rh); // right
+
+                // 裁剪框边框
+                ctx.setLineDash([6, 3]);
+                ctx.lineWidth = 2.5;
+                ctx.strokeStyle = '#e8a840';
+                ctx.strokeRect(rx, ry, rw, rh);
+                ctx.setLineDash([]);
+                ctx.lineWidth = 1;
+
+                // 手柄
+                const hs = 7;
+                const handles = [
+                    { x: rx, y: ry }, { x: rx + rw / 2, y: ry }, { x: rx + rw, y: ry },
+                    { x: rx, y: ry + rh / 2 }, { x: rx + rw, y: ry + rh / 2 },
+                    { x: rx, y: ry + rh }, { x: rx + rw / 2, y: ry + rh }, { x: rx + rw, y: ry + rh }
+                ];
+                handles.forEach(h => {
+                    ctx.fillStyle = '#fff';
+                    ctx.fillRect(h.x - hs / 2, h.y - hs / 2, hs, hs);
+                    ctx.strokeStyle = '#e8a840';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(h.x - hs / 2, h.y - hs / 2, hs, hs);
+                    ctx.lineWidth = 1;
+                });
+
+                // 显示比例标签
+                ctx.fillStyle = '#e8a840';
+                ctx.font = 'bold 11px -apple-system, sans-serif';
+                const label = cropRatio === 'A3' ? 'A3' : 'A4';
+                ctx.fillText(label, rx + 6, ry + 16);
+            }
+
+            function updateSplitPreview() {
+                // 如果有拆分结果，显示预览
+                if (!splitPreviewCard.style.display || splitPreviewCard.style.display === 'none') {
+                    // 不自动显示，只在拆分后显示
+                }
+            }
+
+            function canvasToImage(cx, cy) {
+                const ix = (cx - imgDrawX) / displayScale;
+                const iy = (cy - imgDrawY) / displayScale;
+                return { x: clamp(ix, 0, workingImage ? workingImage.width : 0), y: clamp(iy, 0, workingImage ? workingImage
+                        .height : 0) };
+            }
+
+            function getHandleAt(cx, cy) {
+                if (!selectionRect || (currentMode !== 'protect' && currentMode !== 'remove')) return null;
+                const rx = imgDrawX + selectionRect.x * displayScale;
+                const ry = imgDrawY + selectionRect.y * displayScale;
+                const rw = selectionRect.w * displayScale;
+                const rh = selectionRect.h * displayScale;
+                const hs = 12;
+                const handles = [
+                    { name: 'nw', x: rx, y: ry },
+                    { name: 'n', x: rx + rw / 2, y: ry },
+                    { name: 'ne', x: rx + rw, y: ry },
+                    { name: 'w', x: rx, y: ry + rh / 2 },
+                    { name: 'e', x: rx + rw, y: ry + rh / 2 },
+                    { name: 'sw', x: rx, y: ry + rh },
+                    { name: 's', x: rx + rw / 2, y: ry + rh },
+                    { name: 'se', x: rx + rw, y: ry + rh }
+                ];
+                for (const h of handles) {
+                    if (Math.abs(cx - h.x) <= hs && Math.abs(cy - h.y) <= hs) return h.name;
+                }
+                if (cx >= rx && cx <= rx + rw && cy >= ry && cy <= ry + rh) return 'body';
+                return null;
+            }
+
+            function getCropHandleAt(cx, cy) {
+                if (!cropRect || currentMode !== 'crop') return null;
+                const rx = imgDrawX + cropRect.x * displayScale;
+                const ry = imgDrawY + cropRect.y * displayScale;
+                const rw = cropRect.w * displayScale;
+                const rh = cropRect.h * displayScale;
+                const hs = 14;
+                const handles = [
+                    { name: 'nw', x: rx, y: ry },
+                    { name: 'n', x: rx + rw / 2, y: ry },
+                    { name: 'ne', x: rx + rw, y: ry },
+                    { name: 'w', x: rx, y: ry + rh / 2 },
+                    { name: 'e', x: rx + rw, y: ry + rh / 2 },
+                    { name: 'sw', x: rx, y: ry + rh },
+                    { name: 's', x: rx + rw / 2, y: ry + rh },
+                    { name: 'se', x: rx + rw, y: ry + rh }
+                ];
+                for (const h of handles) {
+                    if (Math.abs(cx - h.x) <= hs && Math.abs(cy - h.y) <= hs) return h.name;
+                }
+                if (cx >= rx && cx <= rx + rw && cy >= ry && cy <= ry + rh) return 'body';
+                return null;
+            }
+
+            // ============ 鼠标事件 ============
+            mainCanvas.addEventListener('mousedown', (e) => {
+                if (!workingImage) return;
+                const rect = mainCanvas.getBoundingClientRect();
+                const cx = e.clientX - rect.left;
+                const cy = e.clientY - rect.top;
+                const imgPt = canvasToImage(cx, cy);
+
+                if (currentMode === 'crop' && cropRect) {
+                    const handle = getCropHandleAt(cx, cy);
+                    if (handle) {
+                        isDragging = true;
+                        dragType = 'crop';
+                        resizeHandle = handle;
+                        dragStart = { cx, cy };
+                        cropDragStart = { ...cropRect };
+                        dragOffsetX = cx;
+                        dragOffsetY = cy;
+                        return;
+                    }
+                }
+
+                if ((currentMode === 'protect' || currentMode === 'remove') && selectionRect) {
+                    const handle = getHandleAt(cx, cy);
+                    if (handle === 'body') {
+                        isDragging = true;
+                        dragType = 'move';
+                        dragStart = { cx, cy };
+                        dragOffsetX = selectionRect.x - imgPt.x;
+                        dragOffsetY = selectionRect.y - imgPt.y;
+                        return;
+                    }
+                    if (handle) {
+                        isDragging = true;
+                        dragType = 'resize';
+                        resizeHandle = handle;
+                        dragStart = { cx, cy };
+                        dragOffsetX = cx;
+                        dragOffsetY = cy;
+                        return;
+                    }
+                }
+
+                // 开始绘制新选区
+                if (currentMode === 'protect' || currentMode === 'remove') {
+                    isDragging = true;
+                    dragType = 'draw';
+                    dragStart = { cx, cy, ix: imgPt.x, iy: imgPt.y };
+                    selectionRect = null;
+                }
+            });
+
+            mainCanvas.addEventListener('mousemove', (e) => {
+                if (!workingImage) return;
+                const rect = mainCanvas.getBoundingClientRect();
+                const cx = e.clientX - rect.left;
+                const cy = e.clientY - rect.top;
+                const imgPt = canvasToImage(cx, cy);
+
+                if (!isDragging) {
+                    // 更新光标
+                    if (currentMode === 'crop' && cropRect && getCropHandleAt(cx, cy)) {
+                        mainCanvas.style.cursor = 'grab';
+                    } else if ((currentMode === 'protect' || currentMode === 'remove') && selectionRect && getHandleAt(cx,
+                            cy)) {
+                        const h = getHandleAt(cx, cy);
+                        if (h === 'body') mainCanvas.style.cursor = 'move';
+                        else if (h && ['nw', 'se'].includes(h)) mainCanvas.style.cursor = 'nwse-resize';
+                        else if (h && ['ne', 'sw'].includes(h)) mainCanvas.style.cursor = 'nesw-resize';
+                        else if (h && ['n', 's'].includes(h)) mainCanvas.style.cursor = 'ns-resize';
+                        else if (h && ['e', 'w'].includes(h)) mainCanvas.style.cursor = 'ew-resize';
+                        else mainCanvas.style.cursor = 'crosshair';
+                    } else if (currentMode === 'protect' || currentMode === 'remove') {
+                        mainCanvas.style.cursor = 'crosshair';
+                    } else if (currentMode === 'crop') {
+                        mainCanvas.style.cursor = 'crosshair';
+                    } else {
+                        mainCanvas.style.cursor = 'default';
+                    }
+                    return;
+                }
+
+                if (dragType === 'draw') {
+                    const ix1 = Math.min(dragStart.ix, imgPt.x);
+                    const iy1 = Math.min(dragStart.iy, imgPt.y);
+                    const ix2 = Math.max(dragStart.ix, imgPt.x);
+                    const iy2 = Math.max(dragStart.iy, imgPt.y);
+                    selectionRect = {
+                        x: clamp(ix1, 0, workingImage.width),
+                        y: clamp(iy1, 0, workingImage.height),
+                        w: clamp(ix2 - ix1, 5, workingImage.width),
+                        h: clamp(iy2 - iy1, 5, workingImage.height)
+                    };
+                    renderDisplay();
+                } else if (dragType === 'move' && selectionRect) {
+                    const newX = clamp(imgPt.x + dragOffsetX, 0, workingImage.width - selectionRect.w);
+                    const newY = clamp(imgPt.y + dragOffsetY, 0, workingImage.height - selectionRect.h);
+                    selectionRect.x = newX;
+                    selectionRect.y = newY;
+                    renderDisplay();
+                } else if (dragType === 'resize' && selectionRect && resizeHandle) {
+                    resizeSelection(resizeHandle, imgPt);
+                    renderDisplay();
+                } else if (dragType === 'crop' && cropRect && resizeHandle) {
+                    resizeCropRect(resizeHandle, imgPt);
+                    renderDisplay();
+                }
+            });
+
+            mainCanvas.addEventListener('mouseup', () => {
+                if (isDragging && dragType === 'draw' && selectionRect) {
+                    if (selectionRect.w < 8 || selectionRect.h < 8) {
+                        selectionRect = null;
+                    }
+                }
+                isDragging = false;
+                dragType = 'none';
+                resizeHandle = null;
+                dragStart = null;
+                cropDragStart = null;
+                mainCanvas.style.cursor = currentMode === 'none' ? 'default' : 'crosshair';
+                renderDisplay();
+            });
+
+            mainCanvas.addEventListener('mouseleave', () => {
+                isDragging = false;
+                dragType = 'none';
+                resizeHandle = null;
+                dragStart = null;
+                cropDragStart = null;
+                mainCanvas.style.cursor = 'default';
+                renderDisplay();
+            });
+
+            mainCanvas.addEventListener('wheel', (e) => {
+                if (!workingImage) return;
+                if (currentMode === 'crop' && cropRect) {
+                    e.preventDefault();
+                    const delta = e.deltaY > 0 ? -0.03 : 0.03;
+                    const factor = 1 + delta;
+                    const newW = clamp(cropRect.w * factor, 50, workingImage.width);
+                    const newH = newW / getCropAspectRatio();
+                    if (newH > workingImage.height) {
+                        const adjustedH = clamp(newH, 50, workingImage.height);
+                        const adjustedW = adjustedH * getCropAspectRatio();
+                        cropRect.w = clamp(adjustedW, 50, workingImage.width);
+                        cropRect.h = clamp(adjustedH, 50, workingImage.height);
+                    } else {
+                        cropRect.w = newW;
+                        cropRect.h = newH;
+                    }
+                    cropRect.x = clamp(cropRect.x, 0, workingImage.width - cropRect.w);
+                    cropRect.y = clamp(cropRect.y, 0, workingImage.height - cropRect.h);
+                    renderDisplay();
+                }
+            });
+
+            function resizeSelection(handle, imgPt) {
+                if (!selectionRect) return;
+                const sr = selectionRect;
+                switch (handle) {
+                    case 'nw':
+                        sr.w = clamp(sr.x + sr.w - imgPt.x, 10, workingImage.width);
+                        sr.h = clamp(sr.y + sr.h - imgPt.y, 10, workingImage.height);
+                        sr.x = clamp(imgPt.x, 0, workingImage.width - 10);
+                        sr.y = clamp(imgPt.y, 0, workingImage.height - 10);
+                        break;
+                    case 'ne':
+                        sr.w = clamp(imgPt.x - sr.x, 10, workingImage.width);
+                        sr.h = clamp(sr.y + sr.h - imgPt.y, 10, workingImage.height);
+                        sr.y = clamp(imgPt.y, 0, workingImage.height - 10);
+                        break;
+                    case 'sw':
+                        sr.w = clamp(sr.x + sr.w - imgPt.x, 10, workingImage.width);
+                        sr.h = clamp(imgPt.y - sr.y, 10, workingImage.height);
+                        sr.x = clamp(imgPt.x, 0, workingImage.width - 10);
+                        break;
+                    case 'se':
+                        sr.w = clamp(imgPt.x - sr.x, 10, workingImage.width);
+                        sr.h = clamp(imgPt.y - sr.y, 10, workingImage.height);
+                        break;
+                    case 'n':
+                        sr.h = clamp(sr.y + sr.h - imgPt.y, 10, workingImage.height);
+                        sr.y = clamp(imgPt.y, 0, workingImage.height - 10);
+                        break;
+                    case 's':
+                        sr.h = clamp(imgPt.y - sr.y, 10, workingImage.height);
+                        break;
+                    case 'w':
+                        sr.w = clamp(sr.x + sr.w - imgPt.x, 10, workingImage.width);
+                        sr.x = clamp(imgPt.x, 0, workingImage.width - 10);
+                        break;
+                    case 'e':
+                        sr.w = clamp(imgPt.x - sr.x, 10, workingImage.width);
+                        break;
+                }
+                selectionRect = { x: sr.x, y: sr.y, w: sr.w, h: sr.h };
+            }
+
+            function getCropAspectRatio() {
+                if (cropRatio === 'A4') return Math.SQRT2; // 297/210 ≈ 1.414
+                if (cropRatio === 'A3') return Math.SQRT2; // 同样比例
+                if (cropRatio && typeof cropRatio === 'object') return cropRatio.w / cropRatio.h;
+                return 1;
+            }
+
+            function resizeCropRect(handle, imgPt) {
+                if (!cropRect || !cropDragStart) return;
+                const aspect = getCropAspectRatio();
+                const cr = cropRect;
+                const orig = cropDragStart;
+                let newX = cr.x,
+                    newY = cr.y,
+                    newW = cr.w,
+                    newH = cr.h;
+
+                switch (handle) {
+                    case 'nw':
+                        newW = clamp(orig.x + orig.w - imgPt.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = clamp(orig.x + orig.w - newW, 0, workingImage.width - newW);
+                        newY = clamp(orig.y + orig.h - newH, 0, workingImage.height - newH);
+                        break;
+                    case 'ne':
+                        newW = clamp(imgPt.x - orig.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = orig.x;
+                        newY = clamp(orig.y + orig.h - newH, 0, workingImage.height - newH);
+                        break;
+                    case 'sw':
+                        newW = clamp(orig.x + orig.w - imgPt.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = clamp(orig.x + orig.w - newW, 0, workingImage.width - newW);
+                        newY = orig.y;
+                        break;
+                    case 'se':
+                        newW = clamp(imgPt.x - orig.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = orig.x;
+                        newY = orig.y;
+                        break;
+                    case 'n':
+                        newH = clamp(orig.y + orig.h - imgPt.y, 50 / aspect, workingImage.height);
+                        newW = newH * aspect;
+                        newY = clamp(orig.y + orig.h - newH, 0, workingImage.height - newH);
+                        newX = orig.x;
+                        break;
+                    case 's':
+                        newH = clamp(imgPt.y - orig.y, 50 / aspect, workingImage.height);
+                        newW = newH * aspect;
+                        newY = orig.y;
+                        newX = orig.x;
+                        break;
+                    case 'w':
+                        newW = clamp(orig.x + orig.w - imgPt.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = clamp(orig.x + orig.w - newW, 0, workingImage.width - newW);
+                        newY = orig.y;
+                        break;
+                    case 'e':
+                        newW = clamp(imgPt.x - orig.x, 50, workingImage.width);
+                        newH = newW / aspect;
+                        newX = orig.x;
+                        newY = orig.y;
+                        break;
+                    default:
+                        return;
+                }
+                // 确保在图片范围内
+                if (newH > workingImage.height) {
+                    newH = clamp(newH, 50, workingImage.height);
+                    newW = newH * aspect;
+                }
+                if (newW > workingImage.width) {
+                    newW = clamp(newW, 50, workingImage.width);
+                    newH = newW / aspect;
+                }
+                cropRect.x = clamp(newX, 0, workingImage.width - newW);
+                cropRect.y = clamp(newY, 0, workingImage.height - newH);
+                cropRect.w = newW;
+                cropRect.h = newH;
+            }
+
+            // ============ 去灰底核心算法 ============
+            function removeGrayBackground(imageData, tolerance, brightnessThreshold, maskRect = null) {
+                const data = imageData.data;
+                const w = imageData.width;
+                const h = imageData.height;
+                const result = new Uint8ClampedArray(data);
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        // 检查是否在mask范围内
+                        if (maskRect) {
+                            const inMask = (x >= maskRect.x && x < maskRect.x + maskRect.w &&
+                                y >= maskRect.y && y < maskRect.y + maskRect.h);
+                            if (!inMask) continue; // 不在mask内则跳过（用于局部拆除模式的反向）
+                        }
+
+                        const idx = (y * w + x) * 4;
+                        const r = data[idx];
+                        const g = data[idx + 1];
+                        const b = data[idx + 2];
+                        const a = data[idx + 3];
+
+                        if (a < 200) continue; // 透明像素跳过
+
+                        // 判断是否为灰色：RGB三个通道差异小
+                        const maxDiff = Math.max(Math.abs(r - g), Math.abs(g - b), Math.abs(r - b));
+                        const brightness = (r + g + b) / 3;
+
+                        if (maxDiff <= tolerance && brightness >= brightnessThreshold) {
+                            // 是灰色背景，变为白色
+                            result[idx] = 255;
+                            result[idx + 1] = 255;
+                            result[idx + 2] = 255;
+                        }
+                    }
+                }
+                return new ImageData(result, w, h);
+            }
+
+            function applyGrayRemoval(maskRect = null, protectMode = false) {
+                if (!currentImageData) return;
+                saveHistory();
+                const tolerance = parseInt(document.getElementById('grayTolerance').value);
+                const brightnessThreshold = parseInt(document.getElementById('brightnessThreshold').value);
+
+                let effectiveMask = null;
+                if (maskRect && protectMode) {
+                    // 局部保护：maskRect内保持原样，maskRect外去灰底
+                    // 我们通过处理整个图片但跳过maskRect内的像素来实现
+                    // 这里采用不同策略：先全局去灰底，然后用原始数据覆盖maskRect区域
+                    const globalResult = removeGrayBackground(currentImageData, tolerance, brightnessThreshold, null);
+                    const resultData = new Uint8ClampedArray(globalResult.data);
+                    const origData = currentImageData.data;
+                    const w = currentImageData.width;
+                    for (let y = Math.floor(maskRect.y); y < Math.floor(maskRect.y + maskRect.h) && y < currentImageData
+                        .height; y++) {
+                        for (let x = Math.floor(maskRect.x); x < Math.floor(maskRect.x + maskRect.w) && x < currentImageData
+                            .width; x++) {
+                            const idx = (y * w + x) * 4;
+                            resultData[idx] = origData[idx];
+                            resultData[idx + 1] = origData[idx + 1];
+                            resultData[idx + 2] = origData[idx + 2];
+                            resultData[idx + 3] = origData[idx + 3];
+                        }
+                    }
+                    currentImageData = new ImageData(resultData, currentImageData.width, currentImageData.height);
+                } else if (maskRect && !protectMode) {
+                    // 局部拆除：只处理maskRect内
+                    const origData = new Uint8ClampedArray(currentImageData.data);
+                    const processed = removeGrayBackground(currentImageData, tolerance, brightnessThreshold, null);
+                    const resultData = new Uint8ClampedArray(origData);
+                    const w = currentImageData.width;
+                    for (let y = Math.floor(maskRect.y); y < Math.floor(maskRect.y + maskRect.h) && y < currentImageData
+                        .height; y++) {
+                        for (let x = Math.floor(maskRect.x); x < Math.floor(maskRect.x + maskRect.w) && x < currentImageData
+                            .width; x++) {
+                            const idx = (y * w + x) * 4;
+                            resultData[idx] = processed.data[idx];
+                            resultData[idx + 1] = processed.data[idx + 1];
+                            resultData[idx + 2] = processed.data[idx + 2];
+                            resultData[idx + 3] = processed.data[idx + 3];
+                        }
+                    }
+                    currentImageData = new ImageData(resultData, currentImageData.width, currentImageData.height);
+                } else {
+                    // 全局去灰底
+                    currentImageData = removeGrayBackground(currentImageData, tolerance, brightnessThreshold, null);
+                }
+                updateWorkingImageFromData();
+                selectionRect = null;
+                renderDisplay();
+                showToast('去灰底处理完成！', 'success');
+            }
+
+            // ============ 旋转 ============
+            function applyRotation(angleDeg) {
+                if (!currentImageData || !workingImage) return;
+                if (Math.abs(angleDeg) < 0.01) {
+                    showToast('角度为0，无需旋转', 'info');
+                    return;
+                }
+                saveHistory();
+                const angleRad = (angleDeg * Math.PI) / 180;
+                const srcW = workingImage.width;
+                const srcH = workingImage.height;
+
+                // 计算旋转后需要的画布大小
+                const cos = Math.abs(Math.cos(angleRad));
+                const sin = Math.abs(Math.sin(angleRad));
+                const newW = Math.ceil(srcW * cos + srcH * sin);
+                const newH = Math.ceil(srcW * sin + srcH * cos);
+
+                tempCanvas.width = newW;
+                tempCanvas.height = newH;
+                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillRect(0, 0, newW, newH);
+                tempCtx.save();
+                tempCtx.translate(newW / 2, newH / 2);
+                tempCtx.rotate(angleRad);
+                tempCtx.drawImage(workingImage, -srcW / 2, -srcH / 2);
+                tempCtx.restore();
+
+                currentImageData = tempCtx.getImageData(0, 0, newW, newH);
+                updateWorkingImageFromData();
+                previewRotation = 0;
+                document.getElementById('rotationAngle').value = 0;
+                document.getElementById('valAngle').textContent = '0°';
+                renderDisplay();
+                showToast(`旋转 ${angleDeg.toFixed(1)}° 已应用`, 'success');
+            }
+
+            // ============ 裁剪 ============
+            function applyCrop() {
+                if (!cropRect || !currentImageData) return;
+                saveHistory();
+                const cx = Math.round(cropRect.x);
+                const cy = Math.round(cropRect.y);
+                const cw = Math.round(cropRect.w);
+                const ch = Math.round(cropRect.h);
+
+                tempCanvas.width = cw;
+                tempCanvas.height = ch;
+                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillRect(0, 0, cw, ch);
+                tempCtx.drawImage(workingImage, cx, cy, cw, ch, 0, 0, cw, ch);
+
+                currentImageData = tempCtx.getImageData(0, 0, cw, ch);
+                updateWorkingImageFromData();
+                cropRect = null;
+                cropRatio = null;
+                currentMode = 'none';
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                showToast('裁剪完成！', 'success');
+            }
+
+            // ============ A3拆A4 ============
+            function splitA3toA4() {
+                if (!workingImage || !currentImageData) return;
+                const w = workingImage.width;
+                const h = workingImage.height;
+                // 判断长边方向
+                let splitHorizontal = false; // 水平分割（上下两半）
+                if (h > w) {
+                    // 纵向图片，长边是高度，水平切割
+                    splitHorizontal = true;
+                } else {
+                    // 横向图片，长边是宽度，垂直切割
+                    splitHorizontal = false;
+                }
+
+                let part1, part2;
+                if (splitHorizontal) {
+                    const midY = Math.floor(h / 2);
+                    // 上半部分
+                    tempCanvas.width = w;
+                    tempCanvas.height = midY;
+                    tempCtx.fillStyle = '#ffffff';
+                    tempCtx.fillRect(0, 0, w, midY);
+                    tempCtx.drawImage(workingImage, 0, 0, w, midY, 0, 0, w, midY);
+                    part1 = tempCanvas.toDataURL('image/png');
+
+                    // 下半部分
+                    tempCanvas.width = w;
+                    tempCanvas.height = h - midY;
+                    tempCtx.fillStyle = '#ffffff';
+                    tempCtx.fillRect(0, 0, w, h - midY);
+                    tempCtx.drawImage(workingImage, 0, midY, w, h - midY, 0, 0, w, h - midY);
+                    part2 = tempCanvas.toDataURL('image/png');
+                } else {
+                    const midX = Math.floor(w / 2);
+                    // 左半部分
+                    tempCanvas.width = midX;
+                    tempCanvas.height = h;
+                    tempCtx.fillStyle = '#ffffff';
+                    tempCtx.fillRect(0, 0, midX, h);
+                    tempCtx.drawImage(workingImage, 0, 0, midX, h, 0, 0, midX, h);
+                    part1 = tempCanvas.toDataURL('image/png');
+
+                    // 右半部分
+                    tempCanvas.width = w - midX;
+                    tempCanvas.height = h;
+                    tempCtx.fillStyle = '#ffffff';
+                    tempCtx.fillRect(0, 0, w - midX, h);
+                    tempCtx.drawImage(workingImage, midX, 0, w - midX, h, 0, 0, w - midX, h);
+                    part2 = tempCanvas.toDataURL('image/png');
+                }
+
+                // 显示预览
+                splitPreviewCard.style.display = 'block';
+                splitPreviews.innerHTML = `
+                    <div class="split-preview-item">
+                        <img src="${part1}" alt="A4-1">
+                        <div class="label">A4 第1页</div>
+                        <button class="btn btn-xs btn-success download-split" data-url="${part1}" data-name="A4_第1页.png">💾 下载</button>
+                    </div>
+                    <div class="split-preview-item">
+                        <img src="${part2}" alt="A4-2">
+                        <div class="label">A4 第2页</div>
+                        <button class="btn btn-xs btn-success download-split" data-url="${part2}" data-name="A4_第2页.png">💾 下载</button>
+                    </div>
+                `;
+                showToast('A3已拆分为两个A4！可分别下载', 'success');
+
+                // 绑定下载按钮
+                setTimeout(() => {
+                    document.querySelectorAll('.download-split').forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const url = this.getAttribute('data-url');
+                            const name = this.getAttribute('data-name');
+                            downloadDataURL(url, name);
+                        });
+                    });
+                }, 100);
+            }
+
+            function downloadDataURL(dataUrl, filename) {
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+
+            // ============ 模式切换 ============
+            function updateModeUI() {
+                document.getElementById('btnModeNone').classList.toggle('active', currentMode === 'none');
+                document.getElementById('btnModeProtect').classList.toggle('active', currentMode === 'protect');
+                document.getElementById('btnModeRemove').classList.toggle('active', currentMode === 'remove');
+                // 裁剪按钮
+                document.getElementById('btnCropA4').classList.toggle('active', currentMode === 'crop' && cropRatio ===
+                    'A4');
+                document.getElementById('btnCropA3').classList.toggle('active', currentMode === 'crop' && cropRatio ===
+                    'A3');
+            }
+
+            function updateModeIndicator() {
+                const indicator = modeIndicator;
+                if (currentMode === 'protect') {
+                    indicator.className = 'mode-indicator protect';
+                    indicator.textContent = '🛡️ 局部保护模式 - 框选保留区域';
+                } else if (currentMode === 'remove') {
+                    indicator.className = 'mode-indicator remove';
+                    indicator.textContent = '🔧 局部拆除模式 - 框选处理区域';
+                } else if (currentMode === 'crop') {
+                    indicator.className = 'mode-indicator crop';
+                    indicator.textContent = '📐 裁剪模式 - ' + (cropRatio || '');
+                } else {
+                    indicator.className = 'mode-indicator none';
+                    indicator.textContent = '';
+                }
+            }
+
+            function setMode(mode) {
+                if (mode === currentMode && mode !== 'crop') {
+                    // 切换回none
+                    currentMode = 'none';
+                    selectionRect = null;
+                    cropRect = null;
+                    cropRatio = null;
+                    updateModeUI();
+                    updateModeIndicator();
+                    renderDisplay();
+                    return;
+                }
+                currentMode = mode;
+                selectionRect = null;
+                if (mode !== 'crop') {
+                    cropRect = null;
+                    cropRatio = null;
+                }
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                if (mode === 'protect') {
+                    showToast('局部保护：框选区域保持原样，框外去灰底。画好框后点击「完成选框」', 'info');
+                } else if (mode === 'remove') {
+                    showToast('局部拆除：仅框选区域去灰底，框外保持原样。画好框后点击「完成选框」', 'info');
+                }
+            }
+
+            // ============ 按钮事件 ============
+            document.getElementById('btnUpload').addEventListener('click', () => fileInput.click());
+            document.getElementById('btnReset').addEventListener('click', () => {
+                if (originalImage) {
+                    saveHistory();
+                    loadImageToWorking(originalImage);
+                    showToast('已重置为原始图片', 'info');
+                }
+            });
+            document.getElementById('btnUndo').addEventListener('click', () => {
+                if (historyStack.length > 0) {
+                    const prev = historyStack.pop();
+                    currentImageData = prev;
+                    updateWorkingImageFromData();
+                    selectionRect = null;
+                    cropRect = null;
+                    renderDisplay();
+                    showToast('已撤销', 'info');
+                } else {
+                    showToast('没有可撤销的操作', 'warning');
+                }
+            });
+            document.getElementById('btnDownload').addEventListener('click', () => {
+                if (!workingImage) return;
+                const dataUrl = offscreenCanvas.toDataURL('image/png');
+                downloadDataURL(dataUrl, '处理结果_' + Date.now() + '.png');
+                showToast('下载中...', 'success');
+            });
+
+            document.getElementById('btnModeNone').addEventListener('click', () => setMode('none'));
+            document.getElementById('btnModeProtect').addEventListener('click', () => setMode('protect'));
+            document.getElementById('btnModeRemove').addEventListener('click', () => setMode('remove'));
+            document.getElementById('btnCropA4').addEventListener('click', () => {
+                if (!workingImage) return;
+                currentMode = 'crop';
+                cropRatio = 'A4';
+                selectionRect = null;
+                initCropRect();
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                showToast('A4裁剪模式：滚轮调整大小，拖拽手柄调整，确认后裁剪', 'info');
+            });
+            document.getElementById('btnCropA3').addEventListener('click', () => {
+                if (!workingImage) return;
+                currentMode = 'crop';
+                cropRatio = 'A3';
+                selectionRect = null;
+                initCropRect();
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                showToast('A3裁剪模式：滚轮调整大小，拖拽手柄调整，确认后裁剪', 'info');
+            });
+            document.getElementById('btnSplitA3toA4').addEventListener('click', () => {
+                if (!workingImage) {
+                    showToast('请先上传图片', 'warning');
+                    return;
+                }
+                splitA3toA4();
+            });
+
+            document.getElementById('btnConfirmRect').addEventListener('click', () => {
+                if (!workingImage) return;
+                if (currentMode === 'crop' && cropRect) {
+                    applyCrop();
+                    return;
+                }
+                if ((currentMode === 'protect' || currentMode === 'remove') && selectionRect) {
+                    if (selectionRect.w < 5 || selectionRect.h < 5) {
+                        showToast('选框太小，请重新绘制', 'warning');
+                        return;
+                    }
+                    const isProtect = currentMode === 'protect';
+                    applyGrayRemoval(selectionRect, isProtect);
+                    return;
+                }
+                if (currentMode === 'crop' && !cropRect) {
+                    showToast('请先在图片上调整裁剪框', 'warning');
+                    return;
+                }
+                showToast('请先绘制选框或进入裁剪模式', 'warning');
+            });
+
+            document.getElementById('btnClearRect').addEventListener('click', () => {
+                selectionRect = null;
+                cropRect = null;
+                cropRatio = null;
+                currentMode = 'none';
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                showToast('选框已清除', 'info');
+            });
+
+            document.getElementById('btnRemoveGrayGlobal').addEventListener('click', () => {
+                if (!workingImage) {
+                    showToast('请先上传图片', 'warning');
+                    return;
+                }
+                applyGrayRemoval(null, false);
+            });
+
+            document.getElementById('btnPreviewGray').addEventListener('click', () => {
+                if (!workingImage) {
+                    showToast('请先上传图片', 'warning');
+                    return;
+                }
+                const tolerance = parseInt(document.getElementById('grayTolerance').value);
+                const brightnessThreshold = parseInt(document.getElementById('brightnessThreshold').value);
+                const preview = removeGrayBackground(currentImageData, tolerance, brightnessThreshold, null);
+                // 临时显示预览
+                const previewImg = new Image();
+                const tempCanvas2 = document.createElement('canvas');
+                tempCanvas2.width = preview.width;
+                tempCanvas2.height = preview.height;
+                const tctx = tempCanvas2.getContext('2d');
+                tctx.putImageData(preview, 0, 0);
+                previewImg.onload = () => {
+                    const origWorking = workingImage;
+                    workingImage = previewImg;
+                    renderDisplay();
+                    showToast('预览效果（3秒后恢复）', 'info');
+                    setTimeout(() => {
+                        workingImage = origWorking;
+                        renderDisplay();
+                    }, 3000);
+                };
+                previewImg.src = tempCanvas2.toDataURL('image/png');
+            });
+
+            document.getElementById('btnApplyRotation').addEventListener('click', () => {
+                if (!workingImage) return;
+                const angle = parseFloat(document.getElementById('rotationAngle').value);
+                applyRotation(angle);
+            });
+
+            // 旋转滑块实时预览
+            document.getElementById('rotationAngle').addEventListener('input', function() {
+                const angle = parseFloat(this.value);
+                document.getElementById('valAngle').textContent = angle.toFixed(1) + '°';
+                previewRotation = angle;
+                if (workingImage && Math.abs(angle) > 0.01) {
+                    // 实时预览旋转
+                    const angleRad = (angle * Math.PI) / 180;
+                    const srcW = workingImage.width;
+                    const srcH = workingImage.height;
+                    const cos = Math.abs(Math.cos(angleRad));
+                    const sin = Math.abs(Math.sin(angleRad));
+                    const newW = Math.ceil(srcW * cos + srcH * sin);
+                    const newH = Math.ceil(srcW * sin + srcH * cos);
+                    tempCanvas.width = newW;
+                    tempCanvas.height = newH;
+                    tempCtx.fillStyle = '#ffffff';
+                    tempCtx.fillRect(0, 0, newW, newH);
+                    tempCtx.save();
+                    tempCtx.translate(newW / 2, newH / 2);
+                    tempCtx.rotate(angleRad);
+                    tempCtx.drawImage(workingImage, -srcW / 2, -srcH / 2);
+                    tempCtx.restore();
+                    const previewImg = new Image();
+                    previewImg.onload = () => {
+                        const orig = workingImage;
+                        workingImage = previewImg;
+                        renderDisplay();
+                        workingImage = orig;
+                    };
+                    previewImg.src = tempCanvas.toDataURL('image/png');
+                } else if (workingImage) {
+                    renderDisplay();
+                }
+            });
+
+            // 快速角度按钮
+            document.querySelectorAll('.quick-angle').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const angle = parseFloat(this.getAttribute('data-angle'));
+                    document.getElementById('rotationAngle').value = angle;
+                    document.getElementById('valAngle').textContent = angle.toFixed(1) + '°';
+                    previewRotation = angle;
+                    if (Math.abs(angle) < 0.01 && workingImage) {
+                        renderDisplay();
+                    } else if (workingImage) {
+                        document.getElementById('rotationAngle').dispatchEvent(new Event(
+                            'input'));
+                    }
+                });
+            });
+
+            // 参数滑块
+            document.getElementById('grayTolerance').addEventListener('input', function() {
+                document.getElementById('valTolerance').textContent = this.value;
+            });
+            document.getElementById('brightnessThreshold').addEventListener('input', function() {
+                document.getElementById('valBrightness').textContent = this.value;
+            });
+
+            // ============ 文件上传 ============
+            fileInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) loadFile(file);
+            });
+
+            function loadFile(file) {
+                if (!file.type.match(/image\/(jpeg|png|webp|bmp|gif)/)) {
+                    showToast('请选择图片文件（JPG/PNG/WebP等）', 'warning');
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (ev) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        originalImage = img;
+                        loadImageToWorking(img);
+                        currentMode = 'none';
+                        selectionRect = null;
+                        cropRect = null;
+                        cropRatio = null;
+                        updateModeUI();
+                        updateModeIndicator();
+                        splitPreviewCard.style.display = 'none';
+                        showToast('图片加载成功！尺寸：' + img.width + '×' + img.height, 'success');
+                    };
+                    img.src = ev.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            // 拖拽上传
+            canvasWrap.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                canvasWrap.classList.add('drag-over');
+            });
+            canvasWrap.addEventListener('dragleave', () => {
+                canvasWrap.classList.remove('drag-over');
+            });
+            canvasWrap.addEventListener('drop', (e) => {
+                e.preventDefault();
+                canvasWrap.classList.remove('drag-over');
+                const file = e.dataTransfer.files[0];
+                if (file) loadFile(file);
+            });
+
+            // 粘贴上传
+            document.addEventListener('paste', (e) => {
+                const items = e.clipboardData?.items;
+                if (!items) return;
+                for (const item of items) {
+                    if (item.type.match(/image\//)) {
+                        const file = item.getAsFile();
+                        loadFile(file);
+                        break;
+                    }
+                }
+            });
+
+            // ============ 裁剪框初始化 ============
+            function initCropRect() {
+                if (!workingImage) return;
+                const aspect = getCropAspectRatio();
+                const imgW = workingImage.width;
+                const imgH = workingImage.height;
+                let cw, ch;
+                if (imgW / imgH > aspect) {
+                    // 图片更宽，以高度为基准
+                    ch = imgH * 0.85;
+                    cw = ch * aspect;
+                } else {
+                    // 图片更高，以宽度为基准
+                    cw = imgW * 0.85;
+                    ch = cw / aspect;
+                }
+                cropRect = {
+                    x: (imgW - cw) / 2,
+                    y: (imgH - ch) / 2,
+                    w: cw,
+                    h: ch
+                };
+            }
+
+            // ============ 窗口大小调整 ============
+            window.addEventListener('resize', () => {
+                renderDisplay();
+            });
+
+            // 使用ResizeObserver监听canvasWrap大小变化
+            if (window.ResizeObserver) {
+                const ro = new ResizeObserver(() => {
+                    renderDisplay();
+                });
+                ro.observe(canvasWrap);
+            }
+
+            // ============ 键盘快捷键 ============
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && (currentMode === 'protect' || currentMode === 'remove' || currentMode ===
+                        'crop')) {
+                    e.preventDefault();
+                    document.getElementById('btnConfirmRect').click();
+                }
+                if (e.key === 'Escape') {
+                    document.getElementById('btnClearRect').click();
+                }
+                if (e.ctrlKey && e.key === 'z') {
+                    e.preventDefault();
+                    document.getElementById('btnUndo').click();
+                }
+            });
+
+            // ============ 初始状态 ============
+            function init() {
+                updateModeUI();
+                updateModeIndicator();
+                renderDisplay();
+                // 设置初始参数显示
+                document.getElementById('valTolerance').textContent = document.getElementById('grayTolerance').value;
+                document.getElementById('valBrightness').textContent = document.getElementById('brightnessThreshold')
+                .value;
+                document.getElementById('valAngle').textContent = '0°';
+            }
+            init();
+
+            console.log('✅ 试卷照片处理工具已就绪');
+            console.log('  - 支持拖拽/粘贴上传图片');
+            console.log('  - 全局去灰底 + 局部保护/拆除');
+            console.log('  - 旋转扶正（-15°~+15°）');
+            console.log('  - A3/A4比例裁剪');
+            console.log('  - A3拆分为两个A4');
+            console.log('  - Ctrl+Z撤销 | Enter确认选框 | Esc清除选框');
+        })();
+    </script>
+</body>
+</html>

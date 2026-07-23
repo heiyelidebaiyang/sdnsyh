@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-  <title>微信公众号文章编辑器 · 完整版</title>
+  <title>微信公众号文章编辑器 · 功能完整版</title>
   <style>
     /* ========== 全局变量与基础样式 ========== */
     :root {
@@ -27,18 +27,15 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: var(--font-stack); background: #e8ecf1; color: var(--text); min-height: 100vh; overflow: hidden; }
 
-    /* 头部 */
-    .app-header { background: #fff; border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; z-index: 100; position: relative; }
+    .app-header { background: #fff; border-bottom: 1px solid var(--border); height: 52px; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; z-index: 100; }
     .app-header .logo { font-size: 18px; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 8px; }
     .header-actions { display: flex; gap: 8px; align-items: center; }
 
-    /* 主体布局 */
     .app-body { display: flex; height: calc(100vh - 52px); }
 
-    /* 左侧边栏 */
     .sidebar-left { width: 220px; background: #fff; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
     .sidebar-tabs { display: flex; border-bottom: 1px solid var(--border); }
-    .sidebar-tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 13px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: var(--transition); background: none; border-top: none; border-left: none; border-right: none; }
+    .sidebar-tab { flex: 1; padding: 12px 8px; text-align: center; font-size: 13px; cursor: pointer; color: var(--text-secondary); border-bottom: 2px solid transparent; transition: var(--transition); background: none; border: none; }
     .sidebar-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
     .sidebar-tab:hover { color: var(--primary); }
     .sidebar-content { flex: 1; overflow-y: auto; padding: 12px; }
@@ -51,7 +48,6 @@
     .color-dot { width: 28px; height: 28px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: var(--transition); }
     .color-dot:hover { border-color: #999; transform: scale(1.1); }
 
-    /* 中间编辑器 */
     .editor-main { flex: 1; display: flex; flex-direction: column; background: #e8ecf1; min-width: 0; }
     .editor-toolbar { background: #fff; border-bottom: 1px solid var(--border); padding: 6px 12px; display: flex; flex-wrap: wrap; gap: 2px; align-items: center; flex-shrink: 0; }
     .toolbar-group { display: flex; gap: 1px; align-items: center; padding: 0 4px; }
@@ -77,29 +73,21 @@
     .editor-content p { margin: 0 0 8px; }
     .editor-content blockquote { border-left: 3px solid #07c160; padding: 8px 16px; margin: 12px 0; background: #f9fdfb; color: #666; }
     .editor-content img { max-width: 100%; height: auto; display: block; margin: 16px auto; border-radius: 4px; cursor: pointer; }
-    .editor-content img.selected { outline: 2px solid #07c160; outline-offset: 3px; }
 
-    /* 右侧面板 */
     .sidebar-right { width: 300px; background: #fff; border-left: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; overflow-y: auto; }
     .panel-section { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; }
     .panel-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
     .cover-upload { width: 100%; aspect-ratio: 2.35/1; background: #f7f8fa; border: 2px dashed #e0e0e0; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-direction: column; gap: 6px; font-size: 13px; color: #999; position: relative; overflow: hidden; }
-    .cover-upload.has-image { border-style: solid; }
     .cover-upload img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     .cover-upload .remove-cover { position: absolute; top: 6px; right: 6px; background: rgba(0,0,0,0.5); color: #fff; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 2; }
     .cover-upload.has-image:hover .remove-cover { display: flex; }
-    .summary-textarea { width: 100%; border: 1px solid #e0e0e0; border-radius: var(--radius-sm); padding: 10px; font-size: 13px; resize: vertical; outline: none; min-height: 80px; }
     .action-btn { width: 100%; padding: 10px 16px; border: none; border-radius: var(--radius-sm); font-size: 14px; cursor: pointer; font-weight: 500; transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 8px; }
     .action-btn.primary { background: var(--primary); color: #fff; }
     .action-btn.primary:hover { background: var(--primary-hover); }
     .action-btn.secondary { background: #f0f0f0; color: #555; }
     .action-btn.outline { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
-    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 14px; z-index: 2000; pointer-events: none; }
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-    .modal { background: #fff; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); width: 90%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column; }
-    .modal-header { padding: 16px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; font-weight: 600; }
-    .modal-body { padding: 20px; overflow-y: auto; flex: 1; }
-    .modal-footer { padding: 12px 20px; border-top: 1px solid #f0f0f0; display: flex; justify-content: flex-end; gap: 8px; }
+    .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #333; color: #fff; padding: 10px 24px; border-radius: 20px; font-size: 14px; z-index: 2000; pointer-events: none; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
     /* 云雪星球风格 */
     .yunxue-title { font-size: 26px; font-weight: 700; text-align: center; background: linear-gradient(135deg, #4a1a6b, #6b2fa0, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
@@ -108,14 +96,13 @@
   </style>
 </head>
 <body>
-  <!-- 头部 -->
   <header class="app-header">
     <div class="logo">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="#07c160"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 12h10M7 8h10M7 16h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="4" fill="#07c160"/><path d="M7 12h10M7 8h10M7 16h6" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
       微信编辑器
     </div>
     <div class="header-actions">
-      <button class="tool-btn" onclick="saveDraft()" title="保存草稿">
+      <button class="tool-btn" onclick="saveDraft()" title="保存草稿 (Ctrl+S)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
       </button>
       <span id="saveStatus" style="font-size:12px; color:#999;"></span>
@@ -123,7 +110,7 @@
   </header>
 
   <div class="app-body">
-    <!-- 左侧样式/模板/配色/我的 -->
+    <!-- 左侧面板 -->
     <aside class="sidebar-left">
       <div class="sidebar-tabs">
         <button class="sidebar-tab active" onclick="switchTab('styles', this)">样式</button>
@@ -132,7 +119,6 @@
         <button class="sidebar-tab" onclick="switchTab('mytemplates', this)">我的</button>
       </div>
       <div class="sidebar-content">
-        <!-- 样式面板 -->
         <div id="panel-styles">
           <div class="section-title">标题样式</div>
           <div class="template-card" onclick="insertTemplate('h1','主标题')">
@@ -157,31 +143,18 @@
             <div class="template-name">分隔线</div>
           </div>
         </div>
-        <!-- 模板面板 -->
+
         <div id="panel-templates" style="display:none;">
           <div class="section-title">文章模板</div>
-          <div class="template-card" onclick="insertFullTemplate('news')">
-            <div class="template-preview"><b>📰 标准图文</b></div>
-            <div class="template-name">标题+正文+引导</div>
-          </div>
-          <div class="template-card" onclick="insertFullTemplate('holiday')">
-            <div class="template-preview"><b>🎉 节日祝福</b></div>
-            <div class="template-name">节日标题+祝福语</div>
-          </div>
-          <div class="template-card" onclick="insertFullTemplate('product')">
-            <div class="template-preview"><b>🛒 产品介绍</b></div>
-            <div class="template-name">亮点+详情</div>
-          </div>
-          <div class="template-card" onclick="insertFullTemplate('knowledge')">
-            <div class="template-preview"><b>📚 知识干货</b></div>
-            <div class="template-name">列表+分段解析</div>
-          </div>
+          <div class="template-card" onclick="insertFullTemplate('news')">📰 标准图文模板</div>
+          <div class="template-card" onclick="insertFullTemplate('holiday')">🎉 节日祝福模板</div>
+          <div class="template-card" onclick="insertFullTemplate('product')">🛒 产品介绍模板</div>
+          <div class="template-card" onclick="insertFullTemplate('knowledge')">📚 知识干货模板</div>
           <div class="template-card" onclick="insertFullTemplate('yunxue')" style="border-color:#8b5cf6; background:#f8f5ff;">
-            <div class="template-preview"><b style="color:#4a1a6b;">🌍 云雪星球</b></div>
-            <div class="template-name" style="color:#6b2fa0;">✦ 清华紫风格</div>
+            <span style="color:#4a1a6b; font-weight:600;">🌍 云雪星球 · 清华紫风格</span>
           </div>
         </div>
-        <!-- 配色面板 -->
+
         <div id="panel-colors" style="display:none;">
           <div class="section-title">字体颜色</div>
           <div class="color-presets">
@@ -190,6 +163,7 @@
             <span class="color-dot" style="background:#576b95" onclick="setFontColor('#576b95')"></span>
             <span class="color-dot" style="background:#8b5cf6" onclick="setFontColor('#8b5cf6')"></span>
             <span class="color-dot" style="background:#3e3e3e" onclick="setFontColor('#3e3e3e')"></span>
+            <span class="color-dot" style="background:#4a1a6b" onclick="setFontColor('#4a1a6b')"></span>
           </div>
           <div class="section-title">背景颜色</div>
           <div class="color-presets">
@@ -199,7 +173,7 @@
             <span class="color-dot" style="background:transparent; border:2px dashed #ccc;" onclick="setBgColor('transparent')"></span>
           </div>
         </div>
-        <!-- 我的模板面板 -->
+
         <div id="panel-mytemplates" style="display:none;">
           <div class="section-title">📥 导入模板</div>
           <input type="text" id="templateUrlInput" class="tool-font-input" style="width:100%; margin-bottom:8px;" placeholder="135编辑器模板ID或URL">
@@ -207,8 +181,8 @@
             <button class="action-btn primary" style="flex:1; margin:0; padding:6px;" onclick="fetchTemplate()">获取模板</button>
             <button class="action-btn secondary" style="flex:1; margin:0; padding:6px;" onclick="showPasteDialog()">粘贴源码</button>
           </div>
-          <div class="section-title">📚 我的模板 <span id="myTemplateCount" style="font-weight:400; color:#bbb; font-size:10px;">0个</span></div>
-          <div id="myTemplateList" style="font-size:12px; color:#999; text-align:center; padding:20px 0;">暂无模板</div>
+          <div class="section-title">📚 我的模板 <span id="myTemplateCount">0个</span></div>
+          <div id="myTemplateList" style="font-size:12px; color:#999; text-align:center; padding:20px 0;">暂无模板，导入后显示</div>
           <button class="action-btn secondary" style="margin-top:8px; font-size:12px;" onclick="clearAllMyTemplates()">清空全部模板</button>
         </div>
       </div>
@@ -220,20 +194,20 @@
         <button class="tool-btn" onclick="exec('undo')" title="撤销">↩</button>
         <button class="tool-btn" onclick="exec('redo')" title="重做">↪</button>
         <span class="toolbar-divider"></span>
-        <select class="tool-select" onchange="exec('fontSize', this.value)">
+        <select class="tool-select" onchange="exec('fontSize', this.value)" title="字号">
           <option value="2">14px</option><option value="3" selected>15px</option><option value="4">18px</option><option value="5">22px</option>
         </select>
         <span class="toolbar-divider"></span>
-        <button class="tool-btn" onclick="exec('bold')"><b>B</b></button>
-        <button class="tool-btn" onclick="exec('italic')"><i>I</i></button>
-        <button class="tool-btn" onclick="exec('underline')"><u>U</u></button>
+        <button class="tool-btn" onclick="exec('bold')" title="加粗 (Ctrl+B)"><b>B</b></button>
+        <button class="tool-btn" onclick="exec('italic')" title="斜体 (Ctrl+I)"><i>I</i></button>
+        <button class="tool-btn" onclick="exec('underline')" title="下划线 (Ctrl+U)"><u>U</u></button>
         <span class="toolbar-divider"></span>
         <div class="color-picker-wrap">
-          <button class="tool-btn" onclick="document.getElementById('fontColorPicker').click()">A<span class="color-indicator" id="fontColorIndicator" style="background:#3e3e3e"></span></button>
+          <button class="tool-btn" onclick="document.getElementById('fontColorPicker').click()" title="字体颜色">A<span class="color-indicator" id="fontColorIndicator" style="background:#3e3e3e"></span></button>
           <input type="color" id="fontColorPicker" value="#3e3e3e" style="position:absolute;opacity:0;width:0;height:0;" onchange="setFontColor(this.value)">
         </div>
         <div class="color-picker-wrap">
-          <button class="tool-btn" onclick="document.getElementById('bgColorPicker').click()">BG<span class="color-indicator" id="bgColorIndicator" style="background:transparent"></span></button>
+          <button class="tool-btn" onclick="document.getElementById('bgColorPicker').click()" title="背景颜色">BG<span class="color-indicator" id="bgColorIndicator" style="background:transparent"></span></button>
           <input type="color" id="bgColorPicker" value="#ffff00" style="position:absolute;opacity:0;width:0;height:0;" onchange="setBgColor(this.value)">
         </div>
         <span class="toolbar-divider"></span>
@@ -247,7 +221,7 @@
         <span class="toolbar-divider"></span>
         <button class="tool-btn" onclick="document.getElementById('imageInput').click()" title="插入图片">🖼</button>
         <input type="file" id="imageInput" accept="image/*" style="display:none" onchange="insertImage(event)">
-        <button class="tool-btn" onclick="insertDivider()" title="分隔线">—</button>
+        <button class="tool-btn" onclick="insertDivider()" title="插入分隔线">—</button>
         <button class="tool-btn" onclick="showLinkDialog()" title="插入链接">🔗</button>
         <span class="toolbar-divider"></span>
         <button class="tool-btn" onclick="showPreview()" title="手机预览" style="color:#07c160;">📱</button>
@@ -263,7 +237,7 @@
       </div>
     </main>
 
-    <!-- 右侧属性面板 -->
+    <!-- 右侧面板 -->
     <aside class="sidebar-right">
       <div class="panel-section">
         <div class="panel-label">📷 封面图片</div>
@@ -292,12 +266,11 @@
     </aside>
   </div>
 
-  <!-- 弹窗容器 -->
   <div id="modalContainer"></div>
 
   <script>
     (function() {
-      // ---------- DOM 元素 ----------
+      // ---------- 核心元素 ----------
       const editor = document.getElementById('editorContent');
       const titleInput = document.getElementById('articleTitle');
       const authorInput = document.getElementById('articleAuthor');
@@ -306,42 +279,26 @@
       let coverDataUrl = null;
 
       // ---------- 自动保存 ----------
-      function debounceAutoSave() {
+      function autoSave() {
         clearTimeout(window._autoSaveTimer);
-        window._autoSaveTimer = setTimeout(() => {
-          saveDraft();
-          updateArticleInfo();
-        }, 500);
+        window._autoSaveTimer = setTimeout(() => { saveDraft(); updateArticleInfo(); }, 500);
       }
+      editor.addEventListener('input', autoSave);
+      titleInput.addEventListener('input', autoSave);
+      authorInput.addEventListener('input', autoSave);
+      summaryInput.addEventListener('input', autoSave);
 
-      editor.addEventListener('input', debounceAutoSave);
-      titleInput.addEventListener('input', debounceAutoSave);
-      authorInput.addEventListener('input', debounceAutoSave);
-      summaryInput.addEventListener('input', debounceAutoSave);
-
-      // ---------- 基础命令 ----------
+      // ---------- 工具函数 ----------
       window.exec = function(command, value) {
         editor.focus();
         document.execCommand(command, false, value || null);
       };
 
-      // ---------- 字体颜色 (修复) ----------
+      // ---------- 字体颜色 (修复：选区包裹 / 无选区设置后续输入颜色) ----------
       window.setFontColor = function(color) {
         editor.focus();
         const sel = window.getSelection();
-        if (!sel.rangeCount || sel.isCollapsed) {
-          // 无选区：插入零宽字符染色
-          const span = document.createElement('span');
-          span.style.color = color;
-          span.innerHTML = '&#8203;';
-          const range = sel.getRangeAt(0);
-          range.insertNode(span);
-          range.setStartAfter(span);
-          range.collapse(true);
-          sel.removeAllRanges();
-          sel.addRange(range);
-        } else {
-          // 有选区：包裹
+        if (sel.rangeCount && !sel.isCollapsed) {
           const range = sel.getRangeAt(0);
           const span = document.createElement('span');
           span.style.color = color;
@@ -354,44 +311,45 @@
           }
           sel.removeAllRanges();
           sel.addRange(range);
+        } else {
+          document.execCommand('styleWithCSS', false, true);
+          document.execCommand('foreColor', false, color);
         }
         document.getElementById('fontColorIndicator').style.background = color;
         document.getElementById('fontColorPicker').value = color;
         saveDraft();
       };
 
-      // 背景颜色
+      // 背景颜色 (同上)
       window.setBgColor = function(color) {
         editor.focus();
-        document.execCommand('styleWithCSS', false, true);
-        if (color === 'transparent') {
-          document.execCommand('hiliteColor', false, '#ffffff');
-          setTimeout(() => {
-            editor.querySelectorAll('span[style*="background"]').forEach(span => {
-              const bg = span.style.backgroundColor || span.style.background;
-              if (bg === '#ffffff' || bg === 'white' || bg === 'rgb(255,255,255)') {
-                span.style.backgroundColor = '';
-                span.style.background = '';
-                if (!span.getAttribute('style')?.trim()) {
-                  while (span.firstChild) span.parentNode.insertBefore(span.firstChild, span);
-                  span.parentNode.removeChild(span);
-                }
-              }
-            });
-          }, 20);
+        const sel = window.getSelection();
+        if (sel.rangeCount && !sel.isCollapsed) {
+          const range = sel.getRangeAt(0);
+          const span = document.createElement('span');
+          span.style.backgroundColor = color;
+          try {
+            range.surroundContents(span);
+          } catch (e) {
+            const fragment = range.extractContents();
+            span.appendChild(fragment);
+            range.insertNode(span);
+          }
+          sel.removeAllRanges();
+          sel.addRange(range);
         } else {
-          document.execCommand('hiliteColor', false, color);
+          document.execCommand('styleWithCSS', false, true);
+          document.execCommand('backColor', false, color);
         }
         document.getElementById('bgColorIndicator').style.background = color === 'transparent' ? 'transparent' : color;
-        document.getElementById('bgColorPicker').value = color === 'transparent' ? '#ffff00' : color;
         saveDraft();
       };
 
-      // ---------- 插入/替换样式 ----------
+      // ---------- 样式插入/替换 ----------
       window.insertTemplate = function(type, text) {
         editor.focus();
         const sel = window.getSelection();
-        if (sel.rangeCount > 0 && !sel.isCollapsed) {
+        if (sel.rangeCount && !sel.isCollapsed) {
           const range = sel.getRangeAt(0);
           let wrapper;
           switch(type) {
@@ -421,11 +379,8 @@
         saveDraft();
       };
 
-      window.insertDivider = function() {
-        insertHtmlAtEnd('<hr>');
-      };
+      window.insertDivider = function() { insertHtmlAtEnd('<hr>'); };
 
-      // 在编辑器末尾插入HTML
       function insertHtmlAtEnd(html) {
         editor.focus();
         const range = document.createRange();
@@ -437,31 +392,20 @@
         while (temp.firstChild) frag.appendChild(temp.firstChild);
         range.insertNode(frag);
         range.collapse(false);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
         editor.scrollTop = editor.scrollHeight;
+        saveDraft();
       }
 
-      // 插入完整模板
       window.insertFullTemplate = function(type) {
         let html = '';
         switch(type) {
-          case 'news':
-            html = '<h2 style="text-align:center;">📰 新闻标题</h2><p>正文内容从这里开始...</p><hr><p style="text-align:center;color:#999;">👇 关注我们</p>';
-            break;
-          case 'holiday':
-            html = '<h1 style="text-align:center;color:#e64340;">🎉 节日快乐</h1><blockquote>祝福语，愿每一天都充满阳光。</blockquote>';
-            break;
-          case 'product':
-            html = '<h2>🛒 产品名称</h2><ul><li>核心亮点一</li><li>核心亮点二</li></ul><p style="text-align:center;color:#07c160;">👇 立即购买</p>';
-            break;
-          case 'knowledge':
-            html = '<h2>📚 知识主题</h2><h3>一、核心概念</h3><p>详细解释...</p><h3>二、总结</h3><blockquote>一句话总结</blockquote>';
-            break;
-          case 'yunxue':
-            html = '<div class="yunxue-title">🌍 云雪星球 · 工具分享</div><div class="yunxue-blockquote">善于用工具是人类的智慧。</div><p style="text-indent:2em;">在这个信息爆炸的时代，高效工具至关重要。</p><div class="yunxue-footer"><span>✦ 云雪星球 ✦</span></div>';
-            break;
+          case 'news': html = '<h2 style="text-align:center">📰 标题</h2><p>正文内容...</p><hr><p style="text-align:center;color:#999">👇 关注我们</p>'; break;
+          case 'holiday': html = '<h1 style="text-align:center;color:#e64340">🎉 节日快乐</h1><blockquote>祝福语...</blockquote>'; break;
+          case 'product': html = '<h2>🛒 产品名称</h2><ul><li>亮点一</li><li>亮点二</li></ul>'; break;
+          case 'knowledge': html = '<h2>📚 知识主题</h2><ol><li>要点一</li><li>要点二</li></ol>'; break;
+          case 'yunxue': html = '<div class="yunxue-title">🌍 云雪星球 · 工具分享</div><div class="yunxue-blockquote">善于用工具是人类的智慧。</div><p style="text-indent:2em">在这个信息爆炸的时代，高效工具至关重要。</p><div class="yunxue-footer"><span>✦ 云雪星球 ✦</span></div>'; break;
         }
         insertHtmlAtEnd(html);
         showToast('✅ 模板已插入');
@@ -478,23 +422,24 @@
       };
 
       // ---------- 我的模板管理 ----------
-      const MY_KEY = 'wechat_editor_my_templates';
+      const MY_KEY = 'wechat_my_templates';
       function getMyTemplates() { return JSON.parse(localStorage.getItem(MY_KEY) || '[]'); }
       function saveMyTemplates(arr) { localStorage.setItem(MY_KEY, JSON.stringify(arr)); }
+
       window.renderMyTemplates = function() {
         const list = getMyTemplates();
         document.getElementById('myTemplateCount').textContent = list.length + '个';
         const container = document.getElementById('myTemplateList');
-        if (list.length === 0) {
+        if (!list.length) {
           container.innerHTML = '<div style="text-align:center;color:#ccc;padding:20px;">暂无模板</div>';
           return;
         }
         container.innerHTML = list.map(t => `
           <div class="template-card" style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(t.name)}">📌 ${escapeHtml(t.name)}</div>
-            <div style="display:flex; gap:4px;">
-              <button class="tool-btn" style="width:22px;height:22px;font-size:12px;" onclick="insertMyTemplate('${t.id}')">＋</button>
-              <button class="tool-btn" style="width:22px;height:22px;font-size:12px;color:#e64340;" onclick="deleteMyTemplate('${t.id}')">×</button>
+            <span style="flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${escapeHtml(t.name)}">📌 ${escapeHtml(t.name)}</span>
+            <div>
+              <button class="tool-btn" style="width:22px;height:22px;" onclick="insertMyTemplate('${t.id}')">＋</button>
+              <button class="tool-btn" style="width:22px;height:22px; color:#e64340;" onclick="deleteMyTemplate('${t.id}')">×</button>
             </div>
           </div>
         `).join('');
@@ -502,27 +447,19 @@
 
       window.insertMyTemplate = function(id) {
         const tpl = getMyTemplates().find(t => t.id === id);
-        if (tpl && tpl.html) {
-          insertHtmlAtEnd(tpl.html);
-          showToast('✅ 模板已插入');
-        }
+        if (tpl && tpl.html) { insertHtmlAtEnd(tpl.html); showToast('✅ 已插入'); }
       };
-
       window.deleteMyTemplate = function(id) {
         saveMyTemplates(getMyTemplates().filter(t => t.id !== id));
         renderMyTemplates();
       };
-
       window.clearAllMyTemplates = function() {
-        if (confirm('确定清空所有自定义模板吗？')) {
-          saveMyTemplates([]);
-          renderMyTemplates();
-        }
+        if (confirm('清空所有自定义模板？')) { saveMyTemplates([]); renderMyTemplates(); }
       };
 
       window.fetchTemplate = async function() {
         const input = document.getElementById('templateUrlInput').value.trim();
-        if (!input) return showToast('请输入模板ID或URL');
+        if (!input) return showToast('请输入ID或URL');
         let url = input;
         if (/^\d+$/.test(input)) url = `https://www.135editor.com/editor_styles/${input}.html`;
         showToast('正在获取...');
@@ -530,41 +467,33 @@
           const resp = await fetch(url, { mode: 'cors' });
           const html = await resp.text();
           if (html && html.length > 200) {
-            const name = '模板 ' + Date.now().toString(36);
             const templates = getMyTemplates();
-            templates.push({ id: Date.now().toString(36), name, html, sourceUrl: url });
+            templates.push({ id: Date.now().toString(36), name: '模板' + (templates.length+1), html, sourceUrl: url });
             saveMyTemplates(templates);
             renderMyTemplates();
             showToast('✅ 模板已保存');
-          } else {
-            showToast('获取内容为空');
-          }
-        } catch (e) {
-          showToast('跨域限制，请使用粘贴源码功能');
-          setTimeout(() => showPasteDialog(), 1000);
-        }
+          } else showToast('内容为空');
+        } catch (e) { showToast('跨域限制，请使用粘贴源码'); setTimeout(showPasteDialog, 1000); }
       };
 
       window.showPasteDialog = function() {
-        const html = prompt('请粘贴HTML源码：');
+        const html = prompt('粘贴HTML源码：');
         if (html && html.trim()) {
-          const name = '粘贴模板 ' + new Date().toLocaleTimeString();
           const templates = getMyTemplates();
-          templates.push({ id: Date.now().toString(36), name, html: html.trim() });
+          templates.push({ id: Date.now().toString(36), name: '粘贴' + (templates.length+1), html: html.trim() });
           saveMyTemplates(templates);
           renderMyTemplates();
-          showToast('✅ 模板已保存');
+          showToast('✅ 已保存');
         }
       };
 
-      // ---------- 封面图片 ----------
-      window.setCoverImage = function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+      // ---------- 封面 ----------
+      window.setCoverImage = function(e) {
+        const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
-          coverDataUrl = e.target.result;
-          coverUpload.innerHTML = `<img src="${coverDataUrl}" alt="封面"><button class="remove-cover" onclick="event.stopPropagation(); removeCover();">×</button>`;
+        reader.onload = (ev) => {
+          coverDataUrl = ev.target.result;
+          coverUpload.innerHTML = `<img src="${coverDataUrl}"><button class="remove-cover" onclick="event.stopPropagation();removeCover()">×</button>`;
           coverUpload.classList.add('has-image');
           saveDraft();
         };
@@ -573,91 +502,62 @@
       window.removeCover = function() {
         coverDataUrl = null;
         coverUpload.classList.remove('has-image');
-        coverUpload.innerHTML = '<span>点击上传封面</span><span style="font-size:11px;">900×383</span><button class="remove-cover" onclick="event.stopPropagation(); removeCover();">×</button>';
+        coverUpload.innerHTML = '<span>点击上传封面</span><span style="font-size:11px;">900×383</span><button class="remove-cover" onclick="event.stopPropagation();removeCover()">×</button>';
         saveDraft();
       };
 
       // ---------- 图片/链接/缩进 ----------
-      window.insertImage = function(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+      window.insertImage = function(e) {
+        const file = e.target.files[0]; if(!file) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = (ev) => {
           editor.focus();
           const img = document.createElement('img');
-          img.src = e.target.result;
+          img.src = ev.target.result;
           img.style.maxWidth = '100%';
-          const sel = window.getSelection();
-          if (sel.rangeCount) sel.getRangeAt(0).insertNode(img);
-          else editor.appendChild(img);
-          updateArticleInfo();
-          saveDraft();
+          document.execCommand('insertImage', false, ev.target.result);
+          updateArticleInfo(); saveDraft();
         };
         reader.readAsDataURL(file);
-        event.target.value = '';
+        e.target.value = '';
       };
-
       window.showLinkDialog = function() {
         const url = prompt('输入链接地址 (https://...)');
-        if (url) {
-          editor.focus();
-          document.execCommand('createLink', false, url);
-        }
+        if (url) { editor.focus(); document.execCommand('createLink', false, url); }
       };
-
       window.indentFirstLine = function() {
         editor.focus();
         const sel = window.getSelection();
         if (sel.rangeCount && !sel.isCollapsed) {
-          document.execCommand('insertHTML', false, '<span style="text-indent:2em; display:inline-block;">&#8203;</span>');
-        } else {
-          const p = editor.closest('p, div, h1, h2, h3, blockquote');
-          if (p) p.style.textIndent = p.style.textIndent === '2em' ? '' : '2em';
+          document.execCommand('insertHTML', false, '<span style="text-indent:2em;display:inline-block;">&#8203;</span>');
         }
       };
 
       // ---------- 预览/复制/导出 ----------
       window.showPreview = function() {
-        const title = titleInput.value || '文章标题';
-        const content = editor.innerHTML;
-        const html = `<div class="modal-overlay" onclick="this.remove()"><div class="preview-phone" onclick="event.stopPropagation()" style="width:375px; max-height:80vh; background:#fff; border-radius:24px; overflow:hidden;"><div style="background:#f8f8f8; padding:12px; text-align:center;">📱 手机预览</div><div style="padding:16px; overflow-y:auto; max-height:calc(80vh - 44px);"><h2>${escapeHtml(title)}</h2>${content}</div></div></div>`;
+        const html = `<div class="modal-overlay" onclick="this.remove()"><div style="width:375px;max-height:80vh;background:#fff;border-radius:24px;overflow:hidden;"><div style="background:#f8f8f8;padding:12px;text-align:center;">📱 手机预览</div><div style="padding:16px;overflow-y:auto;max-height:calc(80vh - 44px);"><h2>${escapeHtml(titleInput.value)}</h2>${editor.innerHTML}</div></div></div>`;
         document.getElementById('modalContainer').innerHTML = html;
       };
-
       window.copyToWechat = function() {
-        const html = editor.innerHTML;
-        if (!html || html === '<br>') return showToast('无内容');
-        const blob = new Blob([html], { type: 'text/html' });
-        const item = new ClipboardItem({
-          'text/html': blob,
-          'text/plain': new Blob([editor.innerText], { type: 'text/plain' })
-        });
-        navigator.clipboard.write([item]).then(() => showToast('✅ 已复制，可粘贴到公众号')).catch(() => showToast('复制失败'));
+        if (!editor.innerHTML || editor.innerHTML === '<br>') return showToast('无内容');
+        const blob = new Blob([editor.innerHTML], {type:'text/html'});
+        navigator.clipboard.write([new ClipboardItem({'text/html':blob,'text/plain':new Blob([editor.innerText],{type:'text/plain'})})])
+          .then(()=>showToast('✅ 已复制，可粘贴到公众号'))
+          .catch(()=>showToast('复制失败，请手动复制'));
       };
-
       window.exportHTML = function() {
-        const title = titleInput.value || '文章';
-        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(title)}</title><style>body{max-width:680px;margin:0 auto;padding:20px;font-size:16px;line-height:1.8;}img{max-width:100%;}</style></head><body><h1>${escapeHtml(title)}</h1>${editor.innerHTML}</body></html>`;
-        const blob = new Blob([html], { type: 'text/html' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = title + '.html';
-        a.click();
+        const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escapeHtml(titleInput.value)}</title><style>body{max-width:680px;margin:0 auto;padding:20px;font-size:16px;line-height:1.8}img{max-width:100%}</style></head><body><h1>${escapeHtml(titleInput.value)}</h1>${editor.innerHTML}</body></html>`;
+        const blob = new Blob([html],{type:'text/html'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = '文章.html'; a.click();
       };
-
       window.clearAll = function() {
-        if (confirm('确定清空所有内容吗？')) {
-          editor.innerHTML = '';
-          titleInput.value = '';
-          authorInput.value = '';
-          summaryInput.value = '';
-          removeCover();
-          updateArticleInfo();
-          localStorage.removeItem('wechat_editor_draft');
+        if (confirm('清空所有内容？')) {
+          editor.innerHTML = ''; titleInput.value = ''; authorInput.value = ''; summaryInput.value = '';
+          removeCover(); updateArticleInfo(); localStorage.removeItem('wechat_editor_draft');
         }
       };
 
-      // ---------- 统计信息 ----------
+      // ---------- 统计 ----------
       function updateArticleInfo() {
         const text = editor.innerText || '';
         document.getElementById('wordCount').textContent = text.length;
@@ -668,65 +568,47 @@
       }
       window.updateCharCount = function() { document.getElementById('charCount').textContent = summaryInput.value.length; };
 
-      // ---------- 草稿存储 ----------
+      // ---------- 存储 ----------
       function saveDraft() {
-        const draft = {
-          title: titleInput.value,
-          author: authorInput.value,
-          content: editor.innerHTML,
-          summary: summaryInput.value,
-          coverImage: coverDataUrl,
-        };
-        localStorage.setItem('wechat_editor_draft', JSON.stringify(draft));
+        localStorage.setItem('wechat_editor_draft', JSON.stringify({
+          title: titleInput.value, author: authorInput.value, content: editor.innerHTML, summary: summaryInput.value, coverImage: coverDataUrl
+        }));
         document.getElementById('saveStatus').textContent = '已保存 ' + new Date().toLocaleTimeString();
         setTimeout(() => document.getElementById('saveStatus').textContent = '', 2000);
       }
+      window.saveDraft = saveDraft;
 
       function loadDraft() {
-        const data = JSON.parse(localStorage.getItem('wechat_editor_draft') || '{}');
-        if (data.title) titleInput.value = data.title;
-        if (data.author) authorInput.value = data.author;
-        if (data.content) editor.innerHTML = data.content;
-        if (data.summary) summaryInput.value = data.summary;
-        if (data.coverImage) {
-          coverDataUrl = data.coverImage;
-          coverUpload.innerHTML = `<img src="${data.coverImage}" alt="封面"><button class="remove-cover" onclick="event.stopPropagation(); removeCover();">×</button>`;
+        const d = JSON.parse(localStorage.getItem('wechat_editor_draft') || '{}');
+        if (d.title) titleInput.value = d.title;
+        if (d.author) authorInput.value = d.author;
+        if (d.content) editor.innerHTML = d.content;
+        if (d.summary) summaryInput.value = d.summary;
+        if (d.coverImage) {
+          coverDataUrl = d.coverImage;
+          coverUpload.innerHTML = `<img src="${d.coverImage}"><button class="remove-cover" onclick="event.stopPropagation();removeCover()">×</button>`;
           coverUpload.classList.add('has-image');
         }
         updateArticleInfo();
       }
 
-      // ---------- 工具函数 ----------
-      window.showToast = function(msg) {
-        const t = document.createElement('div');
-        t.className = 'toast';
-        t.textContent = msg;
+      function showToast(msg) {
+        const t = document.createElement('div'); t.className='toast'; t.textContent=msg;
         document.body.appendChild(t);
-        setTimeout(() => { t.style.opacity = '0'; t.style.transition = '0.3s'; setTimeout(() => t.remove(), 300); }, 2000);
-      };
-
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
+        setTimeout(() => { t.style.opacity='0'; setTimeout(() => t.remove(), 300); }, 2000);
       }
-      window.autoResize = function(el) {
-        el.style.height = 'auto';
-        el.style.height = el.scrollHeight + 'px';
-      };
+      window.showToast = showToast;
 
-      // ---------- 快捷键 ----------
-      document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
-          e.preventDefault();
-          saveDraft();
-          showToast('💾 已保存');
-        }
+      function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+      window.autoResize = function(el) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; };
+
+      // 快捷键
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey||e.metaKey) && e.key === 's') { e.preventDefault(); saveDraft(); showToast('💾 已保存'); }
       });
 
       // 初始化
       loadDraft();
-      updateArticleInfo();
       setInterval(() => { if (editor.innerHTML) saveDraft(); updateArticleInfo(); }, 30000);
     })();
   </script>

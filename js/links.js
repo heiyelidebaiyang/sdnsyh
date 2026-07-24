@@ -8,8 +8,8 @@ const navLinks = [
             { title: 'PDF工具箱2', desc: '拆分书籍对开页', icon: '📖', url: '../html/tools/PDF-tools2.html' },
             { title: 'PDF工具箱3', desc: '交替合并', icon: '🔢', url: '../html/tools/PDF-tools3.html' },
             { title: 'TinyPNG', desc: '图片在线压缩', icon: '🖼️', url: 'https://tinypng.com' },
-            { title: 'JSON格式化', desc: '在线校验与格式化', icon: '🔧', url: 'https://www.json.cn' }，
-            { title: '试卷净化工具', desc: '纯本地', icon: '🔧', url: '../html/tools/shijuan.html' }
+            { title: 'JSON格式化', desc: '在线校验与格式化', icon: '🔧', url: 'https://www.json.cn' },
+            { title: '试卷净化工具', desc: '纯本地', icon: '🔧', url: '../html/tools/shijuan.html' },
         ]
     },
     {

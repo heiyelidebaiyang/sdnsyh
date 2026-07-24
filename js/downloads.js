@@ -1,6 +1,7 @@
 const downloads = [
     { name: '营销助手', version: 'v3.1.1', icon: '📦', file: '../app/营销助手_v3.1.1.zip' },
-    { name: '营销助手', version: 'v3.2.1 适配1.5.5版本', icon: '📦', file: '../app/营销助手_v3.2.1.zip' }
+    { name: '营销助手', version: 'v3.2.1 适配1.5.5版本', icon: '📦', file: '../app/营销助手_v3.2.1.zip' },
+    { name: '21tb助手', version: 'v1.0.0', icon: '📚', file: '../app/21tb助手.zip' }
 ];
 
 function renderDownloadList(containerId) {

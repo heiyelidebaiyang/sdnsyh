@@ -61,11 +61,9 @@
         .scrollbar-thin::-webkit-scrollbar-track { background: #f1f5f9; }
         .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
         .scrollbar-thin::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        /* 拆分画线模式 */
         .split-overlay {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0;
             z-index: 20;
             pointer-events: none;
         }
@@ -77,10 +75,10 @@
 </head>
 <body class="bg-slate-100 h-screen flex flex-col">
 
-<!-- 顶部标题栏（仅保留标题，移除了导入按钮） -->
+<!-- 顶部标题栏 -->
 <header class="bg-white shadow-sm px-4 py-2 flex items-center justify-between shrink-0 z-20">
     <div class="flex items-center gap-3">
-        <h1 class="text-lg font-bold text-slate-800">📄 试卷背景净化工具</h1>
+        <h1 class="text-lg font-bold text-slate-800">📄 试卷背景净化工具 --云雪星球</h1>
         <span class="text-xs text-slate-500 bg-slate-100 px-2 py-0.5 rounded">本地处理 · 无需上传</span>
     </div>
 </header>
@@ -120,7 +118,7 @@
             <p id="paperSizeHint" class="text-xs text-slate-400">当前：A4 (210×297mm)</p>
         </div>
 
-        <!-- 净化参数（默认值已调整） -->
+        <!-- 净化参数 -->
         <div class="space-y-2">
             <h3 class="text-sm font-semibold text-slate-700 flex justify-between items-center">
                 净化参数
@@ -201,7 +199,7 @@
     <!-- 中间预览区 -->
     <main class="flex-1 flex flex-col overflow-hidden">
 
-        <!-- 右侧工具栏行（移除了顶部重复的导入按钮，下载/导出移至最右侧） -->
+        <!-- 右侧工具栏 -->
         <div id="toolbarRow" class="bg-white border-b px-3 py-2 flex items-center gap-2 flex-wrap shrink-0">
             <button id="btnImport" class="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600 transition">📂 导入文件</button>
             <div class="w-px h-5 bg-slate-300 mx-1"></div>
@@ -215,7 +213,6 @@
                 <input type="range" id="sliderZoom" min="15" max="200" value="100" class="w-24">
             </div>
             <span class="text-xs text-slate-400 ml-auto" id="toolbarInfo">无页面</span>
-            <!-- 下载/导出按钮移至最右侧 -->
             <div class="flex items-center gap-1 ml-2">
                 <button id="btnDownloadImg" class="px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition">💾 下载图片</button>
                 <button id="btnPrintPDF" class="px-3 py-1 bg-slate-800 text-white text-xs rounded hover:bg-slate-900 transition">🖨️ 导出PDF/打印</button>
@@ -229,9 +226,7 @@
                 <div id="origContainer" class="checkerboard shadow-lg rounded overflow-hidden flex items-center justify-center" style="width: 420px; height: 594px;">
                     <div id="origWrapper" class="canvas-wrapper relative">
                         <canvas id="origCanvas"></canvas>
-                        <!-- 四角手柄容器 -->
                         <div id="cornerHandles" class="absolute inset-0 pointer-events-none"></div>
-                        <!-- 拆分用画线 canvas -->
                         <canvas id="splitCanvas" class="split-overlay" style="position:absolute;top:0;left:0;"></canvas>
                     </div>
                 </div>
@@ -285,12 +280,13 @@ const state = {
     history: [],
     historyIndex: -1,
     editHistory: [],
-    splitMode: false, // 是否处于A3拆分画线模式
+    splitMode: false,
     splitStart: null,
     splitEnd: null,
 };
 
 const DEFAULT_PARAMS = { denoise: 110, threshold: 150, bleed: 10, despeckle: 2 };
+const MAX_PIXELS = 20000000; // 2000万像素警告阈值
 
 const origCanvas = document.getElementById('origCanvas');
 const origCtx = origCanvas.getContext('2d');
@@ -394,7 +390,6 @@ function setupEventListeners() {
     document.getElementById('btnClearAll').addEventListener('click', clearAll);
     document.getElementById('btnSplitA3').addEventListener('click', enterSplitMode);
 
-    // 拆分画线相关事件（在origContainer上监听）
     splitCanvas.addEventListener('mousedown', onSplitMouseDown);
     splitCanvas.addEventListener('mousemove', onSplitMouseMove);
     splitCanvas.addEventListener('mouseup', onSplitMouseUp);
@@ -448,6 +443,16 @@ function setupEventListeners() {
     });
 }
 
+// ==================== 辅助：获取页面原始像素数据（动态生成，不存储） ====================
+function getOriginalImageData(page) {
+    const canvas = document.createElement('canvas');
+    canvas.width = page.width;
+    canvas.height = page.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(page.originalImage, 0, 0);
+    return ctx.getImageData(0, 0, page.width, page.height);
+}
+
 // ==================== 参数重置 ====================
 function resetParamsToDefault() {
     document.getElementById('sliderDenoise').value = DEFAULT_PARAMS.denoise;
@@ -460,7 +465,6 @@ function resetParamsToDefault() {
     document.getElementById('valDespeckle').textContent = DEFAULT_PARAMS.despeckle;
 }
 
-// ==================== 纸张尺寸 ====================
 function updateCustomPaperSize() {
     const short = parseFloat(document.getElementById('paperShort').value) || 210;
     const long = parseFloat(document.getElementById('paperLong').value) || 297;
@@ -508,7 +512,7 @@ async function loadPDF(file) {
     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
-        const scale = 2;
+        const scale = 2; // 降低分辨率以节省内存
         const viewport = page.getViewport({ scale });
         const canvas = document.createElement('canvas');
         canvas.width = viewport.width;
@@ -523,22 +527,21 @@ async function loadPDF(file) {
 }
 
 function addPage(img, name) {
-    const offscreen = document.createElement('canvas');
-    offscreen.width = img.width;
-    offscreen.height = img.height;
-    offscreen.getContext('2d').drawImage(img, 0, 0);
+    const w = img.width, h = img.height;
+    if (w * h > MAX_PIXELS) {
+        alert(`图片分辨率较大（${w}×${h}），可能导致性能问题，建议压缩后再导入。`);
+    }
     const page = {
         id: Date.now() + Math.random(),
         name: name || '未命名',
         originalImage: img,
-        originalData: offscreen.getContext('2d').getImageData(0, 0, img.width, img.height),
-        width: img.width,
-        height: img.height,
+        width: w,
+        height: h,
         corners: [
             { x: 0, y: 0 },
-            { x: img.width, y: 0 },
-            { x: img.width, y: img.height },
-            { x: 0, y: img.height }
+            { x: w, y: 0 },
+            { x: w, y: h },
+            { x: 0, y: h }
         ],
         cornersModified: false,
         purified: false,
@@ -587,7 +590,6 @@ function switchPage(index) {
     updateStatus();
     updateToolbarInfo();
     setEditMode(null);
-    // 退出拆分模式
     if (state.splitMode) exitSplitMode(false);
 }
 
@@ -612,7 +614,6 @@ function renderOriginal() {
     origCtx.drawImage(page.originalImage, 0, 0, dw, dh);
     document.getElementById('origWrapper').style.width = dw + 'px';
     document.getElementById('origWrapper').style.height = dh + 'px';
-    // 调整拆分画布大小
     splitCanvas.width = dw;
     splitCanvas.height = dh;
     splitCanvas.style.width = dw + 'px';
@@ -652,7 +653,7 @@ function renderCorners() {
         let dragging = false;
         let startX, startY, origX, origY;
         const onMove = ev => {
-            if (!dragging || state.splitMode) return; // 拆分模式下禁止四角拖拽
+            if (!dragging || state.splitMode) return;
             const dx = (ev.clientX - startX) / s;
             const dy = (ev.clientY - startY) / s;
             corner.x = Math.max(0, Math.min(page.width, origX + dx));
@@ -698,7 +699,8 @@ function resetCorners() {
 function autoDetectEdges() {
     const page = currentPage();
     if (!page) return;
-    const data = page.originalData.data;
+    const imageData = getOriginalImageData(page);
+    const data = imageData.data;
     const w = page.width, h = page.height;
     let minX = w, minY = h, maxX = 0, maxY = 0;
     const threshold = 240, step = 5;
@@ -729,7 +731,7 @@ function autoDetectEdges() {
     renderOriginal();
 }
 
-// ==================== 旋转（异步修复） ====================
+// ==================== 旋转 ====================
 async function rotatePage(degrees) {
     const page = currentPage();
     if (!page) return;
@@ -749,12 +751,10 @@ async function rotatePage(degrees) {
     }
     nctx.drawImage(page.originalImage, 0, 0);
     nctx.restore();
-    // 创建新图片并等待加载
     const rotatedImg = new Image();
     rotatedImg.src = newCanvas.toDataURL();
     await new Promise(resolve => { rotatedImg.onload = resolve; });
     page.originalImage = rotatedImg;
-    page.originalData = nctx.getImageData(0, 0, newCanvas.width, newCanvas.height);
     const oldW = page.width;
     page.width = page.height;
     page.height = oldW;
@@ -775,29 +775,24 @@ async function rotatePage(degrees) {
     updateStatus();
 }
 
-// ==================== A3拆分（手动划线） ====================
+// ==================== A3拆分 ====================
 function enterSplitMode() {
     const page = currentPage();
     if (!page) return alert('没有可拆分的页面');
-    if (state.splitMode) {
-        exitSplitMode(false);
-        return;
-    }
-    // 进入拆分模式
+    if (state.splitMode) { exitSplitMode(false); return; }
     state.splitMode = true;
     state.splitStart = null;
     state.splitEnd = null;
     document.getElementById('btnSplitA3').classList.add('bg-blue-500', 'text-white');
     splitCanvas.classList.add('active');
     splitCtx.clearRect(0, 0, splitCanvas.width, splitCanvas.height);
-    renderOriginal(); // 重新渲染以更新画布大小
+    renderOriginal();
     alert('请在原始照片上画一条线（横向分割画水平线，竖向分割画竖线）');
 }
 
 function exitSplitMode(split = false) {
     state.splitMode = false;
-    state.splitStart = null;
-    state.splitEnd = null;
+    state.splitStart = state.splitEnd = null;
     document.getElementById('btnSplitA3').classList.remove('bg-blue-500', 'text-white');
     splitCanvas.classList.remove('active');
     splitCtx.clearRect(0, 0, splitCanvas.width, splitCanvas.height);
@@ -808,9 +803,7 @@ function onSplitMouseDown(e) {
     if (!state.splitMode) return;
     const rect = splitCanvas.getBoundingClientRect();
     const scale = currentPage().width / splitCanvas.width;
-    const x = (e.clientX - rect.left) * scale;
-    const y = (e.clientY - rect.top) * scale;
-    state.splitStart = { x, y };
+    state.splitStart = { x: (e.clientX - rect.left) * scale, y: (e.clientY - rect.top) * scale };
     state.splitEnd = null;
     drawSplitLine();
 }
@@ -819,9 +812,7 @@ function onSplitMouseMove(e) {
     if (!state.splitMode || !state.splitStart) return;
     const rect = splitCanvas.getBoundingClientRect();
     const scale = currentPage().width / splitCanvas.width;
-    const x = (e.clientX - rect.left) * scale;
-    const y = (e.clientY - rect.top) * scale;
-    state.splitEnd = { x, y };
+    state.splitEnd = { x: (e.clientX - rect.left) * scale, y: (e.clientY - rect.top) * scale };
     drawSplitLine();
 }
 
@@ -830,20 +821,11 @@ function onSplitMouseUp() {
     const page = currentPage();
     const dx = state.splitEnd.x - state.splitStart.x;
     const dy = state.splitEnd.y - state.splitStart.y;
-    const len = Math.hypot(dx, dy);
-    if (len < 30) { // 线太短，取消
-        state.splitStart = null;
-        state.splitEnd = null;
-        drawSplitLine();
-        return;
-    }
-    // 判断方向：角度绝对值 < 45 度视为水平，> 45 度视为垂直
+    if (Math.hypot(dx, dy) < 30) return;
     const angle = Math.abs(Math.atan2(dy, dx) * 180 / Math.PI);
-    const horizontal = angle <= 45 ? true : angle >= 135 ? true : false;
-    const vertical = !horizontal;
-
+    const horizontal = angle <= 45 || angle >= 135;
     if (horizontal) {
-        const splitY = Math.round(state.splitStart.y + dy / 2); // 取中点
+        const splitY = Math.round(state.splitStart.y + dy / 2);
         performSplit(page, false, splitY);
     } else {
         const splitX = Math.round(state.splitStart.x + dx / 2);
@@ -870,56 +852,32 @@ function drawSplitLine() {
 async function performSplit(page, vertical, splitPos) {
     if (!confirm('确认按此方向拆分当前A3页面吗？')) return;
     saveHistory();
-
-    const halfW = vertical ? splitPos : page.width;
-    const halfH = vertical ? page.height : splitPos;
     const origCanvas = document.createElement('canvas');
-    origCanvas.width = page.width;
-    origCanvas.height = page.height;
-    origCanvas.getContext('2d').putImageData(page.originalData, 0, 0);
-
+    origCanvas.width = page.width; origCanvas.height = page.height;
+    origCanvas.getContext('2d').drawImage(page.originalImage, 0, 0);
     const pagesToAdd = [];
-    const segments = vertical ? [0, splitPos, page.width] : [0, splitPos, page.height];
     for (let i = 0; i < 2; i++) {
         const sx = vertical ? (i === 0 ? 0 : splitPos) : 0;
         const sy = vertical ? 0 : (i === 0 ? 0 : splitPos);
         const sw = vertical ? (i === 0 ? splitPos : page.width - splitPos) : page.width;
         const sh = vertical ? page.height : (i === 0 ? splitPos : page.height - splitPos);
         const newCanvas = document.createElement('canvas');
-        newCanvas.width = sw;
-        newCanvas.height = sh;
+        newCanvas.width = sw; newCanvas.height = sh;
         newCanvas.getContext('2d').drawImage(origCanvas, sx, sy, sw, sh, 0, 0, sw, sh);
         const newImg = new Image();
         newImg.src = newCanvas.toDataURL();
         await new Promise(r => newImg.onload = r);
-        const offscreen = document.createElement('canvas');
-        offscreen.width = sw;
-        offscreen.height = sh;
-        offscreen.getContext('2d').drawImage(newImg, 0, 0);
-        const newPage = {
+        pagesToAdd.push({
             id: Date.now() + Math.random(),
             name: `${page.name} 拆-${i+1}`,
             originalImage: newImg,
-            originalData: offscreen.getContext('2d').getImageData(0, 0, sw, sh),
-            width: sw,
-            height: sh,
-            corners: [
-                { x: 0, y: 0 },
-                { x: sw, y: 0 },
-                { x: sw, y: sh },
-                { x: 0, y: sh }
-            ],
+            width: sw, height: sh,
+            corners: [{ x: 0, y: 0 }, { x: sw, y: 0 }, { x: sw, y: sh }, { x: 0, y: sh }],
             cornersModified: false,
-            purified: false,
-            purifiedData: null,
-            purifiedWidth: 0,
-            purifiedHeight: 0,
-            editLayers: [],
-            rotation: 0
-        };
-        pagesToAdd.push(newPage);
+            purified: false, purifiedData: null, purifiedWidth: 0, purifiedHeight: 0,
+            editLayers: [], rotation: 0
+        });
     }
-
     const idx = state.currentIndex;
     state.pages.splice(idx, 1, pagesToAdd[0]);
     state.pages.splice(idx + 1, 0, pagesToAdd[1]);
@@ -930,11 +888,7 @@ async function performSplit(page, vertical, splitPos) {
     document.querySelector('.size-btn[data-size="A4"]')?.classList.add('bg-blue-500', 'text-white', 'border-blue-500');
     updatePaperSizeHint();
     state.currentIndex = idx;
-    renderOriginal();
-    renderResult();
-    updateThumbnails();
-    updateStatus();
-    updateToolbarInfo();
+    renderOriginal(); renderResult(); updateThumbnails(); updateStatus(); updateToolbarInfo();
 }
 
 // ==================== 净化处理 ====================
@@ -950,7 +904,7 @@ function purifyCurrent() {
 function purifyAll() {
     if (state.pages.length === 0) return;
     saveHistory();
-    state.pages.forEach(page => performPurification(page));
+    for (let page of state.pages) performPurification(page);
     renderResult();
     updateStatus();
     alert(`已完成 ${state.pages.length} 页批量净化`);
@@ -966,12 +920,11 @@ function performPurification(page) {
     if (page.cornersModified) {
         const result = perspectiveTransform(page);
         sourceData = result.imageData;
-        sourceW = result.width;
-        sourceH = result.height;
+        sourceW = result.width; sourceH = result.height;
     } else {
-        sourceData = page.originalData;
-        sourceW = page.width;
-        sourceH = page.height;
+        const origData = getOriginalImageData(page);
+        sourceData = origData;
+        sourceW = page.width; sourceH = page.height;
     }
 
     const data = new Uint8ClampedArray(sourceData.data);
@@ -980,8 +933,7 @@ function performPurification(page) {
     for (let i = 0; i < data.length; i += 4) {
         let gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
         if (bleed > 0 && gray > threshold * 0.6) {
-            const bleedFactor = bleed / 100;
-            gray = gray + (255 - gray) * bleedFactor * 0.5;
+            gray = gray + (255 - gray) * (bleed / 100) * 0.5;
         }
         if (gray >= threshold) {
             data[i] = 255; data[i+1] = 255; data[i+2] = 255;
@@ -990,7 +942,7 @@ function performPurification(page) {
             data[i] = darkVal; data[i+1] = darkVal; data[i+2] = darkVal;
         } else {
             const t = (gray - denoise) / (threshold - denoise);
-            const val = Math.round(denoise * 0.15 + (1 - t) * 0 + t * 255);
+            const val = Math.round(denoise * 0.15 + t * 255);
             data[i] = val; data[i+1] = val; data[i+2] = val;
         }
     }
@@ -1010,17 +962,14 @@ function performPurification(page) {
                             total++;
                         }
                     }
-                    if (whiteCount / total > 0.8) {
-                        data[idx] = 255; data[idx+1] = 255; data[idx+2] = 255;
-                    }
+                    if (whiteCount / total > 0.8) data[idx] = data[idx+1] = data[idx+2] = 255;
                 }
             }
         }
     }
 
     page.purifiedData = new ImageData(data, sourceW, sourceH);
-    page.purifiedWidth = sourceW;
-    page.purifiedHeight = sourceH;
+    page.purifiedWidth = sourceW; page.purifiedHeight = sourceH;
     page.purified = true;
     page.editLayers = [];
 }
@@ -1032,23 +981,20 @@ function perspectiveTransform(page) {
     const bottomW = Math.hypot(corners[2].x - corners[3].x, corners[2].y - corners[3].y);
     const leftH = Math.hypot(corners[3].x - corners[0].x, corners[3].y - corners[0].y);
     const rightH = Math.hypot(corners[2].x - corners[1].x, corners[2].y - corners[1].y);
-    const avgW = (topW + bottomW) / 2;
-    const avgH = (leftH + rightH) / 2;
+    const avgW = (topW + bottomW) / 2, avgH = (leftH + rightH) / 2;
     let targetW, targetH;
     if (avgH / avgW > 1) {
-        targetW = Math.round(avgW);
-        targetH = Math.round(avgW * paperRatio);
+        targetW = Math.round(avgW); targetH = Math.round(avgW * paperRatio);
     } else {
-        targetH = Math.round(avgH);
-        targetW = Math.round(avgH * paperRatio);
+        targetH = Math.round(avgH); targetW = Math.round(avgH * paperRatio);
     }
     const outCanvas = document.createElement('canvas');
-    outCanvas.width = targetW;
-    outCanvas.height = targetH;
+    outCanvas.width = targetW; outCanvas.height = targetH;
     const outCtx = outCanvas.getContext('2d');
     const outData = outCtx.createImageData(targetW, targetH);
     const dst = outData.data;
-    const src = page.originalData.data;
+    const srcData = getOriginalImageData(page);
+    const src = srcData.data;
     const srcW = page.width, srcH = page.height;
 
     for (let y = 0; y < targetH; y++) {
@@ -1070,11 +1016,7 @@ function perspectiveTransform(page) {
                 const idx11 = (y1 * srcW + x1) * 4;
                 const didx = (y * targetW + x) * 4;
                 for (let c = 0; c < 3; c++) {
-                    dst[didx + c] =
-                        src[idx00 + c] * (1 - fx) * (1 - fy) +
-                        src[idx10 + c] * fx * (1 - fy) +
-                        src[idx01 + c] * (1 - fx) * fy +
-                        src[idx11 + c] * fx * fy;
+                    dst[didx + c] = src[idx00 + c] * (1-fx)*(1-fy) + src[idx10 + c] * fx*(1-fy) + src[idx01 + c] * (1-fx)*fy + src[idx11 + c] * fx*fy;
                 }
                 dst[didx + 3] = 255;
             }
@@ -1316,33 +1258,22 @@ function applyZoom() {
 function saveHistory() {
     const snapshot = JSON.stringify(state.pages.map(p => ({
         id: p.id, name: p.name, width: p.width, height: p.height,
-        corners: p.corners.map(c => ({...c})), cornersModified: p.cornersModified,
+        corners: p.corners.map(c=>({...c})), cornersModified: p.cornersModified,
         purified: p.purified, rotation: p.rotation,
         purifiedWidth: p.purifiedWidth, purifiedHeight: p.purifiedHeight
     })));
-    state.history.push(snapshot);
-    state.historyIndex = state.history.length - 1;
-    if (state.history.length > 30) {
-        state.history.shift();
-        state.historyIndex--;
-    }
+    state.history.push(snapshot); state.historyIndex = state.history.length - 1;
+    if (state.history.length > 30) { state.history.shift(); state.historyIndex--; }
 }
 
 function undo() {
     if (state.historyIndex < 0 || state.history.length === 0) return;
-    const snapshot = JSON.parse(state.history[state.historyIndex]);
-    state.historyIndex--;
+    const snapshot = JSON.parse(state.history[state.historyIndex]); state.historyIndex--;
     snapshot.forEach((savedPage, idx) => {
         if (idx < state.pages.length) Object.assign(state.pages[idx], savedPage);
     });
-    if (state.pages.length > 0 && state.currentIndex >= state.pages.length) {
-        state.currentIndex = state.pages.length - 1;
-    }
-    renderOriginal();
-    renderResult();
-    updateThumbnails();
-    updateStatus();
-    updateToolbarInfo();
+    if (state.pages.length > 0 && state.currentIndex >= state.pages.length) state.currentIndex = state.pages.length - 1;
+    renderOriginal(); renderResult(); updateThumbnails(); updateStatus(); updateToolbarInfo();
 }
 
 function currentPage() {
@@ -1353,56 +1284,34 @@ function resetCurrentPage() {
     const page = currentPage();
     if (!page) return;
     saveHistory();
-    page.purified = false;
-    page.purifiedData = null;
-    page.editLayers = [];
-    page.corners = [
-        { x: 0, y: 0 },
-        { x: page.width, y: 0 },
-        { x: page.width, y: page.height },
-        { x: 0, y: page.height }
-    ];
+    page.purified = false; page.purifiedData = null; page.editLayers = [];
+    page.corners = [{ x:0,y:0 }, { x:page.width,y:0 }, { x:page.width,y:page.height }, { x:0,y:page.height }];
     page.cornersModified = false;
-    renderOriginal();
-    renderResult();
-    updateStatus();
-    updateThumbnails();
+    renderOriginal(); renderResult(); updateStatus(); updateThumbnails();
 }
 
 function clearAll() {
     if (!confirm('确定要清除所有页面数据吗？此操作无法撤销。')) return;
-    state.pages = [];
-    state.currentIndex = -1;
-    state.history = [];
-    state.historyIndex = -1;
-    state.editHistory = [];
-    origCanvas.width = 0;
-    resultCanvas.width = 0;
-    editOverlay.width = 0;
-    editOverlay.height = 0;
+    state.pages = []; state.currentIndex = -1; state.history = []; state.historyIndex = -1; state.editHistory = [];
+    origCanvas.width = 0; resultCanvas.width = 0; editOverlay.width = 0; editOverlay.height = 0;
     cornerHandles.innerHTML = '';
-    updateThumbnails();
-    updateStatus();
-    updateToolbarInfo();
-    drawPlaceholder(origCanvas, '请导入试卷图片');
-    drawPlaceholder(resultCanvas, '净化结果显示区');
+    updateThumbnails(); updateStatus(); updateToolbarInfo();
+    drawPlaceholder(origCanvas, '请导入试卷图片'); drawPlaceholder(resultCanvas, '净化结果显示区');
 }
 
-// ==================== 下载与打印 ====================
+// ==================== 多页打印/导出 ====================
 function downloadImage() {
     const page = currentPage();
     if (!page) { alert('没有可下载的页面'); return; }
     const canvas = document.createElement('canvas');
     if (page.purified && page.purifiedData) {
-        canvas.width = page.purifiedWidth;
-        canvas.height = page.purifiedHeight;
+        canvas.width = page.purifiedWidth; canvas.height = page.purifiedHeight;
         const ctx = canvas.getContext('2d');
         ctx.putImageData(page.purifiedData, 0, 0);
         applyEditLayers(canvas, page);
     } else {
-        canvas.width = page.width;
-        canvas.height = page.height;
-        canvas.getContext('2d').putImageData(page.originalData, 0, 0);
+        canvas.width = page.width; canvas.height = page.height;
+        canvas.getContext('2d').drawImage(page.originalImage, 0, 0);
     }
     const link = document.createElement('a');
     link.download = (page.name || 'page') + '_processed.png';
@@ -1411,31 +1320,37 @@ function downloadImage() {
 }
 
 function printPDF() {
-    const page = currentPage();
-    if (!page) { alert('请先选择要打印的页面'); return; }
-    const canvas = document.createElement('canvas');
-    if (page.purified && page.purifiedData) {
-        canvas.width = page.purifiedWidth;
-        canvas.height = page.purifiedHeight;
-        const ctx = canvas.getContext('2d');
-        ctx.putImageData(page.purifiedData, 0, 0);
-        applyEditLayers(canvas, page);
-    } else {
-        canvas.width = page.width;
-        canvas.height = page.height;
-        canvas.getContext('2d').putImageData(page.originalData, 0, 0);
-    }
-    const imgSrc = canvas.toDataURL('image/png');
+    if (state.pages.length === 0) { alert('没有页面'); return; }
+    const images = [];
+    state.pages.forEach((page, idx) => {
+        const canvas = document.createElement('canvas');
+        if (page.purified && page.purifiedData) {
+            canvas.width = page.purifiedWidth; canvas.height = page.purifiedHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.putImageData(page.purifiedData, 0, 0);
+            applyEditLayers(canvas, page);
+        } else {
+            canvas.width = page.width; canvas.height = page.height;
+            canvas.getContext('2d').drawImage(page.originalImage, 0, 0);
+        }
+        images.push({ src: canvas.toDataURL('image/png'), name: page.name || `页${idx+1}` });
+    });
+
     const w = window.open('', '_blank', 'width=800,height=600');
-    w.document.write(`<!DOCTYPE html>
-    <html><head><title>打印 - ${page.name}</title>
-    <style>
-        @page { size: ${state.paperSize.short}mm ${state.paperSize.long}mm; margin: 0; }
-        body { margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        img { max-width: 100%; max-height: 100%; }
-        @media print { img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: fill; } }
-    </style></head>
-    <body><img src="${imgSrc}" onload="window.print()"></body></html>`);
+    let html = `<!DOCTYPE html><html><head><title>打印全部页面</title>
+        <style>
+            @page { size: ${state.paperSize.short}mm ${state.paperSize.long}mm; margin: 0; }
+            body { margin: 0; }
+            .page { page-break-after: always; display: flex; justify-content: center; align-items: center; height: 100vh; }
+            .page:last-child { page-break-after: auto; }
+            img { max-width: 100%; max-height: 100%; object-fit: contain; }
+            @media print { img { object-fit: fill; width: 100%; height: 100%; } }
+        </style></head><body>`;
+    images.forEach(img => {
+        html += `<div class="page"><img src="${img.src}" alt="${img.name}"></div>`;
+    });
+    html += '</body></html>';
+    w.document.write(html);
     w.document.close();
 }
 

@@ -5,27 +5,23 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
   <title>印章生成器 · 云雪星球</title>
   <style>
-    /* 暗色系基础 */
+    /* 配色参照 https://heiyelidebaiyang.github.io/sdnsyh/html/tools/shijuan.html */
     .seal72-tool {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --border: #30363d;
-      --text: #c9d1d9;
-      --text-muted: #8b949e;
-      --accent: #f78166;
-      --accent-hover: #e06c5b;
-      --accent-bg: rgba(248, 81, 73, 0.15);
-      --danger: #da3633;
-      --success: #3fb950;
-      --warning: #d29922;
-      --input-bg: #0d1117;
-      --hover-bg: #1c2128;
-      --shadow: 0 8px 24px rgba(0,0,0,0.4);
+      --ink: #172033;
+      --muted: #657188;
+      --panel: #ffffff;
+      --soft: #f8fbff;
+      --line: rgba(185, 28, 28, 0.18);
+      --line-strong: rgba(185, 28, 28, 0.36);
+      --accent: #b91c1c;
+      --accent-dark: #991b1b;
+      --success: #0f766e;
+      --warning: #b45309;
+      --danger: #dc2626;
       min-height: 100vh;
       padding: clamp(14px, 3vw, 30px);
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: linear-gradient(180deg, rgba(255, 247, 247, 0.92), rgba(248, 250, 252, 0.98)), #fff7f7;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     }
 
     .seal72-tool .seal72-workspace {
@@ -40,13 +36,9 @@
 
     .seal72-intro {
       margin: 0 0 14px;
-      color: var(--text-muted);
+      color: #475569;
       font-size: 15px;
       line-height: 1.72;
-      border-left: 4px solid var(--accent);
-      padding-left: 14px;
-      background: var(--surface);
-      border-radius: 0 8px 8px 0;
     }
 
     .seal72-grid {
@@ -60,15 +52,15 @@
     .seal72-status,
     .seal72-stat,
     .seal72-type-button {
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--surface);
+      background: var(--panel);
     }
 
     .seal72-panel {
       min-width: 0;
       overflow: hidden;
-      box-shadow: var(--shadow);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
     }
 
     .seal72-panel + .seal72-panel {
@@ -81,31 +73,25 @@
       justify-content: space-between;
       gap: 12px;
       min-height: 50px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      background: var(--soft);
       padding: 12px 14px;
     }
 
     .seal72-panel-title {
       margin: 0;
-      color: #f0f6fc;
+      color: var(--ink);
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 800;
       line-height: 1.35;
     }
 
     .seal72-meta,
     .seal72-label,
     .seal72-small {
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 12px;
       line-height: 1.45;
-    }
-
-    .seal72-meta {
-      background: rgba(110,118,129,0.1);
-      padding: 0.2rem 0.7rem;
-      border-radius: 20px;
     }
 
     .seal72-panel-body {
@@ -121,19 +107,16 @@
     }
 
     .seal72-form-section + .seal72-form-section {
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--line);
       padding-top: 14px;
     }
 
     .seal72-form-section-title {
       margin: 0;
-      color: #f0f6fc;
+      color: var(--ink);
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 800;
       line-height: 1.4;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--accent);
     }
 
     .seal72-type-grid {
@@ -144,27 +127,26 @@
 
     .seal72-type-button {
       min-height: 42px;
-      color: var(--text);
+      color: var(--ink);
       padding: 9px 10px;
       font: inherit;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.15s;
-      background: var(--input-bg);
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
     }
+
     .seal72-type-button:hover {
       border-color: var(--accent);
-      background: var(--hover-bg);
+      background: #fff7f7;
       transform: translateY(-1px);
     }
+
     .seal72-type-button.is-active,
     .seal72-type-button[aria-pressed="true"] {
       border-color: var(--accent);
       background: var(--accent);
       color: #ffffff;
-      font-weight: 600;
-      box-shadow: 0 4px 12px rgba(248,81,73,0.3);
     }
 
     .seal72-field-grid {
@@ -172,11 +154,13 @@
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
+
     .seal72-field {
       display: grid;
       min-width: 0;
       gap: 7px;
     }
+
     .seal72-field.is-full {
       grid-column: 1 / -1;
     }
@@ -186,28 +170,30 @@
     .seal72-field textarea {
       width: 100%;
       min-height: 40px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line-strong);
       border-radius: 8px;
-      background: var(--input-bg);
-      color: var(--text);
+      background: #ffffff;
+      color: var(--ink);
       padding: 8px 10px;
       font: inherit;
       font-size: 14px;
       line-height: 1.5;
     }
+
     .seal72-field textarea {
       min-height: 76px;
       resize: vertical;
     }
+
     .seal72-field input[type="color"] {
       padding: 4px;
       cursor: pointer;
     }
+
     .seal72-field input[type="range"] {
       min-height: auto;
       padding: 0;
       accent-color: var(--accent);
-      background: transparent;
     }
 
     .seal72-range-head {
@@ -216,10 +202,11 @@
       justify-content: space-between;
       gap: 10px;
     }
+
     .seal72-value {
-      color: var(--accent);
+      color: var(--ink);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 800;
       white-space: nowrap;
     }
 
@@ -229,14 +216,15 @@
       justify-content: space-between;
       gap: 12px;
       min-height: 42px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--input-bg);
+      background: #ffffff;
       padding: 9px 10px;
-      color: var(--text);
+      color: var(--ink);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 800;
     }
+
     .seal72-check input {
       width: 18px;
       height: 18px;
@@ -256,31 +244,33 @@
       justify-content: center;
       gap: 8px;
       min-height: 40px;
-      border: 1px solid var(--border);
+      border: 1px solid var(--line-strong);
       border-radius: 8px;
-      background: var(--input-bg);
-      color: var(--text);
+      background: #ffffff;
+      color: var(--ink);
       padding: 9px 12px;
       font: inherit;
       font-size: 14px;
-      font-weight: 600;
+      font-weight: 800;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease, transform 0.18s ease;
     }
+
     .seal72-button:hover {
       border-color: var(--accent);
-      background: var(--hover-bg);
+      background: #fff7f7;
       transform: translateY(-1px);
     }
+
     .seal72-button.is-primary {
-      border-color: #238636;
-      background: #238636;
+      border-color: var(--accent);
+      background: var(--accent);
       color: #ffffff;
-      box-shadow: 0 4px 10px rgba(35,134,54,0.3);
     }
+
     .seal72-button.is-primary:hover {
-      border-color: #2ea043;
-      background: #2ea043;
+      border-color: var(--accent-dark);
+      background: var(--accent-dark);
     }
 
     .seal72-icon {
@@ -290,14 +280,15 @@
       min-width: 22px;
       height: 22px;
       border-radius: 6px;
-      background: rgba(248,81,73,0.15);
+      background: rgba(185, 28, 28, 0.1);
       color: var(--accent);
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 800;
       line-height: 1;
     }
+
     .seal72-button.is-primary .seal72-icon {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255, 255, 255, 0.18);
       color: #ffffff;
     }
 
@@ -312,11 +303,11 @@
       min-height: 590px;
       padding: clamp(14px, 2.2vw, 22px);
       background:
-        linear-gradient(45deg, rgba(48,54,61,0.5) 25%, transparent 25%),
-        linear-gradient(-45deg, rgba(48,54,61,0.5) 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, rgba(48,54,61,0.5) 75%),
-        linear-gradient(-45deg, transparent 75%, rgba(48,54,61,0.5) 75%),
-        var(--bg);
+        linear-gradient(45deg, rgba(203, 213, 225, 0.42) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(203, 213, 225, 0.42) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(203, 213, 225, 0.42) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(203, 213, 225, 0.42) 75%),
+        #f8fafc;
       background-position: 0 0, 0 14px, 14px -14px, -14px 0;
       background-size: 28px 28px;
     }
@@ -328,15 +319,17 @@
       width: min(560px, 100%);
       aspect-ratio: 1;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid rgba(15, 23, 42, 0.08);
       border-radius: 8px;
-      background: rgba(22,27,34,0.9);
-      box-shadow: 0 18px 42px rgba(0,0,0,0.4);
+      background: rgba(255, 255, 255, 0.74);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8), 0 18px 42px rgba(15, 23, 42, 0.12);
     }
+
     .seal72-canvas-shell.is-watermark {
       aspect-ratio: 1.44;
       width: min(680px, 100%);
     }
+
     .seal72-canvas {
       display: block;
       width: 100%;
@@ -348,27 +341,30 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      border-top: 1px solid var(--border);
-      background: var(--bg);
+      border-top: 1px solid var(--line);
+      background: var(--soft);
       padding: 12px 14px;
     }
+
     .seal72-stats {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
     }
+
     .seal72-stat {
       min-width: 0;
       padding: 11px 12px;
-      background: var(--surface);
+      background: #ffffff;
     }
+
     .seal72-stat-value {
       display: block;
       margin-top: 4px;
       overflow-wrap: anywhere;
-      color: #f0f6fc;
+      color: var(--ink);
       font-size: 15px;
-      font-weight: 600;
+      font-weight: 800;
       line-height: 1.35;
     }
 
@@ -377,56 +373,48 @@
       align-items: flex-start;
       gap: 9px;
       padding: 11px 12px;
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 14px;
       line-height: 1.55;
     }
+
     .seal72-dot {
       width: 9px;
       height: 9px;
       min-width: 9px;
       margin-top: 6px;
       border-radius: 999px;
-      background: var(--text-muted);
+      background: #94a3b8;
     }
+
     .seal72-status.is-success {
-      border-color: rgba(63,185,80,0.3);
-      background: rgba(63,185,80,0.1);
+      border-color: rgba(15, 118, 110, 0.24);
+      background: #f0fdfa;
       color: var(--success);
     }
-    .seal72-status.is-success .seal72-dot {
-      background: var(--success);
-    }
+
+    .seal72-status.is-success .seal72-dot { background: var(--success); }
     .seal72-status.is-warning {
-      border-color: rgba(210,153,34,0.3);
-      background: rgba(210,153,34,0.1);
+      border-color: rgba(180, 83, 9, 0.24);
+      background: #fffbeb;
       color: var(--warning);
     }
-    .seal72-status.is-warning .seal72-dot {
-      background: var(--warning);
-    }
+    .seal72-status.is-warning .seal72-dot { background: var(--warning); }
     .seal72-status.is-error {
-      border-color: rgba(218,54,51,0.3);
-      background: rgba(218,54,51,0.1);
+      border-color: rgba(220, 38, 38, 0.24);
+      background: #fef2f2;
       color: var(--danger);
     }
-    .seal72-status.is-error .seal72-dot {
-      background: var(--danger);
-    }
+    .seal72-status.is-error .seal72-dot { background: var(--danger); }
 
     .seal72-field input:focus-visible,
     .seal72-field select:focus-visible,
     .seal72-field textarea:focus-visible,
     .seal72-button:focus-visible,
     .seal72-type-button:focus-visible {
-      outline: 3px solid rgba(248,81,73,0.3);
+      outline: 3px solid rgba(185, 28, 28, 0.2);
       outline-offset: 2px;
     }
-
-    /* 自定义滚动条（暗色） */
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
     @media (max-width: 980px) {
       .seal72-grid { grid-template-columns: 1fr; }
@@ -435,11 +423,8 @@
     }
     @media (max-width: 640px) {
       .seal72-tool { padding: 12px; }
-      .seal72-field-grid,
-      .seal72-type-grid,
-      .seal72-stats { grid-template-columns: 1fr; }
-      .seal72-actions,
-      .seal72-button { width: 100%; }
+      .seal72-field-grid, .seal72-type-grid, .seal72-stats { grid-template-columns: 1fr; }
+      .seal72-actions, .seal72-button { width: 100%; }
       .seal72-preview-foot { flex-direction: column; align-items: flex-start; }
       .seal72-stage { min-height: 330px; padding: 12px; }
     }
@@ -481,11 +466,11 @@
                   </label>
                   <label class="seal72-field">
                     <span class="seal72-label">下方文字</span>
-                    <input id="sealBottomText" type="text" maxlength="18" autocomplete="off" value="合同专用章">
+                    <input id="sealBottomText" type="text" maxlength="18" autocomplete="off" value="公章">
                   </label>
                   <label class="seal72-field">
                     <span class="seal72-label">附加编号</span>
-                    <input id="sealCodeText" type="text" maxlength="24" autocomplete="off" value="NO.20260717">
+                    <input id="sealCodeText" type="text" maxlength="24" autocomplete="off" value="91310100MA1T000001">
                   </label>
                   <label class="seal72-field">
                     <span class="seal72-label">日期文字</span>
@@ -548,18 +533,9 @@
                 </div>
               </section>
               <div class="seal72-actions">
-                <button class="seal72-button is-primary" type="button" data-action="download">
-                  <span class="seal72-icon">DL</span>
-                  <span data-download-label="">导出 PNG</span>
-                </button>
-                <button class="seal72-button" type="button" data-action="copy">
-                  <span class="seal72-icon">CP</span>
-                  复制图片
-                </button>
-                <button class="seal72-button" type="button" data-action="reset">
-                  <span class="seal72-icon">R</span>
-                  恢复默认
-                </button>
+                <button class="seal72-button is-primary" type="button" data-action="download"><span class="seal72-icon">DL</span><span data-download-label="">导出 PNG</span></button>
+                <button class="seal72-button" type="button" data-action="copy"><span class="seal72-icon">CP</span>复制图片</button>
+                <button class="seal72-button" type="button" data-action="reset"><span class="seal72-icon">R</span>恢复默认</button>
               </div>
             </div>
           </section>
@@ -577,31 +553,16 @@
           </div>
           <div class="seal72-preview-foot">
             <div class="seal72-actions">
-              <button class="seal72-button is-primary" type="button" data-action="download-alt">
-                <span class="seal72-icon">DL</span>
-                下载当前印章
-              </button>
-              <button class="seal72-button" type="button" data-action="sample">
-                <span class="seal72-icon">EX</span>
-                示例文字
-              </button>
+              <button class="seal72-button is-primary" type="button" data-action="download-alt"><span class="seal72-icon">DL</span>下载当前印章</button>
+              <button class="seal72-button" type="button" data-action="sample"><span class="seal72-icon">EX</span>示例文字</button>
             </div>
             <span class="seal72-small">建议仅用于演示、素材或内部标记，请勿用于伪造真实公章。</span>
           </div>
           <div class="seal72-panel-body">
             <div class="seal72-stats" aria-label="印章概览">
-              <div class="seal72-stat">
-                <span class="seal72-label">类型</span>
-                <span class="seal72-stat-value" data-stat="type">公司公章</span>
-              </div>
-              <div class="seal72-stat">
-                <span class="seal72-label">格式</span>
-                <span class="seal72-stat-value" data-stat="format">PNG</span>
-              </div>
-              <div class="seal72-stat">
-                <span class="seal72-label">画布</span>
-                <span class="seal72-stat-value" data-stat="canvas">720 x 720</span>
-              </div>
+              <div class="seal72-stat"><span class="seal72-label">类型</span><span class="seal72-stat-value" data-stat="type">公司公章</span></div>
+              <div class="seal72-stat"><span class="seal72-label">格式</span><span class="seal72-stat-value" data-stat="format">PNG</span></div>
+              <div class="seal72-stat"><span class="seal72-label">画布</span><span class="seal72-stat-value" data-stat="canvas">720 x 720</span></div>
             </div>
             <div class="seal72-status is-success" role="status" aria-live="polite" data-status="">
               <span class="seal72-dot" aria-hidden="true"></span>
@@ -638,7 +599,6 @@
         { key: "watermark", label: "水印章", top: "", center: "SAMPLE", bottom: "", code: "", shape: "oval", color: "#2563eb", doubleRing: false, font: 72, stroke: 10, distress: 0, opacity: 38, watermark: "仅供预览使用" }
       ];
 
-      // 所有字段引用保持不变
       var fields = {
         top: root.querySelector("#sealTopText"),
         center: root.querySelector("#sealCenterText"),
@@ -837,7 +797,7 @@
           ctx.fillStyle = "#ffffff";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         } else if (options.background === "paper") {
-          ctx.fillStyle = "#fdfaf5";
+          ctx.fillStyle = "#fff7ed";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
           drawPaperGrain(ctx, canvas.width, canvas.height);
         }
@@ -901,9 +861,9 @@
         var bottomStyle = scaleTextStyle(options.bottomStyle, scale);
         var topRadius = getArcTextRadius(radius, scale, options, topStyle.fontSize, topStyle.height);
         var bottomRadius = getArcTextRadius(radius, scale, options, bottomStyle.fontSize, bottomStyle.height);
-        // 外圈文字（上半弧，从左到右，文字正立）
+        // 外圈文字：上半弧，正立（顶部朝外）
         drawArcText(targetCtx, options.top, cx, cy, topRadius, topRadius, Math.PI * 1.18, Math.PI * 1.82, topStyle, options.color, options.opacity, false);
-        // 下方文字（下半弧，从左到右，文字正立，字符顺序反转）
+        // 下方文字：下半弧，倒立且顺序反转（以保证从左到右阅读为正确顺序）
         drawArcText(targetCtx, options.bottom, cx, cy, bottomRadius, bottomRadius, Math.PI * 0.26, Math.PI * 0.74, bottomStyle, options.color, options.opacity, true);
       }
 
@@ -1008,10 +968,12 @@
         targetCtx.restore();
       }
 
-      function drawArcText(targetCtx, text, cx, cy, radiusX, radiusY, start, end, style, color, opacity, reverse) {
+      // 绘制弧形文字；flip 为 true 时文字倒立，且字符数组会反转以保证正确阅读顺序
+      function drawArcText(targetCtx, text, cx, cy, radiusX, radiusY, start, end, style, color, opacity, flip) {
         text = String(text || "").trim();
         if (!text) return;
-        var chars = Array.prototype.slice.call(text);
+        // 关键修复：当 flip 为 true（下方文字）时，反转字符顺序，使阅读顺序从左到右正常
+        var chars = flip ? Array.prototype.slice.call(text).reverse() : Array.prototype.slice.call(text);
         var total = chars.length;
         if (!total) return;
         targetCtx.save();
@@ -1019,7 +981,7 @@
         targetCtx.textAlign = "center";
         targetCtx.textBaseline = "middle";
         style = cloneTextStyle(style);
-        var metrics = getTextRunMetrics(targetCtx, text, style);
+        var metrics = getTextRunMetrics(targetCtx, chars.join(''), style);
         var minRadius = Math.max(1, Math.min(Math.abs(radiusX), Math.abs(radiusY)));
         var minimumSpan = Math.abs(end - start);
         var maximumSpan = Math.PI * 1.45;
@@ -1027,10 +989,10 @@
         if (metrics.width > availableWidth) {
           var glyphWidth = Math.max(1, metrics.width - style.letterSpacing * Math.max(0, total - 1));
           style.fontSize = Math.max(12, style.fontSize * Math.min(1, (availableWidth - style.letterSpacing * Math.max(0, total - 1)) / glyphWidth));
-          metrics = getTextRunMetrics(targetCtx, text, style);
+          metrics = getTextRunMetrics(targetCtx, chars.join(''), style);
           if (metrics.width > availableWidth && total > 1) {
             style.letterSpacing = Math.max(0, (availableWidth - metrics.glyphWidth) / (total - 1));
-            metrics = getTextRunMetrics(targetCtx, text, style);
+            metrics = getTextRunMetrics(targetCtx, chars.join(''), style);
           }
         }
         var span = clamp(metrics.width / minRadius * 1.08, minimumSpan, maximumSpan);
@@ -1043,14 +1005,14 @@
           var charWidth = metrics.widths[index];
           var amount = metrics.width ? (cursor + charWidth / 2) / metrics.width : 0.5;
           var angle = start + (end - start) * amount;
-          var char = reverse ? chars[total - index - 1] : chars[index];
+          var char = chars[index];
           var x = cx + Math.cos(angle) * radiusX;
           var y = cy + Math.sin(angle) * radiusY;
           var tangent = Math.atan2(radiusY * Math.cos(angle), -radiusX * Math.sin(angle));
           targetCtx.save();
           targetCtx.translate(x, y);
-          // 修正文字朝向：外圈文字和下方文字均正立显示
-          targetCtx.rotate(tangent);
+          // 如果 flip 为 true，额外旋转 180 度，使文字倒立
+          targetCtx.rotate(tangent + (flip ? Math.PI : 0));
           setCanvasTextStyle(targetCtx, style);
           targetCtx.fillText(char, 0, 0);
           targetCtx.restore();
@@ -1079,13 +1041,7 @@
       }
 
       function cloneTextStyle(style) {
-        return {
-          fontFamily: style.fontFamily,
-          fontSize: style.fontSize,
-          fontWeight: style.fontWeight,
-          letterSpacing: style.letterSpacing,
-          height: style.height
-        };
+        return { fontFamily: style.fontFamily, fontSize: style.fontSize, fontWeight: style.fontWeight, letterSpacing: style.letterSpacing, height: style.height };
       }
 
       function scaleTextStyle(style, scale, fontScale) {
@@ -1112,11 +1068,7 @@
         setCanvasTextStyle(targetCtx, style);
         var widths = chars.map(function (char) { return targetCtx.measureText(char).width; });
         var glyphWidth = widths.reduce(function (sum, w) { return sum + w; }, 0);
-        return {
-          widths: widths,
-          glyphWidth: glyphWidth,
-          width: glyphWidth + Math.max(0, chars.length - 1) * style.letterSpacing
-        };
+        return { widths: widths, glyphWidth: glyphWidth, width: glyphWidth + Math.max(0, chars.length - 1) * style.letterSpacing };
       }
 
       function drawSpacedText(targetCtx, text, cx, cy, maxWidth, style) {

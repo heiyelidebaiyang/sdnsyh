@@ -1,0 +1,1369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>印章生成器 · 云雪星球</title>
+  <style>
+    /* 暗色系基础 */
+    .seal72-tool {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --border: #30363d;
+      --text: #c9d1d9;
+      --text-muted: #8b949e;
+      --accent: #f78166;
+      --accent-hover: #e06c5b;
+      --accent-bg: rgba(248, 81, 73, 0.15);
+      --danger: #da3633;
+      --success: #3fb950;
+      --warning: #d29922;
+      --input-bg: #0d1117;
+      --hover-bg: #1c2128;
+      --shadow: 0 8px 24px rgba(0,0,0,0.4);
+      min-height: 100vh;
+      padding: clamp(14px, 3vw, 30px);
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    }
+
+    .seal72-tool .seal72-workspace {
+      width: min(1280px, 100%);
+      margin: 0 auto;
+      padding: 0;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    .seal72-intro {
+      margin: 0 0 14px;
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.72;
+      border-left: 4px solid var(--accent);
+      padding-left: 14px;
+      background: var(--surface);
+      border-radius: 0 8px 8px 0;
+    }
+
+    .seal72-grid {
+      display: grid;
+      grid-template-columns: minmax(320px, 400px) minmax(0, 1fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .seal72-panel,
+    .seal72-status,
+    .seal72-stat,
+    .seal72-type-button {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .seal72-panel {
+      min-width: 0;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .seal72-panel + .seal72-panel {
+      margin-top: 16px;
+    }
+
+    .seal72-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 50px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+      padding: 12px 14px;
+    }
+
+    .seal72-panel-title {
+      margin: 0;
+      color: #f0f6fc;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .seal72-meta,
+    .seal72-label,
+    .seal72-small {
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .seal72-meta {
+      background: rgba(110,118,129,0.1);
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+    }
+
+    .seal72-panel-body {
+      display: grid;
+      gap: 14px;
+      padding: 14px;
+    }
+
+    .seal72-form-section {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+    }
+
+    .seal72-form-section + .seal72-form-section {
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+    }
+
+    .seal72-form-section-title {
+      margin: 0;
+      color: #f0f6fc;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.4;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+    }
+
+    .seal72-type-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 9px;
+    }
+
+    .seal72-type-button {
+      min-height: 42px;
+      color: var(--text);
+      padding: 9px 10px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: var(--input-bg);
+    }
+    .seal72-type-button:hover {
+      border-color: var(--accent);
+      background: var(--hover-bg);
+      transform: translateY(-1px);
+    }
+    .seal72-type-button.is-active,
+    .seal72-type-button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(248,81,73,0.3);
+    }
+
+    .seal72-field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .seal72-field {
+      display: grid;
+      min-width: 0;
+      gap: 7px;
+    }
+    .seal72-field.is-full {
+      grid-column: 1 / -1;
+    }
+
+    .seal72-field input,
+    .seal72-field select,
+    .seal72-field textarea {
+      width: 100%;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text);
+      padding: 8px 10px;
+      font: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .seal72-field textarea {
+      min-height: 76px;
+      resize: vertical;
+    }
+    .seal72-field input[type="color"] {
+      padding: 4px;
+      cursor: pointer;
+    }
+    .seal72-field input[type="range"] {
+      min-height: auto;
+      padding: 0;
+      accent-color: var(--accent);
+      background: transparent;
+    }
+
+    .seal72-range-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .seal72-value {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .seal72-check {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--input-bg);
+      padding: 9px 10px;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .seal72-check input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .seal72-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .seal72-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--input-bg);
+      color: var(--text);
+      padding: 9px 12px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .seal72-button:hover {
+      border-color: var(--accent);
+      background: var(--hover-bg);
+      transform: translateY(-1px);
+    }
+    .seal72-button.is-primary {
+      border-color: #238636;
+      background: #238636;
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(35,134,54,0.3);
+    }
+    .seal72-button.is-primary:hover {
+      border-color: #2ea043;
+      background: #2ea043;
+    }
+
+    .seal72-icon {
+      display: inline-grid;
+      place-items: center;
+      width: 22px;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: rgba(248,81,73,0.15);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 600;
+      line-height: 1;
+    }
+    .seal72-button.is-primary .seal72-icon {
+      background: rgba(255,255,255,0.2);
+      color: #ffffff;
+    }
+
+    .seal72-preview-panel {
+      position: sticky;
+      top: 16px;
+    }
+
+    .seal72-stage {
+      display: grid;
+      place-items: center;
+      min-height: 590px;
+      padding: clamp(14px, 2.2vw, 22px);
+      background:
+        linear-gradient(45deg, rgba(48,54,61,0.5) 25%, transparent 25%),
+        linear-gradient(-45deg, rgba(48,54,61,0.5) 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, rgba(48,54,61,0.5) 75%),
+        linear-gradient(-45deg, transparent 75%, rgba(48,54,61,0.5) 75%),
+        var(--bg);
+      background-position: 0 0, 0 14px, 14px -14px, -14px 0;
+      background-size: 28px 28px;
+    }
+
+    .seal72-canvas-shell {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: min(560px, 100%);
+      aspect-ratio: 1;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: rgba(22,27,34,0.9);
+      box-shadow: 0 18px 42px rgba(0,0,0,0.4);
+    }
+    .seal72-canvas-shell.is-watermark {
+      aspect-ratio: 1.44;
+      width: min(680px, 100%);
+    }
+    .seal72-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    .seal72-preview-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      background: var(--bg);
+      padding: 12px 14px;
+    }
+    .seal72-stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .seal72-stat {
+      min-width: 0;
+      padding: 11px 12px;
+      background: var(--surface);
+    }
+    .seal72-stat-value {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      color: #f0f6fc;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .seal72-status {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 11px 12px;
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+    .seal72-dot {
+      width: 9px;
+      height: 9px;
+      min-width: 9px;
+      margin-top: 6px;
+      border-radius: 999px;
+      background: var(--text-muted);
+    }
+    .seal72-status.is-success {
+      border-color: rgba(63,185,80,0.3);
+      background: rgba(63,185,80,0.1);
+      color: var(--success);
+    }
+    .seal72-status.is-success .seal72-dot {
+      background: var(--success);
+    }
+    .seal72-status.is-warning {
+      border-color: rgba(210,153,34,0.3);
+      background: rgba(210,153,34,0.1);
+      color: var(--warning);
+    }
+    .seal72-status.is-warning .seal72-dot {
+      background: var(--warning);
+    }
+    .seal72-status.is-error {
+      border-color: rgba(218,54,51,0.3);
+      background: rgba(218,54,51,0.1);
+      color: var(--danger);
+    }
+    .seal72-status.is-error .seal72-dot {
+      background: var(--danger);
+    }
+
+    .seal72-field input:focus-visible,
+    .seal72-field select:focus-visible,
+    .seal72-field textarea:focus-visible,
+    .seal72-button:focus-visible,
+    .seal72-type-button:focus-visible {
+      outline: 3px solid rgba(248,81,73,0.3);
+      outline-offset: 2px;
+    }
+
+    /* 自定义滚动条（暗色） */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    @media (max-width: 980px) {
+      .seal72-grid { grid-template-columns: 1fr; }
+      .seal72-preview-panel { position: static; }
+      .seal72-stage { min-height: 460px; }
+    }
+    @media (max-width: 640px) {
+      .seal72-tool { padding: 12px; }
+      .seal72-field-grid,
+      .seal72-type-grid,
+      .seal72-stats { grid-template-columns: 1fr; }
+      .seal72-actions,
+      .seal72-button { width: 100%; }
+      .seal72-preview-foot { flex-direction: column; align-items: flex-start; }
+      .seal72-stage { min-height: 330px; padding: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="tool-shell seal72-tool" data-seal72-tool="">
+    <section class="tool-card seal72-workspace">
+      <p class="seal72-intro">选择印章类型后编辑文字与视觉效果，可在浏览器本地生成预览，并导出 PNG、JPG、WebP 或 SVG 图片。</p>
+
+      <div class="seal72-grid">
+        <aside class="seal72-controls" aria-label="印章设置">
+          <section class="seal72-panel" aria-labelledby="seal72TypeTitle">
+            <div class="seal72-panel-head">
+              <h1 class="seal72-panel-title" id="seal72TypeTitle">印章类型</h1>
+              <span class="seal72-meta" data-current-type="">公司公章</span>
+            </div>
+            <div class="seal72-panel-body">
+              <div class="seal72-type-grid" data-type-list=""></div>
+            </div>
+          </section>
+
+          <section class="seal72-panel" aria-labelledby="seal72CustomTitle">
+            <div class="seal72-panel-head">
+              <h2 class="seal72-panel-title" id="seal72CustomTitle">自定义印章</h2>
+              <span class="seal72-meta" data-text-meta="">5 段文字</span>
+            </div>
+            <div class="seal72-panel-body">
+              <section class="seal72-form-section" aria-labelledby="seal72TextContentTitle">
+                <h3 class="seal72-form-section-title" id="seal72TextContentTitle">文字内容</h3>
+                <div class="seal72-field-grid">
+                  <label class="seal72-field is-full">
+                    <span class="seal72-label">外圈文字</span>
+                    <input id="sealTopText" type="text" maxlength="28" autocomplete="off" value="云雪星球科技有限公司">
+                  </label>
+                  <label class="seal72-field">
+                    <span class="seal72-label">中心文字</span>
+                    <input id="sealCenterText" type="text" maxlength="12" autocomplete="off" value="★">
+                  </label>
+                  <label class="seal72-field">
+                    <span class="seal72-label">下方文字</span>
+                    <input id="sealBottomText" type="text" maxlength="18" autocomplete="off" value="合同专用章">
+                  </label>
+                  <label class="seal72-field">
+                    <span class="seal72-label">附加编号</span>
+                    <input id="sealCodeText" type="text" maxlength="24" autocomplete="off" value="NO.20260717">
+                  </label>
+                  <label class="seal72-field">
+                    <span class="seal72-label">日期文字</span>
+                    <input id="sealDateText" type="date">
+                  </label>
+                  <label class="seal72-field is-full">
+                    <span class="seal72-label">水印文本</span>
+                    <textarea id="sealWatermarkText" maxlength="80" spellcheck="false">仅供预览使用</textarea>
+                  </label>
+                </div>
+              </section>
+
+              <section class="seal72-form-section" aria-labelledby="seal72TopStyleTitle">
+                <h3 class="seal72-form-section-title" id="seal72TopStyleTitle">外圈文字效果</h3>
+                <div class="seal72-field-grid">
+                  <label class="seal72-field"><span class="seal72-label">字体</span><select id="sealTopFontFamily"><option value="sans">系统无衬线</option><option value="serif">宋体</option><option value="kai">楷体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-label">粗细</span><select id="sealTopFontWeight"><option value="400">常规</option><option value="700">加粗</option><option value="900">粗体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字号</span><span class="seal72-value" data-value="topFontSize">72 px</span></span><input id="sealTopFontSize" type="range" min="20" max="120" step="1" value="72"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字间距</span><span class="seal72-value" data-value="topLetterSpacing">4 px</span></span><input id="sealTopLetterSpacing" type="range" min="0" max="16" step="1" value="4"></label>
+                  <label class="seal72-field is-full"><span class="seal72-range-head"><span class="seal72-label">文字高度</span><span class="seal72-value" data-value="topHeight">0 px</span></span><input id="sealTopHeight" type="range" min="-120" max="120" step="1" value="0"></label>
+                </div>
+              </section>
+
+              <section class="seal72-form-section" aria-labelledby="seal72CenterStyleTitle">
+                <h3 class="seal72-form-section-title" id="seal72CenterStyleTitle">中心文字效果</h3>
+                <div class="seal72-field-grid">
+                  <label class="seal72-field"><span class="seal72-label">字体</span><select id="sealCenterFontFamily"><option value="sans">系统无衬线</option><option value="serif">宋体</option><option value="kai">楷体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-label">粗细</span><select id="sealCenterFontWeight"><option value="400">常规</option><option value="700">加粗</option><option value="900">粗体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字号</span><span class="seal72-value" data-value="centerFontSize">73 px</span></span><input id="sealCenterFontSize" type="range" min="20" max="120" step="1" value="72"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字间距</span><span class="seal72-value" data-value="centerLetterSpacing">0 px</span></span><input id="sealCenterLetterSpacing" type="range" min="0" max="16" step="1" value="0"></label>
+                  <label class="seal72-field is-full"><span class="seal72-range-head"><span class="seal72-label">文字高度</span><span class="seal72-value" data-value="centerHeight">0 px</span></span><input id="sealCenterHeight" type="range" min="-120" max="120" step="1" value="0"></label>
+                </div>
+              </section>
+
+              <section class="seal72-form-section" aria-labelledby="seal72BottomStyleTitle">
+                <h3 class="seal72-form-section-title" id="seal72BottomStyleTitle">下方文字效果</h3>
+                <div class="seal72-field-grid">
+                  <label class="seal72-field"><span class="seal72-label">字体</span><select id="sealBottomFontFamily"><option value="sans">系统无衬线</option><option value="serif">宋体</option><option value="kai">楷体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-label">粗细</span><select id="sealBottomFontWeight"><option value="400">常规</option><option value="700">加粗</option><option value="900">粗体</option></select></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字号</span><span class="seal72-value" data-value="bottomFontSize">37 px</span></span><input id="sealBottomFontSize" type="range" min="20" max="120" step="1" value="38"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">字间距</span><span class="seal72-value" data-value="bottomLetterSpacing">0 px</span></span><input id="sealBottomLetterSpacing" type="range" min="0" max="16" step="1" value="0"></label>
+                  <label class="seal72-field is-full"><span class="seal72-range-head"><span class="seal72-label">文字高度</span><span class="seal72-value" data-value="bottomHeight">0 px</span></span><input id="sealBottomHeight" type="range" min="-120" max="120" step="1" value="0"></label>
+                </div>
+              </section>
+
+              <section class="seal72-form-section" aria-labelledby="seal72OverallTitle">
+                <h3 class="seal72-form-section-title" id="seal72OverallTitle">印章边线与整体效果</h3>
+                <div class="seal72-field-grid">
+                  <label class="seal72-field"><span class="seal72-label">印章颜色</span><input id="sealColor" type="color" value="#c5161d"></label>
+                  <label class="seal72-field"><span class="seal72-label">背景</span><select id="sealBackground"><option value="transparent" selected="">透明背景</option><option value="white">白色背景</option><option value="paper">浅纸张底色</option></select></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">尺寸</span><span class="seal72-value" data-value="size">720 px</span></span><input id="sealSize" type="range" min="360" max="1400" step="20" value="720"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">外边线粗细</span><span class="seal72-value" data-value="outerStroke">16</span></span><input id="sealOuterStroke" type="range" min="2" max="32" step="1" value="16"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">内边线粗细</span><span class="seal72-value" data-value="innerStroke">6</span></span><input id="sealInnerStroke" type="range" min="1" max="20" step="1" value="6"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">旋转角度</span><span class="seal72-value" data-value="rotation">0°</span></span><input id="sealRotation" type="range" min="-35" max="35" step="1" value="0"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">旧化程度</span><span class="seal72-value" data-value="distress">16%</span></span><input id="sealDistress" type="range" min="0" max="70" step="1" value="18"></label>
+                  <label class="seal72-field"><span class="seal72-range-head"><span class="seal72-label">透明度</span><span class="seal72-value" data-value="opacity">100%</span></span><input id="sealOpacity" type="range" min="20" max="100" step="1" value="100"></label>
+                  <label class="seal72-field"><span class="seal72-label">导出格式</span><select id="sealFormat"><option value="png" selected="">PNG</option><option value="jpg">JPG</option><option value="webp">WebP</option><option value="svg">SVG</option></select></label>
+                  <label class="seal72-field"><span class="seal72-label">印章形状</span><select id="sealShape"><option value="circle" selected="">圆形</option><option value="oval">椭圆</option><option value="square">方形</option></select></label>
+                  <label class="seal72-check is-full"><span>显示外圈双线</span><input id="sealDoubleRing" type="checkbox" checked=""></label>
+                </div>
+              </section>
+              <div class="seal72-actions">
+                <button class="seal72-button is-primary" type="button" data-action="download">
+                  <span class="seal72-icon">DL</span>
+                  <span data-download-label="">导出 PNG</span>
+                </button>
+                <button class="seal72-button" type="button" data-action="copy">
+                  <span class="seal72-icon">CP</span>
+                  复制图片
+                </button>
+                <button class="seal72-button" type="button" data-action="reset">
+                  <span class="seal72-icon">R</span>
+                  恢复默认
+                </button>
+              </div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="seal72-panel seal72-preview-panel" aria-labelledby="seal72PreviewTitle">
+          <div class="seal72-panel-head">
+            <h2 class="seal72-panel-title" id="seal72PreviewTitle">实时预览</h2>
+            <span class="seal72-meta" data-preview-meta="">720 x 720</span>
+          </div>
+          <div class="seal72-stage">
+            <div class="seal72-canvas-shell" data-canvas-shell="">
+              <canvas id="sealCanvas" class="seal72-canvas" width="720" height="720" aria-label="印章预览"></canvas>
+            </div>
+          </div>
+          <div class="seal72-preview-foot">
+            <div class="seal72-actions">
+              <button class="seal72-button is-primary" type="button" data-action="download-alt">
+                <span class="seal72-icon">DL</span>
+                下载当前印章
+              </button>
+              <button class="seal72-button" type="button" data-action="sample">
+                <span class="seal72-icon">EX</span>
+                示例文字
+              </button>
+            </div>
+            <span class="seal72-small">建议仅用于演示、素材或内部标记，请勿用于伪造真实公章。</span>
+          </div>
+          <div class="seal72-panel-body">
+            <div class="seal72-stats" aria-label="印章概览">
+              <div class="seal72-stat">
+                <span class="seal72-label">类型</span>
+                <span class="seal72-stat-value" data-stat="type">公司公章</span>
+              </div>
+              <div class="seal72-stat">
+                <span class="seal72-label">格式</span>
+                <span class="seal72-stat-value" data-stat="format">PNG</span>
+              </div>
+              <div class="seal72-stat">
+                <span class="seal72-label">画布</span>
+                <span class="seal72-stat-value" data-stat="canvas">720 x 720</span>
+              </div>
+            </div>
+            <div class="seal72-status is-success" role="status" aria-live="polite" data-status="">
+              <span class="seal72-dot" aria-hidden="true"></span>
+              <span data-status-text="">印章已生成，可继续调整文字、颜色和导出格式。</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var root = document.querySelector("[data-seal72-tool]");
+      var canvas = root.querySelector("#sealCanvas");
+      var ctx = canvas.getContext("2d");
+      var shell = root.querySelector("[data-canvas-shell]");
+      var typeList = root.querySelector("[data-type-list]");
+      var statusLine = root.querySelector("[data-status]");
+      var statusText = root.querySelector("[data-status-text]");
+      var state = { type: "company" };
+      var renderTimer = 0;
+
+      var TYPES = [
+        { key: "company", label: "公司公章", top: "云雪星球科技有限公司", center: "★", bottom: "公章", code: "91310100MA1T000001", shape: "circle", color: "#c5161d", doubleRing: true, font: 72, stroke: 16, distress: 16 },
+        { key: "finance", label: "财务专用章", top: "云雪星球科技有限公司", center: "财务", bottom: "专用章", code: "财字 2026-017", shape: "oval", color: "#c5161d", doubleRing: true, font: 68, stroke: 16, distress: 18 },
+        { key: "contract", label: "合同专用章", top: "云雪星球科技有限公司", center: "合同", bottom: "专用章", code: "HT-2026-0717", shape: "circle", color: "#c5161d", doubleRing: true, font: 68, stroke: 16, distress: 18 },
+        { key: "invoice", label: "发票专用章", top: "云雪星球科技有限公司", center: "发票", bottom: "专用章", code: "税号 91310100MA1T000001", shape: "oval", color: "#c5161d", doubleRing: true, font: 62, stroke: 15, distress: 14 },
+        { key: "private", label: "个人私章", top: "", center: "云雪", bottom: "私章", code: "", shape: "square", color: "#b91c1c", doubleRing: false, font: 88, stroke: 14, distress: 12 },
+        { key: "name", label: "姓名章", top: "", center: "云雪", bottom: "", code: "", shape: "square", color: "#a21caf", doubleRing: false, font: 108, stroke: 12, distress: 10 },
+        { key: "date", label: "日期章", top: "云雪星球", center: formatDate(new Date()), bottom: "已核验", code: "", shape: "circle", color: "#b45309", doubleRing: true, font: 56, stroke: 14, distress: 8 },
+        { key: "watermark", label: "水印章", top: "", center: "SAMPLE", bottom: "", code: "", shape: "oval", color: "#2563eb", doubleRing: false, font: 72, stroke: 10, distress: 0, opacity: 38, watermark: "仅供预览使用" }
+      ];
+
+      // 所有字段引用保持不变
+      var fields = {
+        top: root.querySelector("#sealTopText"),
+        center: root.querySelector("#sealCenterText"),
+        bottom: root.querySelector("#sealBottomText"),
+        code: root.querySelector("#sealCodeText"),
+        date: root.querySelector("#sealDateText"),
+        watermark: root.querySelector("#sealWatermarkText"),
+        color: root.querySelector("#sealColor"),
+        background: root.querySelector("#sealBackground"),
+        size: root.querySelector("#sealSize"),
+        topStyle: {
+          fontFamily: root.querySelector("#sealTopFontFamily"),
+          fontSize: root.querySelector("#sealTopFontSize"),
+          fontWeight: root.querySelector("#sealTopFontWeight"),
+          letterSpacing: root.querySelector("#sealTopLetterSpacing"),
+          height: root.querySelector("#sealTopHeight")
+        },
+        centerStyle: {
+          fontFamily: root.querySelector("#sealCenterFontFamily"),
+          fontSize: root.querySelector("#sealCenterFontSize"),
+          fontWeight: root.querySelector("#sealCenterFontWeight"),
+          letterSpacing: root.querySelector("#sealCenterLetterSpacing"),
+          height: root.querySelector("#sealCenterHeight")
+        },
+        bottomStyle: {
+          fontFamily: root.querySelector("#sealBottomFontFamily"),
+          fontSize: root.querySelector("#sealBottomFontSize"),
+          fontWeight: root.querySelector("#sealBottomFontWeight"),
+          letterSpacing: root.querySelector("#sealBottomLetterSpacing"),
+          height: root.querySelector("#sealBottomHeight")
+        },
+        outerStroke: root.querySelector("#sealOuterStroke"),
+        innerStroke: root.querySelector("#sealInnerStroke"),
+        rotation: root.querySelector("#sealRotation"),
+        distress: root.querySelector("#sealDistress"),
+        opacity: root.querySelector("#sealOpacity"),
+        format: root.querySelector("#sealFormat"),
+        shape: root.querySelector("#sealShape"),
+        doubleRing: root.querySelector("#sealDoubleRing")
+      };
+
+      var labels = {
+        currentType: root.querySelector("[data-current-type]"),
+        textMeta: root.querySelector("[data-text-meta]"),
+        previewMeta: root.querySelector("[data-preview-meta]"),
+        download: root.querySelector("[data-download-label]"),
+        size: root.querySelector("[data-value='size']"),
+        outerStroke: root.querySelector("[data-value='outerStroke']"),
+        innerStroke: root.querySelector("[data-value='innerStroke']"),
+        topFontSize: root.querySelector("[data-value='topFontSize']"),
+        topLetterSpacing: root.querySelector("[data-value='topLetterSpacing']"),
+        topHeight: root.querySelector("[data-value='topHeight']"),
+        centerFontSize: root.querySelector("[data-value='centerFontSize']"),
+        centerLetterSpacing: root.querySelector("[data-value='centerLetterSpacing']"),
+        centerHeight: root.querySelector("[data-value='centerHeight']"),
+        bottomFontSize: root.querySelector("[data-value='bottomFontSize']"),
+        bottomLetterSpacing: root.querySelector("[data-value='bottomLetterSpacing']"),
+        bottomHeight: root.querySelector("[data-value='bottomHeight']"),
+        rotation: root.querySelector("[data-value='rotation']"),
+        distress: root.querySelector("[data-value='distress']"),
+        opacity: root.querySelector("[data-value='opacity']"),
+        statType: root.querySelector("[data-stat='type']"),
+        statFormat: root.querySelector("[data-stat='format']"),
+        statCanvas: root.querySelector("[data-stat='canvas']")
+      };
+
+      function renderTypeButtons() {
+        typeList.innerHTML = "";
+        TYPES.forEach(function (item) {
+          var button = document.createElement("button");
+          button.type = "button";
+          button.className = "seal72-type-button" + (item.key === state.type ? " is-active" : "");
+          button.textContent = item.label;
+          button.setAttribute("data-type", item.key);
+          button.setAttribute("aria-pressed", item.key === state.type ? "true" : "false");
+          typeList.appendChild(button);
+        });
+      }
+
+      function applyType(key) {
+        var preset = getType(key);
+        state.type = preset.key;
+        fields.top.value = preset.top || "";
+        fields.center.value = preset.center || "";
+        fields.bottom.value = preset.bottom || "";
+        fields.code.value = preset.code || "";
+        fields.watermark.value = preset.watermark || "仅供预览使用";
+        fields.color.value = normalizeColor(preset.color, "#c5161d");
+        fields.shape.value = preset.shape || "circle";
+        fields.doubleRing.checked = !!preset.doubleRing;
+        var textStyles = buildTextStyles(preset);
+        setTextStyleFields(fields.topStyle, textStyles.topStyle);
+        setTextStyleFields(fields.centerStyle, textStyles.centerStyle);
+        setTextStyleFields(fields.bottomStyle, textStyles.bottomStyle);
+        fields.outerStroke.value = preset.outerStroke || preset.stroke || 16;
+        fields.innerStroke.value = typeof preset.innerStroke === "number" ? preset.innerStroke : Math.max(1, Math.round((preset.stroke || 16) * 0.36));
+        fields.size.value = preset.size || 720;
+        fields.rotation.value = typeof preset.rotation === "number" ? preset.rotation : 0;
+        fields.distress.value = typeof preset.distress === "number" ? preset.distress : 18;
+        fields.opacity.value = typeof preset.opacity === "number" ? preset.opacity : 100;
+        fields.background.value = preset.background || "transparent";
+        fields.format.value = preset.format || "png";
+        if (preset.key === "date") {
+          fields.date.value = formatDateInput(new Date());
+        }
+        renderTypeButtons();
+        scheduleRender();
+      }
+
+      function readOptions() {
+        var size = clamp(Number(fields.size.value) || 720, 360, 1400);
+        var type = getType(state.type);
+        return {
+          type: type,
+          top: fields.top.value.trim(),
+          center: fields.center.value.trim(),
+          bottom: fields.bottom.value.trim(),
+          code: fields.code.value.trim(),
+          date: fields.date.value ? fields.date.value.replace(/-/g, ".") : "",
+          watermark: fields.watermark.value.trim(),
+          color: normalizeColor(fields.color.value, "#c5161d"),
+          background: fields.background.value,
+          size: size,
+          topStyle: readTextStyle(fields.topStyle, "top"),
+          centerStyle: readTextStyle(fields.centerStyle, "center"),
+          bottomStyle: readTextStyle(fields.bottomStyle, "bottom"),
+          outerStroke: clamp(Number(fields.outerStroke.value) || 16, 2, 32),
+          innerStroke: clamp(Number(fields.innerStroke.value) || 6, 1, 20),
+          rotation: clamp(Number(fields.rotation.value) || 0, -35, 35),
+          distress: clamp(Number(fields.distress.value) || 0, 0, 70),
+          opacity: clamp(Number(fields.opacity.value) || 100, 20, 100) / 100,
+          format: fields.format.value,
+          shape: fields.shape.value,
+          doubleRing: fields.doubleRing.checked
+        };
+      }
+
+      function buildTextStyles(preset) {
+        var baseFont = clamp(Number(preset.font) || 72, 20, 120);
+        return {
+          topStyle: normalizeTextStyle(preset.topStyle, { fontFamily: "sans", fontSize: baseFont, fontWeight: 800, letterSpacing: 4, height: 0 }),
+          centerStyle: normalizeTextStyle(preset.centerStyle, { fontFamily: "sans", fontSize: Math.round(baseFont * 1.02), fontWeight: 800, letterSpacing: 0, height: 0 }),
+          bottomStyle: normalizeTextStyle(preset.bottomStyle, { fontFamily: "sans", fontSize: Math.max(20, Math.round(baseFont * 0.52)), fontWeight: 800, letterSpacing: 0, height: 0 })
+        };
+      }
+
+      function normalizeTextStyle(style, fallback) {
+        style = style || {};
+        return {
+          fontFamily: ["sans", "serif", "kai"].indexOf(style.fontFamily) >= 0 ? style.fontFamily : fallback.fontFamily,
+          fontSize: clamp(Number(style.fontSize) || fallback.fontSize, 20, 120),
+          fontWeight: [400, 700, 800, 900].indexOf(Number(style.fontWeight)) >= 0 ? Number(style.fontWeight) : fallback.fontWeight,
+          letterSpacing: clamp(Number.isFinite(Number(style.letterSpacing)) ? Number(style.letterSpacing) : fallback.letterSpacing, 0, 16),
+          height: clamp(Number.isFinite(Number(style.height)) ? Number(style.height) : fallback.height, -120, 120)
+        };
+      }
+
+      function setTextStyleFields(styleFields, style) {
+        styleFields.fontFamily.value = style.fontFamily;
+        styleFields.fontSize.value = style.fontSize;
+        styleFields.fontWeight.value = style.fontWeight;
+        styleFields.letterSpacing.value = style.letterSpacing;
+        styleFields.height.value = style.height;
+      }
+
+      function readTextStyle(styleFields, position) {
+        var fallback = position === "top"
+          ? { fontFamily: "sans", fontSize: 72, fontWeight: 800, letterSpacing: 4, height: 0 }
+          : position === "center"
+            ? { fontFamily: "sans", fontSize: 72, fontWeight: 800, letterSpacing: 0, height: 0 }
+            : { fontFamily: "sans", fontSize: 38, fontWeight: 800, letterSpacing: 0, height: 0 };
+        return normalizeTextStyle({
+          fontFamily: styleFields.fontFamily.value,
+          fontSize: Number(styleFields.fontSize.value),
+          fontWeight: Number(styleFields.fontWeight.value),
+          letterSpacing: Number(styleFields.letterSpacing.value),
+          height: Number(styleFields.height.value)
+        }, fallback);
+      }
+
+      function scheduleRender() {
+        window.clearTimeout(renderTimer);
+        renderTimer = window.setTimeout(renderSeal, 80);
+        updateLabels();
+      }
+
+      function renderSeal() {
+        var options = readOptions();
+        var size = options.size;
+        canvas.width = size;
+        canvas.height = options.type.key === "watermark" ? Math.round(size * 0.68) : size;
+        shell.classList.toggle("is-watermark", options.type.key === "watermark");
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (options.background === "white" || options.format === "jpg") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        } else if (options.background === "paper") {
+          ctx.fillStyle = "#fdfaf5";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          drawPaperGrain(ctx, canvas.width, canvas.height);
+        }
+
+        if (options.type.key === "watermark") {
+          drawWatermarkSeal(ctx, canvas.width, canvas.height, options);
+        } else {
+          drawStandardSeal(ctx, canvas.width, canvas.height, options);
+        }
+
+        if (options.distress > 0) {
+          applyDistress(ctx, canvas.width, canvas.height, options.distress, options.background === "transparent" && options.format !== "jpg");
+        }
+
+        updateLabels();
+        setStatus("success", "印章已生成，可继续调整文字、颜色和导出格式。");
+      }
+
+      function drawStandardSeal(targetCtx, width, height, options) {
+        var cx = width / 2;
+        var cy = height / 2;
+        var scale = Math.min(width, height) / 720;
+        var radius = Math.min(width, height) * 0.39;
+        var color = withAlpha(options.color, options.opacity);
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.rotate(options.rotation * Math.PI / 180);
+        targetCtx.translate(-cx, -cy);
+        targetCtx.strokeStyle = color;
+        targetCtx.fillStyle = color;
+        targetCtx.lineCap = "round";
+        targetCtx.lineJoin = "round";
+
+        if (options.shape === "square") {
+          drawSquareSeal(targetCtx, cx, cy, radius, scale, options);
+        } else if (options.shape === "oval") {
+          drawOvalSeal(targetCtx, cx, cy, radius, scale, options);
+        } else {
+          drawCircleSeal(targetCtx, cx, cy, radius, scale, options);
+        }
+
+        drawCenterText(targetCtx, cx, cy, radius, scale, options);
+        if (options.code) {
+          drawSmallText(targetCtx, options.code, cx, cy + radius * 0.58, radius * 1.15, scaleTextStyle(options.bottomStyle, scale, 0.62), options.color, options.opacity);
+        }
+        targetCtx.restore();
+      }
+
+      function drawCircleSeal(targetCtx, cx, cy, radius, scale, options) {
+        targetCtx.lineWidth = options.outerStroke * scale;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+        targetCtx.stroke();
+        if (options.doubleRing) {
+          targetCtx.lineWidth = Math.max(1, options.innerStroke * scale);
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, radius * 0.82, 0, Math.PI * 2);
+          targetCtx.stroke();
+        }
+        var topStyle = scaleTextStyle(options.topStyle, scale);
+        var bottomStyle = scaleTextStyle(options.bottomStyle, scale);
+        var topRadius = getArcTextRadius(radius, scale, options, topStyle.fontSize, topStyle.height);
+        var bottomRadius = getArcTextRadius(radius, scale, options, bottomStyle.fontSize, bottomStyle.height);
+        // 外圈文字（上半弧，从左到右，文字正立）
+        drawArcText(targetCtx, options.top, cx, cy, topRadius, topRadius, Math.PI * 1.18, Math.PI * 1.82, topStyle, options.color, options.opacity, false);
+        // 下方文字（下半弧，从左到右，文字正立，字符顺序反转）
+        drawArcText(targetCtx, options.bottom, cx, cy, bottomRadius, bottomRadius, Math.PI * 0.26, Math.PI * 0.74, bottomStyle, options.color, options.opacity, true);
+      }
+
+      function drawOvalSeal(targetCtx, cx, cy, radius, scale, options) {
+        targetCtx.save();
+        targetCtx.translate(cx, cy);
+        targetCtx.scale(1.16, 0.82);
+        targetCtx.translate(-cx, -cy);
+        targetCtx.lineWidth = options.outerStroke * scale;
+        targetCtx.beginPath();
+        targetCtx.arc(cx, cy, radius, 0, Math.PI * 2);
+        targetCtx.stroke();
+        if (options.doubleRing) {
+          targetCtx.lineWidth = Math.max(1, options.innerStroke * scale);
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, radius * 0.82, 0, Math.PI * 2);
+          targetCtx.stroke();
+        }
+        targetCtx.restore();
+        var topStyle = scaleTextStyle(options.topStyle, scale);
+        var bottomStyle = scaleTextStyle(options.bottomStyle, scale);
+        var topRadius = getArcTextRadius(radius, scale, options, topStyle.fontSize, topStyle.height);
+        var bottomRadius = getArcTextRadius(radius, scale, options, bottomStyle.fontSize, bottomStyle.height);
+        drawArcText(targetCtx, options.top, cx, cy, topRadius * 1.16, topRadius * 0.82, Math.PI * 1.17, Math.PI * 1.83, topStyle, options.color, options.opacity, false);
+        drawSmallText(targetCtx, options.bottom, cx, cy + bottomRadius * 0.82 + bottomStyle.height * 0.32, radius * 1.42, bottomStyle, options.color, options.opacity);
+      }
+
+      function drawSquareSeal(targetCtx, cx, cy, radius, scale, options) {
+        var side = radius * 1.92;
+        var left = cx - side / 2;
+        var top = cy - side / 2;
+        targetCtx.lineWidth = options.outerStroke * scale;
+        roundRect(targetCtx, left, top, side, side, radius * 0.06);
+        targetCtx.stroke();
+        if (options.doubleRing) {
+          targetCtx.lineWidth = Math.max(1, options.innerStroke * scale);
+          var gap = radius * 0.15;
+          roundRect(targetCtx, left + gap, top + gap, side - gap * 2, side - gap * 2, radius * 0.04);
+          targetCtx.stroke();
+        }
+        if (options.top) {
+          var topStyle = scaleTextStyle(options.topStyle, scale, 0.56);
+          drawSmallText(targetCtx, options.top, cx, cy - radius * 0.62 + topStyle.height, side * 0.84, topStyle, options.color, options.opacity);
+        }
+        if (options.bottom) {
+          var bottomStyle = scaleTextStyle(options.bottomStyle, scale, 0.7);
+          drawSmallText(targetCtx, options.bottom, cx, cy + radius * 0.64 + bottomStyle.height, side * 0.84, bottomStyle, options.color, options.opacity);
+        }
+      }
+
+      function drawCenterText(targetCtx, cx, cy, radius, scale, options) {
+        var text = options.type.key === "date" && options.date ? options.date : options.center;
+        if (!text) {
+          text = options.type.key === "company" ? "★" : "印";
+        }
+        var isStar = text === "★" || text === "*";
+        var style = scaleTextStyle(options.centerStyle, scale);
+        if (isStar) {
+          style.fontSize = radius * 0.6;
+        }
+        var maxWidth = options.shape === "square" ? radius * 1.36 : radius * 1.28;
+        targetCtx.save();
+        var lines = splitCenterText(targetCtx, text, maxWidth, style);
+        var lineHeight = style.fontSize * 1.1;
+        if (lines.length > 1) {
+          lines.forEach(function (line, index) {
+            drawSmallText(targetCtx, line, cx, cy + style.height + (index - (lines.length - 1) / 2) * lineHeight, maxWidth, style, options.color, options.opacity);
+          });
+        } else {
+          drawSmallText(targetCtx, text, cx, cy + style.height, maxWidth, style, options.color, options.opacity);
+        }
+        targetCtx.restore();
+      }
+
+      function drawWatermarkSeal(targetCtx, width, height, options) {
+        var text = options.watermark || options.center || "SAMPLE";
+        var color = withAlpha(options.color, options.opacity);
+        var style = scaleTextStyle(options.centerStyle, width / 720);
+        style.fontSize = Math.max(28, style.fontSize);
+        var fontSize = style.fontSize;
+        targetCtx.save();
+        targetCtx.translate(width / 2, height / 2);
+        targetCtx.rotate(options.rotation * Math.PI / 180);
+        targetCtx.strokeStyle = color;
+        targetCtx.fillStyle = color;
+        targetCtx.lineWidth = Math.max(3, options.outerStroke * width / 720);
+        setCanvasTextStyle(targetCtx, style);
+        var textWidth = Math.min(width * 0.82, Math.max(width * 0.36, getTextRunMetrics(targetCtx, text, style).width + fontSize * 1.6));
+        var textHeight = fontSize * 1.9;
+        if (options.shape === "square") {
+          roundRect(targetCtx, -textWidth / 2, -textHeight / 2, textWidth, textHeight, fontSize * 0.18);
+          targetCtx.stroke();
+        } else {
+          targetCtx.save();
+          targetCtx.scale(1.35, 0.7);
+          targetCtx.beginPath();
+          targetCtx.arc(0, 0, Math.max(textWidth / 2.7, textHeight / 1.4), 0, Math.PI * 2);
+          targetCtx.stroke();
+          targetCtx.restore();
+        }
+        drawSmallText(targetCtx, text, 0, style.height, textWidth * 0.8, style, options.color, options.opacity);
+        targetCtx.restore();
+      }
+
+      function drawArcText(targetCtx, text, cx, cy, radiusX, radiusY, start, end, style, color, opacity, reverse) {
+        text = String(text || "").trim();
+        if (!text) return;
+        var chars = Array.prototype.slice.call(text);
+        var total = chars.length;
+        if (!total) return;
+        targetCtx.save();
+        targetCtx.fillStyle = withAlpha(color, opacity);
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        style = cloneTextStyle(style);
+        var metrics = getTextRunMetrics(targetCtx, text, style);
+        var minRadius = Math.max(1, Math.min(Math.abs(radiusX), Math.abs(radiusY)));
+        var minimumSpan = Math.abs(end - start);
+        var maximumSpan = Math.PI * 1.45;
+        var availableWidth = minRadius * maximumSpan / 1.08;
+        if (metrics.width > availableWidth) {
+          var glyphWidth = Math.max(1, metrics.width - style.letterSpacing * Math.max(0, total - 1));
+          style.fontSize = Math.max(12, style.fontSize * Math.min(1, (availableWidth - style.letterSpacing * Math.max(0, total - 1)) / glyphWidth));
+          metrics = getTextRunMetrics(targetCtx, text, style);
+          if (metrics.width > availableWidth && total > 1) {
+            style.letterSpacing = Math.max(0, (availableWidth - metrics.glyphWidth) / (total - 1));
+            metrics = getTextRunMetrics(targetCtx, text, style);
+          }
+        }
+        var span = clamp(metrics.width / minRadius * 1.08, minimumSpan, maximumSpan);
+        var midpoint = (start + end) / 2;
+        start = midpoint - span / 2;
+        end = midpoint + span / 2;
+        if (total === 1) { start = midpoint; end = midpoint; }
+        var cursor = 0;
+        for (var index = 0; index < total; index += 1) {
+          var charWidth = metrics.widths[index];
+          var amount = metrics.width ? (cursor + charWidth / 2) / metrics.width : 0.5;
+          var angle = start + (end - start) * amount;
+          var char = reverse ? chars[total - index - 1] : chars[index];
+          var x = cx + Math.cos(angle) * radiusX;
+          var y = cy + Math.sin(angle) * radiusY;
+          var tangent = Math.atan2(radiusY * Math.cos(angle), -radiusX * Math.sin(angle));
+          targetCtx.save();
+          targetCtx.translate(x, y);
+          // 修正文字朝向：外圈文字和下方文字均正立显示
+          targetCtx.rotate(tangent);
+          setCanvasTextStyle(targetCtx, style);
+          targetCtx.fillText(char, 0, 0);
+          targetCtx.restore();
+          cursor += charWidth + (index < total - 1 ? style.letterSpacing : 0);
+        }
+        targetCtx.restore();
+      }
+
+      function getArcTextRadius(radius, scale, options, fontSize, height) {
+        var outerStrokeWidth = options.outerStroke * scale;
+        var ringRadius = options.doubleRing ? radius * 0.82 : radius;
+        var ringStrokeWidth = options.doubleRing ? Math.max(1, options.innerStroke * scale) : outerStrokeWidth;
+        var ringInnerEdge = ringRadius - ringStrokeWidth / 2;
+        var requestedRadius = ringInnerEdge - fontSize / 2 - 12 * scale + height;
+        return clamp(requestedRadius, radius * 0.36, radius - fontSize * 0.55);
+      }
+
+      function drawSmallText(targetCtx, text, cx, cy, maxWidth, style, color, opacity) {
+        if (!text) return;
+        targetCtx.save();
+        targetCtx.fillStyle = withAlpha(color, opacity);
+        targetCtx.textAlign = "center";
+        targetCtx.textBaseline = "middle";
+        drawSpacedText(targetCtx, text, cx, cy, maxWidth, style);
+        targetCtx.restore();
+      }
+
+      function cloneTextStyle(style) {
+        return {
+          fontFamily: style.fontFamily,
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          letterSpacing: style.letterSpacing,
+          height: style.height
+        };
+      }
+
+      function scaleTextStyle(style, scale, fontScale) {
+        var scaled = cloneTextStyle(style);
+        var ratio = typeof fontScale === "number" ? fontScale : 1;
+        scaled.fontSize *= scale * ratio;
+        scaled.letterSpacing *= scale;
+        scaled.height *= scale;
+        return scaled;
+      }
+
+      function fontFamilyStack(fontFamily) {
+        if (fontFamily === "serif") return "SimSun, 'Songti SC', serif";
+        if (fontFamily === "kai") return "KaiTi, 'Kaiti SC', serif";
+        return "Arial, 'Microsoft YaHei', sans-serif";
+      }
+
+      function setCanvasTextStyle(targetCtx, style) {
+        targetCtx.font = Math.round(style.fontWeight) + " " + style.fontSize.toFixed(1) + "px " + fontFamilyStack(style.fontFamily);
+      }
+
+      function getTextRunMetrics(targetCtx, text, style) {
+        var chars = Array.prototype.slice.call(String(text || ""));
+        setCanvasTextStyle(targetCtx, style);
+        var widths = chars.map(function (char) { return targetCtx.measureText(char).width; });
+        var glyphWidth = widths.reduce(function (sum, w) { return sum + w; }, 0);
+        return {
+          widths: widths,
+          glyphWidth: glyphWidth,
+          width: glyphWidth + Math.max(0, chars.length - 1) * style.letterSpacing
+        };
+      }
+
+      function drawSpacedText(targetCtx, text, cx, cy, maxWidth, style) {
+        var effectiveStyle = cloneTextStyle(style);
+        var metrics = getTextRunMetrics(targetCtx, text, effectiveStyle);
+        if (metrics.width > maxWidth) {
+          var gapTotal = effectiveStyle.letterSpacing * Math.max(0, metrics.widths.length - 1);
+          effectiveStyle.fontSize = Math.max(12, effectiveStyle.fontSize * Math.min(1, (maxWidth - gapTotal) / Math.max(1, metrics.glyphWidth)));
+          metrics = getTextRunMetrics(targetCtx, text, effectiveStyle);
+          if (metrics.width > maxWidth && metrics.widths.length > 1) {
+            effectiveStyle.letterSpacing = Math.max(0, (maxWidth - metrics.glyphWidth) / (metrics.widths.length - 1));
+            metrics = getTextRunMetrics(targetCtx, text, effectiveStyle);
+          }
+        }
+        setCanvasTextStyle(targetCtx, effectiveStyle);
+        var x = cx - metrics.width / 2;
+        Array.prototype.slice.call(String(text || "")).forEach(function (char, index) {
+          var width = metrics.widths[index];
+          targetCtx.fillText(char, x + width / 2, cy);
+          x += width + (index < metrics.widths.length - 1 ? effectiveStyle.letterSpacing : 0);
+        });
+      }
+
+      function splitCenterText(targetCtx, text, maxWidth, style) {
+        if (getTextRunMetrics(targetCtx, text, style).width <= maxWidth || text.length <= 3) return [text];
+        if (text.length <= 6) {
+          var mid = Math.ceil(text.length / 2);
+          return [text.slice(0, mid), text.slice(mid)];
+        }
+        return [text.slice(0, 4), text.slice(4, 8), text.slice(8, 12)].filter(Boolean);
+      }
+
+      function applyDistress(targetCtx, width, height, amount, transparent) {
+        var count = Math.round(amount * 7);
+        var seed = width * 31 + height * 17 + amount;
+        targetCtx.save();
+        targetCtx.globalCompositeOperation = "destination-out";
+        targetCtx.fillStyle = "rgba(0,0,0," + Math.min(0.55, amount / 120).toFixed(3) + ")";
+        for (var index = 0; index < count; index += 1) {
+          var random = pseudoRandom(seed + index * 97);
+          var x = pseudoRandom(seed + index * 131) * width;
+          var y = pseudoRandom(seed + index * 173) * height;
+          var rx = 1 + random * width * 0.012;
+          var ry = 1 + pseudoRandom(seed + index * 211) * height * 0.01;
+          targetCtx.beginPath();
+          targetCtx.ellipse(x, y, rx, ry, random * Math.PI, 0, Math.PI * 2);
+          targetCtx.fill();
+        }
+        targetCtx.restore();
+      }
+
+      function drawPaperGrain(targetCtx, width, height) {
+        targetCtx.save();
+        targetCtx.fillStyle = "rgba(180,83,9,0.045)";
+        for (var index = 0; index < 120; index += 1) {
+          var x = pseudoRandom(index * 17 + width) * width;
+          var y = pseudoRandom(index * 31 + height) * height;
+          targetCtx.fillRect(x, y, 1.5, 1.5);
+        }
+        targetCtx.restore();
+      }
+
+      function buildSvg(options) {
+        var width = options.size;
+        var height = options.type.key === "watermark" ? Math.round(options.size * 0.68) : options.size;
+        var markup = [];
+        markup.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '" viewBox="0 0 ' + width + " " + height + '">');
+        if (options.background === "white" || options.format === "jpg") {
+          markup.push('<rect width="100%" height="100%" fill="#ffffff"/>');
+        } else if (options.background === "paper") {
+          markup.push('<rect width="100%" height="100%" fill="#fff7ed"/>');
+        }
+        markup.push('<image width="' + width + '" height="' + height + '" href="' + canvas.toDataURL("image/png") + '"/>');
+        markup.push("</svg>");
+        return markup.join("");
+      }
+
+      function downloadCurrent() {
+        var options = readOptions();
+        if (options.format === "svg") {
+          downloadBlob(new Blob([buildSvg(options)], { type: "image/svg+xml;charset=utf-8" }), "seal-" + Date.now() + ".svg");
+          setStatus("success", "SVG 文件已开始下载。");
+          return;
+        }
+        var mime = options.format === "jpg" ? "image/jpeg" : options.format === "webp" ? "image/webp" : "image/png";
+        canvasToBlob(canvas, mime, options.format === "png" ? undefined : 0.94, function (blob) {
+          if (!blob) {
+            setStatus("error", "当前浏览器不支持导出 " + options.format.toUpperCase() + "。");
+            return;
+          }
+          downloadBlob(blob, "seal-" + Date.now() + "." + options.format);
+          setStatus("success", options.format.toUpperCase() + " 图片已开始下载。");
+        });
+      }
+
+      function copyImage() {
+        if (!navigator.clipboard || !window.ClipboardItem || !canvas.toBlob) {
+          setStatus("warning", "当前浏览器不支持直接复制图片，可使用下载按钮保存。");
+          return;
+        }
+        canvas.toBlob(function (blob) {
+          if (!blob) {
+            setStatus("error", "复制图片失败，请改用下载。");
+            return;
+          }
+          navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(function () {
+            setStatus("success", "PNG 图片已复制到剪贴板。");
+          }).catch(function () {
+            setStatus("warning", "浏览器拒绝复制图片，可使用下载按钮保存。");
+          });
+        }, "image/png");
+      }
+
+      function updateLabels() {
+        var options = readOptions();
+        var visibleTextCount = [options.top, options.center, options.bottom, options.code, options.watermark].filter(Boolean).length;
+        labels.currentType.textContent = options.type.label;
+        labels.textMeta.textContent = visibleTextCount + " 段文字";
+        labels.previewMeta.textContent = canvas.width + " x " + canvas.height;
+        labels.download.textContent = "导出 " + options.format.toUpperCase();
+        labels.size.textContent = options.size + " px";
+        labels.outerStroke.textContent = String(options.outerStroke);
+        labels.innerStroke.textContent = String(options.innerStroke);
+        labels.topFontSize.textContent = options.topStyle.fontSize + " px";
+        labels.topLetterSpacing.textContent = options.topStyle.letterSpacing + " px";
+        labels.topHeight.textContent = options.topStyle.height + " px";
+        labels.centerFontSize.textContent = options.centerStyle.fontSize + " px";
+        labels.centerLetterSpacing.textContent = options.centerStyle.letterSpacing + " px";
+        labels.centerHeight.textContent = options.centerStyle.height + " px";
+        labels.bottomFontSize.textContent = options.bottomStyle.fontSize + " px";
+        labels.bottomLetterSpacing.textContent = options.bottomStyle.letterSpacing + " px";
+        labels.bottomHeight.textContent = options.bottomStyle.height + " px";
+        labels.rotation.textContent = options.rotation + "°";
+        labels.distress.textContent = options.distress + "%";
+        labels.opacity.textContent = Math.round(options.opacity * 100) + "%";
+        labels.statType.textContent = options.type.label;
+        labels.statFormat.textContent = options.format.toUpperCase();
+        labels.statCanvas.textContent = canvas.width + " x " + canvas.height;
+      }
+
+      function setStatus(type, message) {
+        statusLine.className = "seal72-status is-" + type;
+        statusText.textContent = message;
+      }
+
+      function canvasToBlob(sourceCanvas, type, quality, callback) {
+        if (sourceCanvas.toBlob) {
+          sourceCanvas.toBlob(callback, type, quality);
+          return;
+        }
+        var dataUrl = sourceCanvas.toDataURL(type, quality);
+        var parts = dataUrl.split(",");
+        var binary = atob(parts[1]);
+        var bytes = new Uint8Array(binary.length);
+        for (var index = 0; index < binary.length; index += 1) bytes[index] = binary.charCodeAt(index);
+        callback(new Blob([bytes], { type: type }));
+      }
+
+      function downloadBlob(blob, filename) {
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement("a");
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+      }
+
+      function getType(key) {
+        return TYPES.find(function (item) { return item.key === key; }) || TYPES[0];
+      }
+
+      function normalizeColor(value, fallback) {
+        var color = String(value || "").trim();
+        if (/^#[0-9a-f]{6}$/i.test(color)) return color;
+        return fallback;
+      }
+
+      function withAlpha(hex, alpha) {
+        var rgb = parseHex(hex);
+        return "rgba(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + alpha.toFixed(3) + ")";
+      }
+
+      function parseHex(hex) {
+        var value = String(hex || "#000000").replace("#", "");
+        return [
+          parseInt(value.slice(0, 2), 16) || 0,
+          parseInt(value.slice(2, 4), 16) || 0,
+          parseInt(value.slice(4, 6), 16) || 0
+        ];
+      }
+
+      function roundRect(targetCtx, x, y, width, height, radius) {
+        var r = Math.min(radius, width / 2, height / 2);
+        targetCtx.beginPath();
+        targetCtx.moveTo(x + r, y);
+        targetCtx.lineTo(x + width - r, y);
+        targetCtx.quadraticCurveTo(x + width, y, x + width, y + r);
+        targetCtx.lineTo(x + width, y + height - r);
+        targetCtx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+        targetCtx.lineTo(x + r, y + height);
+        targetCtx.quadraticCurveTo(x, y + height, x, y + height - r);
+        targetCtx.lineTo(x, y + r);
+        targetCtx.quadraticCurveTo(x, y, x + r, y);
+        targetCtx.closePath();
+      }
+
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+      function pseudoRandom(value) { var x = Math.sin(value * 12.9898) * 43758.5453; return x - Math.floor(x); }
+      function formatDate(date) { return date.getFullYear() + "." + String(date.getMonth() + 1).padStart(2, "0") + "." + String(date.getDate()).padStart(2, "0"); }
+      function formatDateInput(date) { return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0"); }
+
+      root.addEventListener("click", function (event) {
+        var typeButton = event.target.closest("[data-type]");
+        if (typeButton && root.contains(typeButton)) {
+          applyType(typeButton.getAttribute("data-type"));
+          return;
+        }
+        var actionButton = event.target.closest("[data-action]");
+        if (!actionButton || !root.contains(actionButton)) return;
+        var action = actionButton.getAttribute("data-action");
+        if (action === "download" || action === "download-alt") downloadCurrent();
+        else if (action === "copy") copyImage();
+        else if (action === "reset") applyType(state.type);
+        else if (action === "sample") { applyType("contract"); setStatus("success", "已载入合同专用章示例。"); }
+      });
+
+      Object.keys(fields).forEach(function (key) {
+        var field = fields[key];
+        if (field && typeof field.addEventListener === "function") {
+          bindRenderListeners(field);
+          return;
+        }
+        Object.keys(field).forEach(function (styleKey) { bindRenderListeners(field[styleKey]); });
+      });
+
+      function bindRenderListeners(field) {
+        field.addEventListener("input", scheduleRender);
+        field.addEventListener("change", scheduleRender);
+      }
+
+      fields.date.value = formatDateInput(new Date());
+      renderTypeButtons();
+      applyType("company");
+      renderSeal();
+    })();
+  </script>
+</body>
+</html>

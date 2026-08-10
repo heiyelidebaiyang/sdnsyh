@@ -11,6 +11,7 @@ const navLinks = [
             { title: 'JSON格式化', desc: '在线校验与格式化', icon: '🔧', url: 'https://www.json.cn' },
             { title: '试卷净化工具', desc: '纯本地', icon: '💯', url: '../html/tools/shijuan.html' },
             { title: '印章生成工具', desc: '纯本地', icon: '✏️', url: '../html/tools/yinzhang.html' },
+            { title: '图片切割工具', desc: '纯本地', icon: '✏️', url: '../html/tools/Imagecropping.html' },
         ]
     },
     {

@@ -15,12 +15,11 @@ const navLinks = [
         ]
     },
     {
-        category: '💻 开发资源',
+        category: '💻 Jubai资源',
         links: [
             { title: '我的 GitHub', desc: 'heiyelidebaiyang', icon: '🐙', url: 'https://github.com/heiyelidebaiyang' },
             { title: '博客园', desc: '橘白的博客', icon: '📚', url: 'https://www.cnblogs.com/jubai' },
-            { title: 'MDN 文档', desc: 'Web 开发权威参考', icon: '📖', url: 'https://developer.mozilla.org/zh-CN/' },
-            { title: 'Can I Use', desc: '浏览器兼容性查询', icon: '🌐', url: 'https://caniuse.com' }
+            { title: '云雪星球的工具箱', desc: '300+纯本地', icon: '🧰', url: 'https://heiyelidebaiyang.github.io/Tools/' },
         ]
     },
     {

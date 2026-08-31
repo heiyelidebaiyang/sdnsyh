@@ -1,6 +1,6 @@
 # 云雪星球 · 白羊的小站
 
-> 🧩 网课答题辅助脚本，基于 JavaScript / jQuery 实现，仅供前端技术学习研究使用。
+> 🧩 云雪星球-白羊小站，基于 JavaScript / jQuery 实现，仅供前端技术学习研究使用。
 
 [![GitHub stars](https://img.shields.io/github/stars/heiyelidebaiyang/sdnsyh)](https://github.com/heiyelidebaiyang/sdnsyh/stargazers)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/heiyelidebaiyang/sdnsyh/blob/main/LICENSE)

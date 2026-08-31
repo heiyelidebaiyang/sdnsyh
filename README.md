@@ -71,8 +71,8 @@ javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 - **项目作者**：[@heiyelidebaiyang](https://github.com/heiyelidebaiyang)
 - **开源协议**：MIT License（仅供学习参考，商业用途请咨询作者）
 - **主要语言**：JavaScript / HTML
-- **官方仓库**：[https://github.com/heiyelidebaiyang/sdnsyh](https://github.com/heiyelidebaiyang/sdnsyh)
-- **官方网址**：[https://github.com/heiyelidebaiyang.github.io](https://github.com/heiyelidebaiyang.github.io)
+- **官方仓库**：[云雪星球仓库](https://github.com/heiyelidebaiyang/sdnsyh)
+- **官方网址**：[云雪星球](https://heiyelidebaiyang.github.io/sdnsyh/)
 ---
 
 ## ⭐ 支持与反馈

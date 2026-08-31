@@ -64,6 +64,13 @@ javascript$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 ```
 javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 ```
+### 总结
+```
+=javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/K0901.js') 
+把以上代码   # 完整的 #    复制到地址栏删除开头的等号回车
+或者按F12在控制台console里粘贴完整代码并删除等号
+★★★注意！！遇到题没做出来的情况，不要慌张，耐心等一会就好了。****
+```
 ---
 
 ## 👤 项目信息

@@ -43,27 +43,24 @@ sdnsyh/
 │   └── links.js           # 外部链接配置
 ├── index.html             # 项目导航首页
 └── README.md              # 项目说明文档
+```
 ---
----
+
 
 ## 🚀 快速开始（使用方式）
 ⚠️ 特别注意：复制下方代码后，务必检查并删除代码开头的 = 符号（如果存在的话），否则会导致执行失败！
 
-###方式一：浏览器控制台运行（推荐）
-打开目标答题网页，按下键盘上的 F12 键（或右键点击页面选择“检查”）打开开发者工具。
-
-在开发者工具面板中，切换到 Console（控制台） 选项卡。
-
-在控制台输入框中粘贴以下代码，然后按 Enter（回车） 执行：
-
-javascript
-$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
-###方式二：浏览器地址栏运行
-在浏览器当前答题页面的地址栏中，清空原有地址。
-
+### 方式一：浏览器控制台运行（推荐）
+1. 打开目标答题网页，按下键盘上的 **`F12`** 键（或右键点击页面选择“检查”）打开开发者工具。
+2. 在开发者工具面板中，切换到 **`Console`（控制台）** 选项卡。
+3. 在控制台输入框中粘贴以下代码，然后按 **`Enter`（回车）** 执行：
+```
+javascript$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
+```
+### 方式二：浏览器地址栏运行
+在浏览器当前答题页面的地址栏中，原有地址后。
 将以下代码完整复制并粘贴到地址栏中。
-
-手动删除代码最前端的 javascript: 字样后面的任何多余字符（确保是 javascript:$.getScript... 开头），按 Enter（回车） 执行：
-
-javascript
+按 Enter（回车） 执行：
+```
 javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
+```

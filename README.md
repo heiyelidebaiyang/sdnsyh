@@ -58,9 +58,26 @@ sdnsyh/
 javascript$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 ```
 ### 方式二：浏览器地址栏运行
-在浏览器当前答题页面的地址栏中，原有地址后。
-将以下代码完整复制并粘贴到地址栏中。
-按 Enter（回车） 执行：
+1. 在浏览器当前答题页面的地址栏中，原有地址后。
+2. 将以下代码完整复制并粘贴到地址栏中。
+3. 按 Enter **`Enter`（回车）** 执行：
 ```
 javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 ```
+---
+
+## 👤 项目信息
+
+- **项目作者**：[@heiyelidebaiyang](https://github.com/heiyelidebaiyang)
+- **开源协议**：MIT License（仅供学习参考，商业用途请咨询作者）
+- **主要语言**：JavaScript / HTML
+- **官方仓库**：[https://github.com/heiyelidebaiyang/sdnsyh](https://github.com/heiyelidebaiyang/sdnsyh)
+- **官方网址**：[https://github.com/heiyelidebaiyang.github.io](https://github.com/heiyelidebaiyang.github.io)
+---
+
+## ⭐ 支持与反馈
+
+如果您觉得这个项目对您的前端学习有一定参考价值，欢迎给这个仓库点个 **Star** 🌟，这是对作者最大的鼓励！
+
+- 发现 Bug 或有改进建议？请提交 [Issue](https://github.com/heiyelidebaiyang/sdnsyh/issues)。
+- 如有其他问题，欢迎通过 GitHub 私信联系作者。

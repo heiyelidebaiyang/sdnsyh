@@ -55,7 +55,7 @@ sdnsyh/
 2. 在开发者工具面板中，切换到 **`Console`（控制台）** 选项卡。
 3. 在控制台输入框中粘贴以下代码，然后按 **`Enter`（回车）** 执行：
 ```
-javascript$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
+javascript:$.getScript('https://heiyelidebaiyang.github.io/sdnsyh/KS/GS.js')
 ```
 ### 方式二：浏览器地址栏运行
 1. 在浏览器当前答题页面的地址栏中，原有地址后。

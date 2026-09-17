@@ -12,6 +12,7 @@ const navLinks = [
             { title: '试卷净化工具', desc: '纯本地', icon: '💯', url: '../html/tools/shijuan.html' },
             { title: '印章生成工具', desc: '纯本地', icon: '✏️', url: '../html/tools/yinzhang.html' },
             { title: '图片切割工具', desc: '纯本地', icon: '🧩', url: '../html/tools/Imagecropping.html' },
+             { title: '屏幕尺寸', desc: '为测蛋糕尺寸', icon: '📏', url: '../html/tools/屏幕尺子.html' },
         ]
     },
     {

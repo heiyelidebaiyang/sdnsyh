@@ -32,11 +32,12 @@
   header {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     padding: 11px 20px;
     background: var(--panel);
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
+    flex-wrap: wrap;
   }
   header h1 {
     font-size: 17px;
@@ -97,7 +98,7 @@
   .tabs button {
     border: none;
     background: transparent;
-    padding: 6px 18px;
+    padding: 6px 16px;
     border-radius: 7px;
     font-size: 13px;
     color: var(--muted);
@@ -109,7 +110,7 @@
     box-shadow: 0 1px 3px rgba(0,0,0,.08);
   }
 
-  .panel { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .panel { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
   .panel.hidden { display: none; }
 
   .cake-cards { display: flex; gap: 7px; flex-wrap: wrap; }
@@ -177,6 +178,16 @@
     background: var(--border);
     flex-shrink: 0;
   }
+  .unit-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: #eff6ff;
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    margin-left: 2px;
+  }
 
   .stage {
     flex: 1;
@@ -204,7 +215,7 @@
   .info-bar b { color: var(--text); font-weight: 600; }
   .warn { color: #b45309; }
 
-  /* ===== 校准弹窗 ===== */
+  /* ===================== 弹窗通用 ===================== */
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -218,30 +229,36 @@
     backdrop-filter: blur(3px);
   }
   .modal-backdrop.show { display: flex; }
+
   .modal {
     background: #fff;
     border-radius: 16px;
-    padding: 24px 26px;
+    padding: 22px 26px 20px;
     width: min(940px, 100%);
     max-height: 92vh;
-    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     box-shadow: 0 24px 70px rgba(15,23,42,.35);
+    transition: width .2s ease;
   }
+  .modal.a4-mode { width: min(1120px, 96vw); }
   .modal h2 { margin: 0 0 10px; font-size: 18px; }
 
   .calib-tabs {
     display: flex;
     gap: 6px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
     background: #f1f5f9;
     padding: 3px;
     border-radius: 9px;
     width: fit-content;
+    flex-wrap: wrap;
   }
   .calib-tabs button {
     border: none;
     background: transparent;
-    padding: 7px 16px;
+    padding: 7px 14px;
     border-radius: 7px;
     font-size: 13px;
     color: var(--muted);
@@ -254,28 +271,34 @@
   }
 
   .modal p {
-    margin: 0 0 4px;
+    margin: 0 0 3px;
     font-size: 13.5px;
     color: var(--muted);
-    line-height: 1.65;
+    line-height: 1.6;
   }
   .modal p b { color: var(--text); }
+  .modal-desc { margin-bottom: 10px; }
 
   .calib-wrap {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 22px 0 10px;
-    overflow: auto;
-    max-height: 55vh;
-    min-height: 140px;
+    padding: 12px 6px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 10px;
+    background: #fbfdff;
   }
+  .calib-wrap > div { margin: auto; flex-shrink: 0; }
+  .calib-wrap::-webkit-scrollbar { width: 9px; height: 9px; }
+  .calib-wrap::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 5px; }
+  .calib-wrap::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
   .calib-card {
     border: 2px solid var(--accent);
     border-radius: 4px;
     background: rgba(59,130,246,.09);
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -288,7 +311,6 @@
     border: 2px solid var(--accent);
     border-radius: 50%;
     background: rgba(59,130,246,.09);
-    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -297,29 +319,47 @@
     overflow: hidden;
   }
   .calib-a4 {
+    position: relative;
     border: 2px solid var(--accent);
     border-radius: 4px;
-    background: rgba(59,130,246,.07);
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background: rgba(59,130,246,.05);
+    box-sizing: border-box;
+  }
+  .a4-guide {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: #ef4444;
+    z-index: 2;
+  }
+  .a4-guide-l { left: -3px; }
+  .a4-guide-r { right: -3px; }
+  .a4-label {
+    padding: 18px 12px 0;
+    text-align: center;
     color: #2563eb;
     font-size: 13px;
-    text-align: center;
-    line-height: 1.7;
+    line-height: 1.75;
+    pointer-events: none;
   }
+  .a4-label small {
+    display: inline-block;
+    margin-top: 2px;
+    color: #ef4444;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
   .calib-hint {
     font-size: 12px;
     color: var(--muted);
-    margin-top: 10px;
     text-align: center;
+    margin-bottom: 6px;
   }
   .calib-controls {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 18px;
   }
   .calib-controls button {
     width: 40px;
@@ -328,17 +368,15 @@
     line-height: 1;
     padding: 0;
     border-radius: 10px;
+    flex-shrink: 0;
   }
-  .calib-controls input[type=range] {
-    flex: 1;
-    max-width: 420px;
-    accent-color: var(--accent);
-  }
+  .calib-controls input[type=range] { flex: 1; accent-color: var(--accent); }
   .calib-info {
-    margin-top: 10px;
+    margin-top: 8px;
     font-size: 13px;
     color: var(--muted);
     font-variant-numeric: tabular-nums;
+    text-align: center;
   }
   .calib-info b { color: var(--text); }
 
@@ -346,8 +384,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
-    margin-top: 14px;
-    justify-content: center;
+    margin-top: 10px;
   }
   .coin-options button {
     padding: 6px 14px;
@@ -365,7 +402,77 @@
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 22px;
+    margin-top: 14px;
+  }
+
+  /* ===================== 打印面板 ===================== */
+  .print-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .print-opt {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .print-opt:hover { border-color: #93c5fd; background: #f8fafc; }
+  .print-opt input[type="radio"] {
+    margin-top: 3px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+  }
+  .po-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .po-desc {
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.55;
+  }
+  .print-tip {
+    font-size: 12.5px;
+    color: #b45309;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    padding: 10px 12px;
+    border-radius: 8px;
+    line-height: 1.6;
+    margin-bottom: 4px;
+  }
+  .print-tip b { color: #92400e; }
+
+  /* ===================== 打印专用 ===================== */
+  .print-root { display: none; }
+
+  @media print {
+    html, body {
+      display: block !important;
+      width: auto !important;
+      height: auto !important;
+      overflow: visible !important;
+      background: #fff !important;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    body > *:not(.print-root) { display: none !important; }
+    .print-root { display: block !important; }
+    .print-root img { display: block; }
+    .print-a4 {
+      position: relative;
+      background: #fff;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
   }
 </style>
 </head>
@@ -375,6 +482,7 @@
   <h1>屏幕<span>尺子</span></h1>
   <div class="spacer"></div>
   <span class="ppi-badge" id="ppiBadge">—</span>
+  <button id="printBtn">打印</button>
   <button id="calibrateBtn">校准屏幕</button>
 </header>
 
@@ -383,9 +491,10 @@
     <button class="active" data-mode="length">长度</button>
     <button data-mode="cake">蛋糕尺寸</button>
     <button data-mode="area">面积</button>
+    <button data-mode="absolute">绝对尺寸 / 打印尺子</button>
   </div>
 
-  <!-- 长度面板（默认显示） -->
+  <!-- 长度面板 -->
   <div class="panel" id="lengthPanel">
     <label class="field">
       长度
@@ -439,6 +548,63 @@
       </select>
     </label>
   </div>
+
+  <!-- 绝对尺寸面板 -->
+  <div class="panel hidden" id="absolutePanel">
+    <label class="field">
+      工具
+      <select id="absShape">
+        <option value="ruler">📏 直尺（长度尺）</option>
+        <option value="protractor">📐 量角器（角度尺）</option>
+        <option value="triangle">📐 三角尺（等腰直角）</option>
+        <option value="rect">▭ 矩形面积</option>
+        <option value="circle">◯ 圆形面积</option>
+      </select>
+    </label>
+    <div class="divider-v"></div>
+
+    <!-- 直尺 -->
+    <label class="field abs-field" id="absRulerField">
+      长度
+      <input type="number" id="absRulerLen" value="150" min="10" max="1000" step="10">
+      <span class="unit-tag">mm</span>
+    </label>
+
+    <!-- 量角器 -->
+    <label class="field abs-field" id="absProtractorField" style="display:none;">
+      半径
+      <input type="number" id="absProtractorR" value="80" min="30" max="300" step="5">
+      <span class="unit-tag">mm</span>
+    </label>
+
+    <!-- 三角尺 -->
+    <label class="field abs-field" id="absTriangleField" style="display:none;">
+      直角边
+      <input type="number" id="absTriangleLeg" value="100" min="30" max="500" step="5">
+      <span class="unit-tag">mm</span>
+    </label>
+
+    <!-- 矩形 -->
+    <label class="field abs-field" id="absWField" style="display:none;">
+      宽
+      <input type="number" id="absW" value="100" min="1" max="5000" step="1">
+      <span class="unit-tag">mm</span>
+    </label>
+    <label class="field abs-field" id="absHField" style="display:none;">
+      高
+      <input type="number" id="absH" value="60" min="1" max="5000" step="1">
+      <span class="unit-tag">mm</span>
+    </label>
+
+    <!-- 圆形 -->
+    <label class="field abs-field" id="absDField" style="display:none;">
+      直径
+      <input type="number" id="absD" value="80" min="1" max="5000" step="1">
+      <span class="unit-tag">mm</span>
+    </label>
+
+    <button id="absPrintBtn" class="primary">🖨️ 打印此尺寸（1:1）</button>
+  </div>
 </div>
 
 <div class="stage" id="stage">
@@ -447,64 +613,107 @@
 
 <div class="info-bar" id="infoBar"></div>
 
-<!-- ===== 校准弹窗 ===== -->
+<!-- ===================== 校准弹窗 ===================== -->
 <div class="modal-backdrop" id="calibModal">
-  <div class="modal">
-    <h2>校准屏幕</h2>
-
-    <div class="calib-tabs">
-      <button class="active" data-calib="card">银行卡 / 身份证</button>
-      <button data-calib="a4">A4 纸（纵向）</button>
-      <button data-calib="coin">硬币</button>
-    </div>
-
-    <!-- 卡片模式说明 -->
-    <div id="calibDescCard">
-      <p>请拿一张银行卡 / 身份证贴在屏幕上（标准尺寸 <b>85.60 mm × 53.98 mm</b>）。</p>
-      <p>拖动下方滑块，让蓝色方框与卡片边缘完全重合。</p>
-    </div>
-
-    <!-- A4 模式说明 -->
-    <div id="calibDescA4" style="display:none;">
-      <p>请将一张 <b>A4 纸纵向</b>贴在屏幕上（标准尺寸 <b>210 mm × 297 mm</b>）。</p>
-      <p>拖动下方滑块，让蓝色方框的<b>左右宽度</b>与 A4 纸边缘完全对齐即可。高度若超出屏幕，可上下滚动查看。</p>
-    </div>
-
-    <!-- 硬币模式说明 -->
-    <div id="calibDescCoin" style="display:none;">
-      <p>请拿一枚硬币贴在屏幕上，选择对应面额，拖动滑块让蓝色圆圈与硬币边缘完全重合。</p>
-      <div class="coin-options" id="coinOptions">
-        <button class="active" data-mm="25">1 元（Ø25 mm）</button>
-        <button data-mm="20.5">5 角（Ø20.5 mm）</button>
-        <button data-mm="19">1 角（Ø19 mm）</button>
+  <div class="modal" id="calibModalBox">
+    <div class="modal-head">
+      <h2>校准屏幕</h2>
+      <div class="calib-tabs">
+        <button class="active" data-calib="card">银行卡 / 身份证</button>
+        <button data-calib="a4">A4 纸（纵向）</button>
+        <button data-calib="coin">硬币</button>
+      </div>
+      <div class="modal-desc">
+        <div id="calibDescCard">
+          <p>请拿一张银行卡 / 身份证贴在屏幕上（标准尺寸 <b>85.60 mm × 53.98 mm</b>）。</p>
+          <p>拖动下方滑块，让蓝色方框与卡片边缘完全重合。</p>
+        </div>
+        <div id="calibDescA4" style="display:none;">
+          <p>请将一张 <b>A4 纸纵向</b>贴在屏幕上（标准尺寸 <b>210 mm × 297 mm</b>）。</p>
+          <p>拖动滑块，让 A4 方框的<b>左右边缘</b>与纸张完全对齐即可。<b>高度超出窗口时可在下方区域内上下滚动查看。</b></p>
+        </div>
+        <div id="calibDescCoin" style="display:none;">
+          <p>请拿一枚硬币贴在屏幕上，选择对应面额，拖动滑块让蓝色圆圈与硬币边缘完全重合。</p>
+          <div class="coin-options" id="coinOptions">
+            <button class="active" data-mm="25">1 元（Ø25 mm）</button>
+            <button data-mm="20.5">5 角（Ø20.5 mm）</button>
+            <button data-mm="19">1 角（Ø19 mm）</button>
+          </div>
+        </div>
       </div>
     </div>
 
     <div class="calib-wrap" id="calibWrap">
       <div class="calib-card" id="calibCard">85.60 × 53.98 mm</div>
-      <div class="calib-a4" id="calibA4" style="display:none;">A4 纵向<br>210 × 297 mm</div>
+      <div class="calib-a4" id="calibA4" style="display:none;">
+        <span class="a4-guide a4-guide-l"></span>
+        <span class="a4-guide a4-guide-r"></span>
+        <div class="a4-label">
+          A4 纵向<br>210 × 297 mm<br>
+          <small>← 左右红线对齐纸张 →</small>
+        </div>
+      </div>
       <div class="calib-coin" id="calibCoin" style="display:none;">1元</div>
     </div>
 
-    <div class="calib-hint" id="calibHint">↑ 让蓝色方框与卡片完全重合</div>
-
-    <div class="calib-controls">
-      <button id="minusBtn" title="减小">−</button>
-      <input type="range" id="calibRange" min="1" max="15" step="0.01">
-      <button id="plusBtn" title="增大">+</button>
-    </div>
-
-    <div class="calib-info">
-      <b id="calibPPMM">3.780</b> px/mm &nbsp;·&nbsp;
-      <b id="calibPPI">96.0</b> PPI
-    </div>
-
-    <div class="modal-actions">
-      <button id="calibReset">恢复默认</button>
-      <button id="calibDone" class="primary">完成校准</button>
+    <div class="modal-foot">
+      <div class="calib-hint" id="calibHint">↑ 让蓝色方框与卡片完全重合</div>
+      <div class="calib-controls">
+        <button id="minusBtn" title="减小">−</button>
+        <input type="range" id="calibRange" min="1" max="15" step="0.01">
+        <button id="plusBtn" title="增大">+</button>
+      </div>
+      <div class="calib-info">
+        <b id="calibPPMM">3.780</b> px/mm &nbsp;·&nbsp;
+        <b id="calibPPI">96.0</b> PPI
+      </div>
+      <div class="modal-actions">
+        <button id="calibReset">恢复默认</button>
+        <button id="calibDone" class="primary">完成校准</button>
+      </div>
     </div>
   </div>
 </div>
+
+<!-- ===================== 打印弹窗 ===================== -->
+<div class="modal-backdrop" id="printModal">
+  <div class="modal" style="width: min(620px, 100%);">
+    <h2>打印</h2>
+    <div class="print-options">
+      <label class="print-opt">
+        <input type="radio" name="printMode" value="screen">
+        <div>
+          <div class="po-title">打印当前视图（截图式）</div>
+          <div class="po-desc">把屏幕上看到的内容按比例缩放到 A4 纸内，适合记录和分享。</div>
+        </div>
+      </label>
+      <label class="print-opt">
+        <input type="radio" name="printMode" value="actual" checked>
+        <div>
+          <div class="po-title">1:1 绝对尺寸打印</div>
+          <div class="po-desc">按真实物理尺寸打印，用尺子量纸上的图形，尺寸与实际一致。</div>
+        </div>
+      </label>
+      <label class="print-opt">
+        <input type="radio" name="printMode" value="a4">
+        <div>
+          <div class="po-title">A4 绝对尺寸打印</div>
+          <div class="po-desc">打印一张真实 A4 大小的纸，当前内容按 1:1 尺寸居中放置在纸上。</div>
+        </div>
+      </label>
+    </div>
+    <div class="print-tip">
+      ⚠️ 打印时请在打印设置中关闭“适应页面”/“缩放”，将缩放设为 <b>100%</b>，并确保边距为“无”，否则尺寸会不准确。
+    </div>
+    <div class="modal-actions">
+      <button id="printCancel">取消</button>
+      <button id="printConfirm" class="primary">开始打印</button>
+    </div>
+  </div>
+</div>
+
+<!-- 打印输出容器 -->
+<div class="print-root" id="printRoot"></div>
 
 <script>
 (function () {
@@ -512,12 +721,12 @@
 
   /* ==================== 常量 ==================== */
   const MM_PER_UNIT = { mm: 1, cm: 10, m: 1000, in: 25.4 };
-  const DEFAULT_PX_PER_MM = 96 / 25.4;              // ≈ 3.7795
+  const BASE_PPM = 96 / 25.4;
+  const DEFAULT_PX_PER_MM = BASE_PPM;
   const STORAGE_KEY = 'screen-ruler-px-per-mm';
   const MAX_CANVAS_PX = 16000;
   const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
 
-  /* 常见蛋糕尺寸对照表（1 英寸 = 25.4mm） */
   const CAKE_SIZES = [
     { inch: 6,  mm: 152.4, people: '2-3 人',   maxP: 3  },
     { inch: 8,  mm: 203.2, people: '3-5 人',   maxP: 5  },
@@ -544,31 +753,54 @@
     cakeDiaUnit: 'in',
     wVal: 50,
     hVal: 30,
-    areaUnit: 'mm'
+    areaUnit: 'mm',
+    // 绝对尺寸
+    absShape: 'ruler',
+    rulerLen: 150,
+    protractorR: 80,
+    triangleLeg: 100,
+    absW: 100,
+    absH: 60,
+    absD: 80
   };
 
   /* ==================== DOM ==================== */
   const stage       = document.getElementById('stage');
   const canvas      = document.getElementById('canvas');
-  const ctx         = canvas.getContext('2d');
   const infoBar     = document.getElementById('infoBar');
   const ppiBadge    = document.getElementById('ppiBadge');
 
-  const cakePanel   = document.getElementById('cakePanel');
-  const lengthPanel = document.getElementById('lengthPanel');
-  const areaPanel   = document.getElementById('areaPanel');
+  const cakePanel     = document.getElementById('cakePanel');
+  const lengthPanel   = document.getElementById('lengthPanel');
+  const areaPanel     = document.getElementById('areaPanel');
+  const absolutePanel = document.getElementById('absolutePanel');
 
-  const cakeCardsEl   = document.getElementById('cakeCards');
-  const cakeDiaInput  = document.getElementById('cakeDia');
+  const cakeCardsEl    = document.getElementById('cakeCards');
+  const cakeDiaInput   = document.getElementById('cakeDia');
   const cakeDiaUnitSel = document.getElementById('cakeDiaUnit');
-  const peopleInput   = document.getElementById('peopleCount');
-  const recommendBtn  = document.getElementById('recommendBtn');
+  const peopleInput    = document.getElementById('peopleCount');
+  const recommendBtn   = document.getElementById('recommendBtn');
 
   const lenValInput = document.getElementById('lenVal');
   const lenUnitSel  = document.getElementById('lenUnit');
   const wValInput   = document.getElementById('wVal');
   const hValInput   = document.getElementById('hVal');
   const areaUnitSel = document.getElementById('areaUnit');
+
+  const absShapeSel      = document.getElementById('absShape');
+  const absRulerField    = document.getElementById('absRulerField');
+  const absProtractorField = document.getElementById('absProtractorField');
+  const absTriangleField = document.getElementById('absTriangleField');
+  const absWField        = document.getElementById('absWField');
+  const absHField        = document.getElementById('absHField');
+  const absDField        = document.getElementById('absDField');
+
+  const absRulerLenInput    = document.getElementById('absRulerLen');
+  const absProtractorRInput = document.getElementById('absProtractorR');
+  const absTriangleLegInput = document.getElementById('absTriangleLeg');
+  const absWInput           = document.getElementById('absW');
+  const absHInput           = document.getElementById('absH');
+  const absDInput           = document.getElementById('absD');
 
   /* ==================== 工具函数 ==================== */
   function fmtNum(n) {
@@ -593,12 +825,10 @@
     if (Math.abs(inch - Math.round(inch)) < 0.05) return String(Math.round(inch));
     return inch.toFixed(1);
   }
-
   function getCakeMm() {
     const v = Math.max(0, state.cakeDia);
     return state.cakeDiaUnit === 'in' ? v * 25.4 : v * 10;
   }
-
   function findSize(mm) {
     const inch = mm / 25.4;
     for (let i = 0; i < CAKE_SIZES.length; i++) {
@@ -606,18 +836,675 @@
     }
     return null;
   }
-
   function estimatePeople(mm) {
     const rCm = mm / 20;
-    const areaCm2 = Math.PI * rCm * rCm;
-    return Math.max(1, Math.round(areaCm2 / AREA_PER_PERSON_CM2));
+    return Math.max(1, Math.round(Math.PI * rCm * rCm / AREA_PER_PERSON_CM2));
   }
-
   function recommendSize(people) {
     for (let i = 0; i < CAKE_SIZES.length; i++) {
       if (people <= CAKE_SIZES[i].maxP) return CAKE_SIZES[i];
     }
     return CAKE_SIZES[CAKE_SIZES.length - 1];
+  }
+
+  /* ==================== 场景度量（毫米） ==================== */
+  function getMetrics() {
+    if (state.mode === 'length') {
+      const mm = Math.max(0, state.lenVal) * MM_PER_UNIT[state.lenUnit];
+      return {
+        type: 'length',
+        contentMmW: mm, contentMmH: 0,
+        padL: 26, padR: 26, padT: 22, padB: 26,
+        mm: mm
+      };
+    }
+    if (state.mode === 'cake') {
+      const mm = getCakeMm();
+      return {
+        type: 'cake',
+        contentMmW: mm, contentMmH: mm,
+        padL: 18, padR: 18, padT: 18, padB: 18,
+        mm: mm
+      };
+    }
+    if (state.mode === 'absolute') {
+      if (state.absShape === 'ruler') {
+        const len = Math.max(10, state.rulerLen);
+        return {
+          type: 'ruler',
+          contentMmW: len, contentMmH: 30,
+          padL: 5, padR: 5, padT: 5, padB: 5,
+          lenMm: len
+        };
+      }
+      if (state.absShape === 'protractor') {
+        const R = Math.max(30, state.protractorR);
+        return {
+          type: 'protractor',
+          contentMmW: R * 2, contentMmH: R,
+          padL: 6, padR: 6, padT: 6, padB: 6,
+          Rmm: R
+        };
+      }
+      if (state.absShape === 'triangle') {
+        const L = Math.max(30, state.triangleLeg);
+        return {
+          type: 'triangle',
+          contentMmW: L, contentMmH: L,
+          padL: 5, padR: 5, padT: 5, padB: 5,
+          Lmm: L
+        };
+      }
+      if (state.absShape === 'circle') {
+        const d = Math.max(1, state.absD);
+        return {
+          type: 'circle',
+          contentMmW: d, contentMmH: d,
+          padL: 12, padR: 12, padT: 12, padB: 12,
+          d: d
+        };
+      }
+      const w = Math.max(1, state.absW);
+      const h = Math.max(1, state.absH);
+      return {
+        type: 'rect',
+        contentMmW: w, contentMmH: h,
+        padL: 12, padR: 26, padT: 12, padB: 26,
+        wmm: w, hmm: h
+      };
+    }
+    // area
+    const wmm = Math.max(0, state.wVal) * MM_PER_UNIT[state.areaUnit];
+    const hmm = Math.max(0, state.hVal) * MM_PER_UNIT[state.areaUnit];
+    return {
+      type: 'area',
+      contentMmW: wmm, contentMmH: hmm,
+      padL: 26, padR: 34, padT: 22, padB: 26,
+      wmm: wmm, hmm: hmm
+    };
+  }
+
+  /* ==================== 绘制：长度模式 ==================== */
+  function drawLength(c, x0, y0, mm, ppm) {
+    if (mm <= 0) return;
+    const k = ppm / BASE_PPM;
+    const totalPx = mm * ppm;
+    const axisY = y0 + 30 * k;
+
+    const cands = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+    let major = cands[cands.length - 1];
+    for (let i = 0; i < cands.length; i++) {
+      if (cands[i] * ppm >= 32 * k) { major = cands[i]; break; }
+    }
+    let minor = major;
+    const divs = [10, 5, 2];
+    for (let i = 0; i < divs.length; i++) {
+      const step = major / divs[i];
+      if (step * ppm >= 6 * k) { minor = step; break; }
+    }
+
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = 2.5 * k;
+    c.lineCap = 'round';
+    c.beginPath();
+    c.moveTo(x0, axisY);
+    c.lineTo(x0 + Math.max(totalPx, 1), axisY);
+    c.stroke();
+
+    c.strokeStyle = '#94a3b8';
+    c.lineWidth = 1 * k;
+    c.beginPath();
+    const nMinor = Math.floor(mm / minor + 1e-9);
+    for (let i = 0; i <= nMinor; i++) {
+      const p = i * minor;
+      if (p > mm + 1e-9) break;
+      const ratio = p / major;
+      if (Math.abs(ratio - Math.round(ratio)) < 1e-6) continue;
+      const x = x0 + p * ppm;
+      c.moveTo(x, axisY);
+      c.lineTo(x, axisY + 9 * k);
+    }
+    c.stroke();
+
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = 1.6 * k;
+    c.beginPath();
+    const nMajor = Math.floor(mm / major + 1e-9);
+    for (let i = 0; i <= nMajor; i++) {
+      const p = i * major;
+      if (p > mm + 1e-9) break;
+      const x = x0 + p * ppm;
+      c.moveTo(x, axisY);
+      c.lineTo(x, axisY + 16 * k);
+    }
+    c.stroke();
+
+    c.strokeStyle = '#ef4444';
+    c.lineWidth = 2 * k;
+    c.beginPath();
+    c.moveTo(x0 + totalPx, axisY - 10 * k);
+    c.lineTo(x0 + totalPx, axisY + 16 * k);
+    c.stroke();
+
+    c.fillStyle = '#334155';
+    c.font = (12 * k).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'top';
+    for (let i = 0; i <= nMajor; i++) {
+      const p = i * major;
+      if (p > mm + 1e-9) break;
+      const x = x0 + p * ppm;
+      c.fillText(fmtNum(p), x, axisY + 21 * k);
+    }
+
+    const label = fmtLen(mm);
+    c.font = 'bold ' + (15 * k).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'bottom';
+    const cx = x0 + totalPx / 2;
+    const tw = c.measureText(label).width;
+    c.fillStyle = 'rgba(255,255,255,.9)';
+    c.fillRect(cx - tw / 2 - 6 * k, axisY - 34 * k, tw + 12 * k, 20 * k);
+    c.fillStyle = '#0f172a';
+    c.fillText(label, cx, axisY - 18 * k);
+  }
+
+  /* ==================== 绘制：蛋糕模式 ==================== */
+  function drawCake(c, cx, cy, mm, ppm) {
+    if (mm <= 0) return;
+    const k = ppm / BASE_PPM;
+    const d = mm * ppm;
+    const r = d / 2;
+    const inch = mm / 25.4;
+    const cm = mm / 10;
+    const std = findSize(mm);
+    const pplText = std ? ('适合 ' + std.people) : ('约 ' + estimatePeople(mm) + ' 人');
+
+    c.beginPath();
+    c.arc(cx, cy, r, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(59,130,246,.07)';
+    c.fill();
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(2 * k, Math.min(4 * k, r * 0.014));
+    c.stroke();
+
+    c.save();
+    c.setLineDash([9 * k, 7 * k]);
+    c.strokeStyle = '#94a3b8';
+    c.lineWidth = 1.5 * k;
+    c.beginPath();
+    c.moveTo(cx - r, cy);
+    c.lineTo(cx + r, cy);
+    c.stroke();
+    c.restore();
+
+    c.fillStyle = '#3b82f6';
+    c.beginPath(); c.arc(cx - r, cy, 4.5 * k, 0, Math.PI * 2); c.fill();
+    c.beginPath(); c.arc(cx + r, cy, 4.5 * k, 0, Math.PI * 2); c.fill();
+
+    const sc = Math.max(0.5, Math.min(1, r / (150 * k)));
+    c.textAlign = 'center';
+
+    c.fillStyle = '#64748b';
+    c.font = (14 * sc * k).toFixed(2) + 'px ' + FONT;
+    c.textBaseline = 'bottom';
+    c.fillText('Ø ' + cm.toFixed(2) + ' cm', cx, cy - 13 * sc * k);
+
+    if (r < 58 * k) return;
+
+    c.fillStyle = '#1d4ed8';
+    c.font = 'bold ' + (30 * sc * k).toFixed(2) + 'px ' + FONT;
+    c.textBaseline = 'top';
+    c.fillText(fmtInch(inch) + ' 英寸', cx, cy + 15 * sc * k);
+
+    if (r > 88 * k) {
+      c.fillStyle = '#475569';
+      c.font = (15 * sc * k).toFixed(2) + 'px ' + FONT;
+      c.fillText(pplText, cx, cy + 58 * sc * k);
+    }
+  }
+
+  /* ==================== 绘制：圆形面积 ==================== */
+  function drawCircle(c, cx, cy, dmm, ppm) {
+    if (dmm <= 0) return;
+    const k = ppm / BASE_PPM;
+    const r = dmm * ppm / 2;
+
+    c.beginPath();
+    c.arc(cx, cy, r, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(59,130,246,.10)';
+    c.fill();
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = 2 * k;
+    c.stroke();
+
+    c.save();
+    c.setLineDash([8 * k, 6 * k]);
+    c.strokeStyle = '#94a3b8';
+    c.lineWidth = 1.5 * k;
+    c.beginPath();
+    c.moveTo(cx - r, cy);
+    c.lineTo(cx + r, cy);
+    c.stroke();
+    c.restore();
+
+    if (r > 42 * k) {
+      c.fillStyle = '#1d4ed8';
+      c.font = 'bold ' + (17 * k).toFixed(2) + 'px ' + FONT;
+      c.textAlign = 'center';
+      c.textBaseline = 'bottom';
+      c.fillText('Ø ' + fmtNum(dmm) + ' mm', cx, cy - 6 * k);
+
+      c.fillStyle = '#475569';
+      c.font = (12 * k).toFixed(2) + 'px ' + FONT;
+      c.textBaseline = 'top';
+      c.fillText('面积 ' + fmtArea(Math.PI * (dmm / 2) * (dmm / 2)), cx, cy + 5 * k);
+    }
+  }
+
+  /* ==================== 绘制：矩形面积 ==================== */
+  function drawArea(c, x0, y0, wmm, hmm, ppm) {
+    if (wmm <= 0 || hmm <= 0) return;
+    const k = ppm / BASE_PPM;
+    const wpx = wmm * ppm;
+    const hpx = hmm * ppm;
+
+    c.fillStyle = 'rgba(59,130,246,.10)';
+    c.fillRect(x0, y0, wpx, hpx);
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = 2 * k;
+    c.strokeRect(x0, y0, wpx, hpx);
+
+    if (wpx > 90 * k && hpx > 34 * k) {
+      c.fillStyle = '#1d4ed8';
+      c.font = 'bold ' + (17 * k).toFixed(2) + 'px ' + FONT;
+      c.textAlign = 'center';
+      c.textBaseline = 'middle';
+      c.fillText(fmtArea(wmm * hmm), x0 + wpx / 2, y0 + hpx / 2);
+    }
+
+    const dy = y0 + hpx + 30 * k;
+    c.strokeStyle = '#94a3b8';
+    c.lineWidth = 1 * k;
+    c.beginPath();
+    c.moveTo(x0, dy); c.lineTo(x0 + wpx, dy);
+    c.moveTo(x0, dy - 6 * k); c.lineTo(x0, dy + 6 * k);
+    c.moveTo(x0 + wpx, dy - 6 * k); c.lineTo(x0 + wpx, dy + 6 * k);
+    c.stroke();
+
+    c.fillStyle = '#475569';
+    c.font = (13 * k).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'bottom';
+    c.fillText(fmtNum(wmm) + ' mm', x0 + wpx / 2, dy - 9 * k);
+
+    const dx = x0 + wpx + 30 * k;
+    c.beginPath();
+    c.moveTo(dx, y0); c.lineTo(dx, y0 + hpx);
+    c.moveTo(dx - 6 * k, y0); c.lineTo(dx + 6 * k, y0);
+    c.moveTo(dx - 6 * k, y0 + hpx); c.lineTo(dx + 6 * k, y0 + hpx);
+    c.stroke();
+
+    c.save();
+    c.translate(dx + 16 * k, y0 + hpx / 2);
+    c.rotate(-Math.PI / 2);
+    c.textAlign = 'center';
+    c.textBaseline = 'bottom';
+    c.fillStyle = '#475569';
+    c.font = (13 * k).toFixed(2) + 'px ' + FONT;
+    c.fillText(fmtNum(hmm) + ' mm', 0, 0);
+    c.restore();
+  }
+
+  /* ==================== 绘制：直尺（长度尺） ==================== */
+  function drawRuler(c, x0, y0, lenMm, ppm) {
+    const H = 30; // 尺子宽度 30mm
+    const w = lenMm * ppm;
+    const h = H * ppm;
+
+    // 尺身
+    c.fillStyle = 'rgba(255,250,220,.75)';
+    c.fillRect(x0, y0, w, h);
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(1, 0.3 * ppm);
+    c.strokeRect(x0, y0, w, h);
+
+    // 刻度从顶部边缘开始
+    // 1mm 小刻度
+    c.strokeStyle = '#1e293b';
+    c.lineWidth = Math.max(0.35, 0.13 * ppm);
+    c.beginPath();
+    for (let mm = 0; mm <= lenMm; mm++) {
+      if (mm % 5 === 0) continue;
+      const x = x0 + mm * ppm;
+      c.moveTo(x, y0);
+      c.lineTo(x, y0 + 3 * ppm);
+    }
+    c.stroke();
+
+    // 5mm 中刻度
+    c.lineWidth = Math.max(0.5, 0.2 * ppm);
+    c.beginPath();
+    for (let mm = 5; mm <= lenMm; mm += 10) {
+      const x = x0 + mm * ppm;
+      c.moveTo(x, y0);
+      c.lineTo(x, y0 + 6 * ppm);
+    }
+    c.stroke();
+
+    // 10mm 长刻度
+    c.lineWidth = Math.max(0.7, 0.28 * ppm);
+    c.beginPath();
+    for (let mm = 0; mm <= lenMm; mm += 10) {
+      const x = x0 + mm * ppm;
+      c.moveTo(x, y0);
+      c.lineTo(x, y0 + 10 * ppm);
+    }
+    c.stroke();
+
+    // 数字（cm）
+    c.fillStyle = '#1e293b';
+    c.font = 'bold ' + (4.2 * ppm).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'top';
+    const labelY = y0 + 11.5 * ppm;
+
+    for (let mm = 0; mm <= lenMm; mm += 10) {
+      const x = x0 + mm * ppm;
+      const label = String(mm / 10);
+      const halfText = c.measureText(label).width / 2;
+      let tx = x;
+      if (tx - halfText < x0 + 1 * ppm) tx = x0 + halfText + 1 * ppm;
+      if (tx + halfText > x0 + w - 1 * ppm) tx = x0 + w - halfText - 1 * ppm;
+      c.fillText(label, tx, labelY);
+    }
+
+    // 底部“cm”标识
+    c.fillStyle = '#64748b';
+    c.font = (3.5 * ppm).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'bottom';
+    c.fillText('cm', x0 + w / 2, y0 + h - 2 * ppm);
+  }
+
+  /* ==================== 绘制：量角器（角度尺） ==================== */
+  function drawProtractor(c, x0, y0, Rmm, ppm) {
+    const R = Rmm * ppm;
+    const cx = x0 + R;
+    const cy = y0 + R;
+
+    // 半圆主体
+    c.beginPath();
+    c.arc(cx, cy, R, Math.PI, 2 * Math.PI);
+    c.closePath();
+    c.fillStyle = 'rgba(255,250,220,.75)';
+    c.fill();
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(1, 0.3 * ppm);
+    c.stroke();
+
+    // 内圈参考弧线
+    const R2 = R - 14 * ppm;
+    if (R2 > 10 * ppm) {
+      c.beginPath();
+      c.arc(cx, cy, R2, Math.PI, 2 * Math.PI);
+      c.strokeStyle = '#94a3b8';
+      c.lineWidth = Math.max(0.4, 0.15 * ppm);
+      c.stroke();
+    }
+
+    // 刻度线
+    // 1° 小刻度
+    c.strokeStyle = '#1e293b';
+    c.lineWidth = Math.max(0.35, 0.13 * ppm);
+    c.beginPath();
+    for (let deg = 1; deg < 180; deg++) {
+      if (deg % 5 === 0) continue;
+      const rad = deg * Math.PI / 180;
+      const x1 = cx + R * Math.cos(rad);
+      const y1 = cy - R * Math.sin(rad);
+      const x2 = cx + (R - 3 * ppm) * Math.cos(rad);
+      const y2 = cy - (R - 3 * ppm) * Math.sin(rad);
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+    }
+    c.stroke();
+
+    // 5° 中刻度
+    c.lineWidth = Math.max(0.5, 0.2 * ppm);
+    c.beginPath();
+    for (let deg = 5; deg < 180; deg += 10) {
+      const rad = deg * Math.PI / 180;
+      const x1 = cx + R * Math.cos(rad);
+      const y1 = cy - R * Math.sin(rad);
+      const x2 = cx + (R - 6 * ppm) * Math.cos(rad);
+      const y2 = cy - (R - 6 * ppm) * Math.sin(rad);
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+    }
+    c.stroke();
+
+    // 10° 长刻度
+    c.lineWidth = Math.max(0.7, 0.28 * ppm);
+    c.beginPath();
+    for (let deg = 0; deg <= 180; deg += 10) {
+      const rad = deg * Math.PI / 180;
+      const x1 = cx + R * Math.cos(rad);
+      const y1 = cy - R * Math.sin(rad);
+      const x2 = cx + (R - 10 * ppm) * Math.cos(rad);
+      const y2 = cy - (R - 10 * ppm) * Math.sin(rad);
+      c.moveTo(x1, y1);
+      c.lineTo(x2, y2);
+    }
+    c.stroke();
+
+    // 数字（外圈：从右到左 0-180）
+    c.fillStyle = '#1e293b';
+    c.font = 'bold ' + (3.5 * ppm).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    for (let deg = 0; deg <= 180; deg += 10) {
+      const rad = deg * Math.PI / 180;
+      const tx = cx + (R - 15.5 * ppm) * Math.cos(rad);
+      const ty = cy - (R - 15.5 * ppm) * Math.sin(rad);
+      c.fillText(String(deg), tx, ty);
+    }
+
+    // 内圈数字（反向 180-0），若半径足够大才画
+    if (R > 55 * ppm) {
+      c.fillStyle = '#64748b';
+      c.font = (2.8 * ppm).toFixed(2) + 'px ' + FONT;
+      for (let deg = 0; deg <= 180; deg += 10) {
+        const rad = deg * Math.PI / 180;
+        const tx = cx + (R - 26 * ppm) * Math.cos(rad);
+        const ty = cy - (R - 26 * ppm) * Math.sin(rad);
+        c.fillText(String(180 - deg), tx, ty);
+      }
+    }
+
+    // 中心圆点
+    c.beginPath();
+    c.arc(cx, cy, Math.max(1, 1.5 * ppm), 0, Math.PI * 2);
+    c.fillStyle = '#3b82f6';
+    c.fill();
+
+    // 底边刻度标记（0 和 180 处加粗）
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(1, 0.3 * ppm);
+    c.beginPath();
+    c.moveTo(cx - R, cy);
+    c.lineTo(cx + R, cy);
+    c.stroke();
+  }
+
+  /* ==================== 绘制：三角尺（等腰直角） ==================== */
+  function drawTriangle(c, x0, y0, Lmm, ppm) {
+    const L = Lmm * ppm;
+
+    // 顶点：直角在左下角
+    const p1 = { x: x0, y: y0 + L };       // 左下直角顶点
+    const p2 = { x: x0 + L, y: y0 + L };   // 右下
+    const p3 = { x: x0, y: y0 };           // 左上
+
+    c.beginPath();
+    c.moveTo(p1.x, p1.y);
+    c.lineTo(p2.x, p2.y);
+    c.lineTo(p3.x, p3.y);
+    c.closePath();
+    c.fillStyle = 'rgba(255,250,220,.75)';
+    c.fill();
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(1, 0.3 * ppm);
+    c.stroke();
+
+    // 直角标记
+    const s = 4 * ppm;
+    c.strokeStyle = '#3b82f6';
+    c.lineWidth = Math.max(0.5, 0.2 * ppm);
+    c.strokeRect(x0, y0 + L - s, s, s);
+
+    // 水平底边刻度（从底边向上）
+    for (let mm = 0; mm <= Lmm; mm++) {
+      let tickLen, lineW;
+      if (mm % 10 === 0) { tickLen = 8 * ppm; lineW = Math.max(0.7, 0.28 * ppm); }
+      else if (mm % 5 === 0) { tickLen = 5 * ppm; lineW = Math.max(0.5, 0.2 * ppm); }
+      else { tickLen = 3 * ppm; lineW = Math.max(0.35, 0.13 * ppm); }
+      c.lineWidth = lineW;
+      c.strokeStyle = '#1e293b';
+      c.beginPath();
+      c.moveTo(x0 + mm * ppm, y0 + L);
+      c.lineTo(x0 + mm * ppm, y0 + L - tickLen);
+      c.stroke();
+    }
+
+    // 垂直左边刻度（从左边向右）
+    for (let mm = 0; mm <= Lmm; mm++) {
+      let tickLen, lineW;
+      if (mm % 10 === 0) { tickLen = 8 * ppm; lineW = Math.max(0.7, 0.28 * ppm); }
+      else if (mm % 5 === 0) { tickLen = 5 * ppm; lineW = Math.max(0.5, 0.2 * ppm); }
+      else { tickLen = 3 * ppm; lineW = Math.max(0.35, 0.13 * ppm); }
+      c.lineWidth = lineW;
+      c.strokeStyle = '#1e293b';
+      c.beginPath();
+      c.moveTo(x0, y0 + L - mm * ppm);
+      c.lineTo(x0 + tickLen, y0 + L - mm * ppm);
+      c.stroke();
+    }
+
+    // 水平边数字
+    c.fillStyle = '#1e293b';
+    c.font = 'bold ' + (3 * ppm).toFixed(2) + 'px ' + FONT;
+    c.textAlign = 'center';
+    c.textBaseline = 'bottom';
+    for (let mm = 10; mm <= Lmm; mm += 10) {
+      const x = x0 + mm * ppm;
+      // 避开垂直数字区
+      if (x < x0 + 14 * ppm) continue;
+      c.fillText(String(mm), x, y0 + L - 9 * ppm);
+    }
+
+    // 垂直边数字（旋转）
+    c.save();
+    c.textAlign = 'center';
+    c.textBaseline = 'middle';
+    c.font = 'bold ' + (3 * ppm).toFixed(2) + 'px ' + FONT;
+    for (let mm = 10; mm <= Lmm; mm += 10) {
+      const y = y0 + L - mm * ppm;
+      if (y > y0 + L - 14 * ppm) continue;
+      c.save();
+      c.translate(x0 + 13 * ppm, y);
+      c.rotate(-Math.PI / 2);
+      c.fillText(String(mm), 0, 0);
+      c.restore();
+    }
+    c.restore();
+
+    // 斜边长度标注（若空间足够）
+    if (Lmm >= 60) {
+      const hyp = Lmm * Math.SQRT2;
+      const mx = (p2.x + p3.x) / 2;
+      const my = (p2.y + p3.y) / 2;
+      c.save();
+      c.translate(mx, my);
+      c.rotate(-Math.PI / 4);
+      c.fillStyle = '#64748b';
+      c.font = (3.2 * ppm).toFixed(2) + 'px ' + FONT;
+      c.textAlign = 'center';
+      c.textBaseline = 'bottom';
+      c.fillText('斜边 ' + fmtNum(hyp) + ' mm', 0, -2 * ppm);
+      c.restore();
+    }
+  }
+
+  /* ==================== 通用渲染 ==================== */
+  function renderToCanvas(targetCanvas, ppm, dpr, minCssW, minCssH) {
+    const m = getMetrics();
+    const spm = ppm * dpr;
+
+    const contentW = m.contentMmW * spm;
+    const contentH = m.contentMmH * spm;
+    const padL = m.padL * spm;
+    const padR = m.padR * spm;
+    const padT = m.padT * spm;
+    const padB = m.padB * spm;
+
+    const blockW = contentW + padL + padR;
+    const blockH = contentH + padT + padB;
+
+    const maxCss = MAX_CANVAS_PX / dpr;
+    const cssW = Math.min(Math.max(blockW / dpr, minCssW || 0, 1), maxCss);
+    const cssH = Math.min(Math.max(blockH / dpr, minCssH || 0, 1), maxCss);
+
+    const W = Math.round(cssW * dpr);
+    const H = Math.round(cssH * dpr);
+
+    targetCanvas.width = W;
+    targetCanvas.height = H;
+    targetCanvas.style.width = cssW + 'px';
+    targetCanvas.style.height = cssH + 'px';
+
+    const c = targetCanvas.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0);
+    c.clearRect(0, 0, W, H);
+
+    const ox = padL + Math.max(0, (W - blockW) / 2);
+    const oy = padT + Math.max(0, (H - blockH) / 2);
+
+    if (m.type === 'length') {
+      drawLength(c, ox, oy, m.mm, spm);
+    } else if (m.type === 'cake') {
+      drawCake(c, ox + contentW / 2, oy + contentH / 2, m.mm, spm);
+    } else if (m.type === 'circle') {
+      drawCircle(c, ox + contentW / 2, oy + contentH / 2, m.d, spm);
+    } else if (m.type === 'ruler') {
+      drawRuler(c, ox, oy, m.lenMm, spm);
+    } else if (m.type === 'protractor') {
+      drawProtractor(c, ox, oy, m.Rmm, spm);
+    } else if (m.type === 'triangle') {
+      drawTriangle(c, ox, oy, m.Lmm, spm);
+    } else {
+      drawArea(c, ox, oy, m.wmm, m.hmm, spm);
+    }
+
+    return {
+      cssW: cssW, cssH: cssH,
+      blockMmW: blockW / spm,
+      blockMmH: blockH / spm
+    };
+  }
+
+  function render() {
+    const dpr = window.devicePixelRatio || 1;
+    const stageW = stage.clientWidth || 800;
+    const stageH = stage.clientHeight || 400;
+    renderToCanvas(canvas, pxPerMm, dpr, stageW, stageH);
+  }
+
+  function centerScroll() {
+    requestAnimationFrame(function () {
+      stage.scrollLeft = Math.max(0, (canvas.offsetWidth  - stage.clientWidth)  / 2);
+      stage.scrollTop  = Math.max(0, (canvas.offsetHeight - stage.clientHeight) / 2);
+    });
   }
 
   /* ==================== 尺寸卡片 ==================== */
@@ -654,273 +1541,6 @@
     centerScroll();
   }
 
-  /* ==================== 主渲染 ==================== */
-  function render() {
-    const dpr = window.devicePixelRatio || 1;
-
-    let contentW = 0, contentH = 0;
-    let padL = 80, padR = 80, padT = 80, padB = 80;
-    let cakeMm = 0, lenMm = 0, wmm = 0, hmm = 0;
-
-    if (state.mode === 'length') {
-      lenMm = Math.max(0, state.lenVal) * MM_PER_UNIT[state.lenUnit];
-      contentW = lenMm * pxPerMm;
-      contentH = 60;
-    } else if (state.mode === 'cake') {
-      cakeMm = getCakeMm();
-      contentW = contentH = Math.max(0, cakeMm) * pxPerMm;
-      padL = padR = padT = padB = 70;
-    } else {
-      wmm = Math.max(0, state.wVal) * MM_PER_UNIT[state.areaUnit];
-      hmm = Math.max(0, state.hVal) * MM_PER_UNIT[state.areaUnit];
-      contentW = wmm * pxPerMm;
-      contentH = hmm * pxPerMm;
-      padL = 80; padR = 110;
-    }
-
-    const stageW = stage.clientWidth  || 800;
-    const stageH = stage.clientHeight || 400;
-
-    const W = Math.min(MAX_CANVAS_PX, Math.max(stageW, contentW + padL + padR));
-    const H = Math.min(MAX_CANVAS_PX, Math.max(stageH, contentH + padT + padB));
-
-    canvas.style.width  = W + 'px';
-    canvas.style.height = H + 'px';
-    canvas.width  = Math.round(W * dpr);
-    canvas.height = Math.round(H * dpr);
-
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-
-    const ox = padL + Math.max(0, (W - padL - padR - contentW) / 2);
-    const oy = padT + Math.max(0, (H - padT - padB - contentH) / 2);
-
-    if (state.mode === 'length') {
-      drawLength(ox, oy, lenMm);
-    } else if (state.mode === 'cake') {
-      drawCake(ox + contentW / 2, oy + contentH / 2);
-    } else {
-      drawArea(ox, oy, wmm, hmm);
-    }
-  }
-
-  function centerScroll() {
-    requestAnimationFrame(function () {
-      stage.scrollLeft = Math.max(0, (canvas.offsetWidth  - stage.clientWidth)  / 2);
-      stage.scrollTop  = Math.max(0, (canvas.offsetHeight - stage.clientHeight) / 2);
-    });
-  }
-
-  /* ==================== 绘制：长度 ==================== */
-  function drawLength(x0, y0, mm) {
-    if (mm <= 0) return;
-
-    const totalPx = mm * pxPerMm;
-    const axisY = y0 + 30;
-
-    const cands = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
-    let major = cands[cands.length - 1];
-    for (let i = 0; i < cands.length; i++) {
-      if (cands[i] * pxPerMm >= 32) { major = cands[i]; break; }
-    }
-
-    let minor = major;
-    const divs = [10, 5, 2];
-    for (let i = 0; i < divs.length; i++) {
-      const step = major / divs[i];
-      if (step * pxPerMm >= 6) { minor = step; break; }
-    }
-
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(x0, axisY);
-    ctx.lineTo(x0 + Math.max(totalPx, 1), axisY);
-    ctx.stroke();
-
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    const nMinor = Math.floor(mm / minor + 1e-9);
-    for (let i = 0; i <= nMinor; i++) {
-      const p = i * minor;
-      if (p > mm + 1e-9) break;
-      const ratio = p / major;
-      if (Math.abs(ratio - Math.round(ratio)) < 1e-6) continue;
-      const x = x0 + p * pxPerMm;
-      ctx.moveTo(x, axisY);
-      ctx.lineTo(x, axisY + 9);
-    }
-    ctx.stroke();
-
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    const nMajor = Math.floor(mm / major + 1e-9);
-    for (let i = 0; i <= nMajor; i++) {
-      const p = i * major;
-      if (p > mm + 1e-9) break;
-      const x = x0 + p * pxPerMm;
-      ctx.moveTo(x, axisY);
-      ctx.lineTo(x, axisY + 16);
-    }
-    ctx.stroke();
-
-    ctx.strokeStyle = '#ef4444';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x0 + totalPx, axisY - 10);
-    ctx.lineTo(x0 + totalPx, axisY + 16);
-    ctx.stroke();
-
-    ctx.fillStyle = '#334155';
-    ctx.font = '12px ' + FONT;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    for (let i = 0; i <= nMajor; i++) {
-      const p = i * major;
-      if (p > mm + 1e-9) break;
-      const x = x0 + p * pxPerMm;
-      ctx.fillText(fmtNum(p), x, axisY + 21);
-    }
-
-    const label = fmtLen(mm);
-    ctx.font = 'bold 15px ' + FONT;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-
-    const cx = x0 + totalPx / 2;
-    const tw = ctx.measureText(label).width;
-    ctx.fillStyle = 'rgba(255,255,255,.9)';
-    ctx.fillRect(cx - tw / 2 - 6, axisY - 34, tw + 12, 20);
-    ctx.fillStyle = '#0f172a';
-    ctx.fillText(label, cx, axisY - 18);
-  }
-
-  /* ==================== 绘制：蛋糕 ==================== */
-  function drawCake(cx, cy) {
-    const mm = getCakeMm();
-    if (mm <= 0) return;
-
-    const d = mm * pxPerMm;
-    const r = d / 2;
-    const inch = mm / 25.4;
-    const cm = mm / 10;
-
-    const std = findSize(mm);
-    let pplText;
-    if (std) {
-      pplText = '适合 ' + std.people;
-    } else {
-      const n = estimatePeople(mm);
-      pplText = '约 ' + n + ' 人';
-    }
-
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(59,130,246,.07)';
-    ctx.fill();
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = Math.max(2, Math.min(4, r * 0.014));
-    ctx.stroke();
-
-    ctx.save();
-    ctx.setLineDash([9, 7]);
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(cx - r, cy);
-    ctx.lineTo(cx + r, cy);
-    ctx.stroke();
-    ctx.restore();
-
-    ctx.fillStyle = '#3b82f6';
-    ctx.beginPath();
-    ctx.arc(cx - r, cy, 4.5, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(cx + r, cy, 4.5, 0, Math.PI * 2);
-    ctx.fill();
-
-    const sc = Math.max(0.5, Math.min(1, r / 150));
-    ctx.textAlign = 'center';
-
-    ctx.fillStyle = '#64748b';
-    ctx.font = (14 * sc).toFixed(1) + 'px ' + FONT;
-    ctx.textBaseline = 'bottom';
-    ctx.fillText('Ø ' + cm.toFixed(2) + ' cm', cx, cy - 13 * sc);
-
-    if (r < 58) return;
-
-    ctx.fillStyle = '#1d4ed8';
-    ctx.font = 'bold ' + (30 * sc).toFixed(1) + 'px ' + FONT;
-    ctx.textBaseline = 'top';
-    ctx.fillText(fmtInch(inch) + ' 英寸', cx, cy + 15 * sc);
-
-    if (r > 88) {
-      ctx.fillStyle = '#475569';
-      ctx.font = (15 * sc).toFixed(1) + 'px ' + FONT;
-      ctx.fillText(pplText, cx, cy + 58 * sc);
-    }
-  }
-
-  /* ==================== 绘制：面积 ==================== */
-  function drawArea(x0, y0, wmm, hmm) {
-    if (wmm <= 0 || hmm <= 0) return;
-
-    const wpx = wmm * pxPerMm;
-    const hpx = hmm * pxPerMm;
-
-    ctx.fillStyle = 'rgba(59,130,246,.10)';
-    ctx.fillRect(x0, y0, wpx, hpx);
-    ctx.strokeStyle = '#3b82f6';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(x0, y0, wpx, hpx);
-
-    if (wpx > 90 && hpx > 34) {
-      ctx.fillStyle = '#1d4ed8';
-      ctx.font = 'bold 17px ' + FONT;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(fmtArea(wmm * hmm), x0 + wpx / 2, y0 + hpx / 2);
-    }
-
-    const dy = y0 + hpx + 30;
-    ctx.strokeStyle = '#94a3b8';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(x0, dy);
-    ctx.lineTo(x0 + wpx, dy);
-    ctx.moveTo(x0, dy - 6);       ctx.lineTo(x0, dy + 6);
-    ctx.moveTo(x0 + wpx, dy - 6); ctx.lineTo(x0 + wpx, dy + 6);
-    ctx.stroke();
-
-    ctx.fillStyle = '#475569';
-    ctx.font = '13px ' + FONT;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillText(fmtNum(wmm) + ' mm', x0 + wpx / 2, dy - 9);
-
-    const dx = x0 + wpx + 30;
-    ctx.beginPath();
-    ctx.moveTo(dx, y0);
-    ctx.lineTo(dx, y0 + hpx);
-    ctx.moveTo(dx - 6, y0);       ctx.lineTo(dx + 6, y0);
-    ctx.moveTo(dx - 6, y0 + hpx); ctx.lineTo(dx + 6, y0 + hpx);
-    ctx.stroke();
-
-    ctx.save();
-    ctx.translate(dx + 16, y0 + hpx / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'bottom';
-    ctx.fillStyle = '#475569';
-    ctx.font = '13px ' + FONT;
-    ctx.fillText(fmtNum(hmm) + ' mm', 0, 0);
-    ctx.restore();
-  }
-
   /* ==================== 信息栏 ==================== */
   function updateInfo() {
     if (state.mode === 'length') {
@@ -928,7 +1548,8 @@
       infoBar.innerHTML =
         '长度：<b>' + fmtNum(mm) + ' mm</b>' +
         ' = <b>' + fmtNum(mm / 10) + ' cm</b>' +
-        ' = <b>' + fmtNum(mm / 25.4) + ' in</b>';
+        ' = <b>' + fmtNum(mm / 25.4) + ' in</b>' +
+        ' &nbsp;·&nbsp; 已校准为 1:1 物理尺寸显示';
     } else if (state.mode === 'cake') {
       const mm = getCakeMm();
       const inch = mm / 25.4;
@@ -936,7 +1557,6 @@
       const std = findSize(mm);
       const ppl = std ? std.people : ('约 ' + estimatePeople(mm) + ' 人');
       const shicunMm = inch * 33.333;
-
       infoBar.innerHTML =
         '直径 <b>Ø' + cm.toFixed(2) + ' cm</b>' +
         '（<b>' + fmtInch(inch) + ' 英寸</b>）' +
@@ -944,6 +1564,42 @@
         ' &nbsp;·&nbsp; <span class="warn">蛋糕行业"寸"= 英寸(2.54cm)，不是市寸(3.33cm)' +
         '——同样标"' + fmtInch(inch) + '寸"，直径差 ' +
         (shicunMm - mm).toFixed(1) + ' cm</span>';
+    } else if (state.mode === 'absolute') {
+      if (state.absShape === 'ruler') {
+        const len = state.rulerLen;
+        infoBar.innerHTML =
+          '📏 直尺 · 长度 <b>' + fmtNum(len) + ' mm</b>（' + fmtNum(len / 10) + ' cm）' +
+          ' &nbsp;·&nbsp; 宽度 30 mm' +
+          ' &nbsp;·&nbsp; <span class="warn">点击「打印此尺寸」可 1:1 打印真实直尺</span>';
+      } else if (state.absShape === 'protractor') {
+        const R = state.protractorR;
+        infoBar.innerHTML =
+          '📐 量角器 · 半径 <b>' + fmtNum(R) + ' mm</b>' +
+          '（直径 ' + fmtNum(R * 2) + ' mm = ' + fmtNum(R * 2 / 10) + ' cm）' +
+          ' &nbsp;·&nbsp; 量程 0–180°' +
+          ' &nbsp;·&nbsp; <span class="warn">点击「打印此尺寸」可 1:1 打印真实量角器</span>';
+      } else if (state.absShape === 'triangle') {
+        const L = state.triangleLeg;
+        const hyp = L * Math.SQRT2;
+        infoBar.innerHTML =
+          '📐 三角尺 · 直角边 <b>' + fmtNum(L) + ' mm</b>' +
+          ' &nbsp;·&nbsp; 斜边 <b>' + fmtNum(hyp) + ' mm</b>' +
+          ' &nbsp;·&nbsp; 角度 45°–45°–90°' +
+          ' &nbsp;·&nbsp; <span class="warn">点击「打印此尺寸」可 1:1 打印真实三角尺</span>';
+      } else if (state.absShape === 'circle') {
+        const d = Math.max(1, state.absD);
+        infoBar.innerHTML =
+          '◯ 圆形 · 直径 <b>' + fmtNum(d) + ' mm</b>（' + fmtNum(d / 10) + ' cm）' +
+          ' &nbsp;·&nbsp; 面积 <b>' + fmtArea(Math.PI * (d / 2) * (d / 2)) + '</b>' +
+          ' &nbsp;·&nbsp; 周长 <b>' + fmtNum(Math.PI * d) + ' mm</b>';
+      } else {
+        const w = Math.max(1, state.absW);
+        const h = Math.max(1, state.absH);
+        infoBar.innerHTML =
+          '▭ 矩形 <b>' + fmtNum(w) + ' × ' + fmtNum(h) + ' mm</b>' +
+          ' &nbsp;·&nbsp; 面积 <b>' + fmtArea(w * h) + '</b>' +
+          ' &nbsp;·&nbsp; 对角线 <b>' + fmtNum(Math.sqrt(w * w + h * h)) + ' mm</b>';
+      }
     } else {
       const wmm = state.wVal * MM_PER_UNIT[state.areaUnit];
       const hmm = state.hVal * MM_PER_UNIT[state.areaUnit];
@@ -968,9 +1624,10 @@
       btn.classList.add('active');
       state.mode = btn.dataset.mode;
 
-      lengthPanel.classList.toggle('hidden', state.mode !== 'length');
-      cakePanel.classList.toggle('hidden',   state.mode !== 'cake');
-      areaPanel.classList.toggle('hidden',   state.mode !== 'area');
+      lengthPanel.classList.toggle('hidden',   state.mode !== 'length');
+      cakePanel.classList.toggle('hidden',     state.mode !== 'cake');
+      areaPanel.classList.toggle('hidden',     state.mode !== 'area');
+      absolutePanel.classList.toggle('hidden', state.mode !== 'absolute');
 
       stage.scrollTop = 0;
       stage.scrollLeft = 0;
@@ -1007,10 +1664,8 @@
     state.cakeDia = clampVal(parseFloat(this.value));
     state.cakeIdx = -1;
     updateCardActive();
-    render();
-    updateInfo();
+    render(); updateInfo();
   });
-
   cakeDiaUnitSel.addEventListener('change', function () {
     const oldUnit = state.cakeDiaUnit;
     const newUnit = this.value;
@@ -1022,10 +1677,8 @@
     state.cakeDiaUnit = newUnit;
     state.cakeIdx = -1;
     updateCardActive();
-    render();
-    updateInfo();
+    render(); updateInfo();
   });
-
   recommendBtn.addEventListener('click', function () {
     let n = parseInt(peopleInput.value, 10);
     if (!isFinite(n) || n < 1) n = 1;
@@ -1036,8 +1689,57 @@
     if (idx >= 0) selectCake(idx);
   });
 
+  /* ==================== 交互：绝对尺寸 ==================== */
+  function syncAbsFields() {
+    const s = state.absShape;
+    absRulerField.style.display      = (s === 'ruler') ? '' : 'none';
+    absProtractorField.style.display = (s === 'protractor') ? '' : 'none';
+    absTriangleField.style.display   = (s === 'triangle') ? '' : 'none';
+    absWField.style.display          = (s === 'rect') ? '' : 'none';
+    absHField.style.display          = (s === 'rect') ? '' : 'none';
+    absDField.style.display          = (s === 'circle') ? '' : 'none';
+  }
+
+  absShapeSel.addEventListener('change', function () {
+    state.absShape = this.value;
+    syncAbsFields();
+    render(); updateInfo(); centerScroll();
+  });
+
+  absRulerLenInput.addEventListener('input', function () {
+    state.rulerLen = Math.max(10, Math.min(1000, parseFloat(this.value) || 10));
+    render(); updateInfo();
+  });
+  absProtractorRInput.addEventListener('input', function () {
+    state.protractorR = Math.max(30, Math.min(300, parseFloat(this.value) || 30));
+    render(); updateInfo();
+  });
+  absTriangleLegInput.addEventListener('input', function () {
+    state.triangleLeg = Math.max(30, Math.min(500, parseFloat(this.value) || 30));
+    render(); updateInfo();
+  });
+  absWInput.addEventListener('input', function () {
+    state.absW = Math.max(1, clampVal(parseFloat(this.value)) || 1);
+    render(); updateInfo();
+  });
+  absHInput.addEventListener('input', function () {
+    state.absH = Math.max(1, clampVal(parseFloat(this.value)) || 1);
+    render(); updateInfo();
+  });
+  absDInput.addEventListener('input', function () {
+    state.absD = Math.max(1, clampVal(parseFloat(this.value)) || 1);
+    render(); updateInfo();
+  });
+
+  document.getElementById('absPrintBtn').addEventListener('click', function () {
+    doPrint('actual');
+  });
+
+  syncAbsFields();
+
   /* ==================== 交互：校准 ==================== */
   const modal        = document.getElementById('calibModal');
+  const modalBox     = document.getElementById('calibModalBox');
   const calibWrap    = document.getElementById('calibWrap');
   const calibCard    = document.getElementById('calibCard');
   const calibA4      = document.getElementById('calibA4');
@@ -1052,7 +1754,7 @@
   const coinOptions  = document.getElementById('coinOptions');
 
   let calibValue  = pxPerMm;
-  let calibMode   = 'card';   // card | a4 | coin
+  let calibMode   = 'card';
   let calibCoinMm = 25;
 
   function syncCalib() {
@@ -1080,25 +1782,29 @@
     document.querySelectorAll('.calib-tabs button').forEach(function (b) {
       b.classList.toggle('active', b.dataset.calib === mode);
     });
+
     const isCard = mode === 'card';
     const isA4   = mode === 'a4';
     const isCoin = mode === 'coin';
+
+    modalBox.classList.toggle('a4-mode', isA4);
 
     descCard.style.display = isCard ? '' : 'none';
     descA4.style.display   = isA4   ? '' : 'none';
     descCoin.style.display = isCoin ? '' : 'none';
 
-    calibCard.style.display = isCard ? 'flex' : 'none';
-    calibA4.style.display   = isA4   ? 'flex' : 'none';
-    calibCoin.style.display = isCoin ? 'flex' : 'none';
+    calibCard.style.display = isCard ? 'flex'  : 'none';
+    calibA4.style.display   = isA4   ? 'block' : 'none';
+    calibCoin.style.display = isCoin ? 'flex'  : 'none';
 
     calibHint.textContent = isCard
       ? '↑ 让蓝色方框与卡片完全重合'
       : isA4
-        ? '↑ 让蓝色方框左右宽度与 A4 纸边缘完全对齐（可上下滚动）'
+        ? '↑ 让左右红线与 A4 纸边缘对齐（上下可滚动查看）'
         : '↑ 让蓝色圆圈与硬币边缘完全重合';
 
     calibWrap.scrollTop = 0;
+    calibWrap.scrollLeft = 0;
     syncCalib();
   }
 
@@ -1128,38 +1834,165 @@
     calibValue = parseFloat(this.value);
     syncCalib();
   });
-
   document.getElementById('minusBtn').addEventListener('click', function () {
-    calibValue = Math.max(1, calibValue - 0.02);
-    syncCalib();
+    calibValue = Math.max(1, calibValue - 0.02); syncCalib();
   });
   document.getElementById('plusBtn').addEventListener('click', function () {
-    calibValue = Math.min(15, calibValue + 0.02);
-    syncCalib();
+    calibValue = Math.min(15, calibValue + 0.02); syncCalib();
   });
   document.getElementById('calibReset').addEventListener('click', function () {
-    calibValue = DEFAULT_PX_PER_MM;
-    syncCalib();
+    calibValue = DEFAULT_PX_PER_MM; syncCalib();
   });
-
   document.getElementById('calibDone').addEventListener('click', function () {
     pxPerMm = calibValue;
     try { localStorage.setItem(STORAGE_KEY, String(pxPerMm)); } catch (e) {}
     modal.classList.remove('show');
+    modalBox.classList.remove('a4-mode');
     updatePpiBadge();
-    render();
-    updateInfo();
-    centerScroll();
+    render(); updateInfo(); centerScroll();
   });
 
   modal.addEventListener('click', function (e) {
-    if (e.target === modal) modal.classList.remove('show');
-  });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && modal.classList.contains('show')) {
+    if (e.target === modal) {
       modal.classList.remove('show');
+      modalBox.classList.remove('a4-mode');
     }
   });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (modal.classList.contains('show')) {
+        modal.classList.remove('show');
+        modalBox.classList.remove('a4-mode');
+      }
+      if (printModal.classList.contains('show')) {
+        printModal.classList.remove('show');
+      }
+    }
+  });
+
+  /* ==================== 打印功能 ==================== */
+  const printModal = document.getElementById('printModal');
+  const printRoot  = document.getElementById('printRoot');
+
+  function openPrintPanel() {
+    // 绝对尺寸模式下默认用 1:1 打印
+    if (state.mode === 'absolute') {
+      document.querySelector('input[name="printMode"][value="actual"]').checked = true;
+    }
+    printModal.classList.add('show');
+  }
+
+  document.getElementById('printBtn').addEventListener('click', openPrintPanel);
+  document.getElementById('printCancel').addEventListener('click', function () {
+    printModal.classList.remove('show');
+  });
+  printModal.addEventListener('click', function (e) {
+    if (e.target === printModal) printModal.classList.remove('show');
+  });
+
+  document.getElementById('printConfirm').addEventListener('click', function () {
+    const mode = document.querySelector('input[name="printMode"]:checked').value;
+    printModal.classList.remove('show');
+    doPrint(mode);
+  });
+
+  function calcPrintDpr(blockMmW, blockMmH) {
+    const targetPxPerMm = 11.811; // 300 DPI
+    let dpr = targetPxPerMm / pxPerMm;
+    const maxCanvasPx = 8000;
+    const w = blockMmW * pxPerMm * dpr;
+    const h = blockMmH * pxPerMm * dpr;
+    const maxDim = Math.max(w, h);
+    if (maxDim > maxCanvasPx) dpr *= maxCanvasPx / maxDim;
+    return Math.max(1, dpr);
+  }
+
+  function setPrintPage(size) {
+    let styleEl = document.getElementById('printPageStyle');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'printPageStyle';
+      document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = '@page { size: ' + size + '; margin: 0; }';
+  }
+
+  function renderPrintCanvas() {
+    const m = getMetrics();
+    const blockMmW = m.contentMmW + m.padL + m.padR;
+    const blockMmH = m.contentMmH + m.padT + m.padB;
+    const printDpr = calcPrintDpr(blockMmW, blockMmH);
+    const tmp = document.createElement('canvas');
+    renderToCanvas(tmp, pxPerMm, printDpr);
+    return {
+      dataUrl: tmp.toDataURL('image/png'),
+      blockMmW: blockMmW,
+      blockMmH: blockMmH
+    };
+  }
+
+  function doPrint(mode) {
+    printRoot.innerHTML = '';
+
+    const m = getMetrics();
+    const blockMmW = m.contentMmW + m.padL + m.padR;
+    const blockMmH = m.contentMmH + m.padT + m.padB;
+
+    if (mode === 'screen') {
+      const dataUrl = canvas.toDataURL('image/png');
+      const img = document.createElement('img');
+      img.src = dataUrl;
+      img.style.display = 'block';
+      img.style.margin = '0 auto';
+      const margin = 10;
+      const availW = 210 - margin * 2;
+      const availH = 297 - margin * 2;
+      const ratio = Math.min(availW / blockMmW, availH / blockMmH);
+      img.style.width  = (blockMmW * ratio) + 'mm';
+      img.style.height = (blockMmH * ratio) + 'mm';
+      printRoot.appendChild(img);
+      setPrintPage('A4');
+    } else if (mode === 'actual') {
+      const res = renderPrintCanvas();
+      const img = document.createElement('img');
+      img.src = res.dataUrl;
+      img.style.width  = res.blockMmW + 'mm';
+      img.style.height = res.blockMmH + 'mm';
+      img.style.display = 'block';
+      printRoot.appendChild(img);
+      // 若超出 A4 宽度，仍按原尺寸打印（会分页或裁剪）
+      setPrintPage(res.blockMmW > 200 || res.blockMmH > 280 ? 'A4' : 'A4');
+    } else if (mode === 'a4') {
+      const wrap = document.createElement('div');
+      wrap.className = 'print-a4';
+      wrap.style.width  = '210mm';
+      wrap.style.height = '297mm';
+      const res = renderPrintCanvas();
+      const img = document.createElement('img');
+      img.src = res.dataUrl;
+      img.style.width  = res.blockMmW + 'mm';
+      img.style.height = res.blockMmH + 'mm';
+      img.style.display = 'block';
+      img.style.position = 'absolute';
+      const leftMm = Math.max(0, (210 - res.blockMmW) / 2);
+      const topMm  = Math.max(0, (297 - res.blockMmH) / 2);
+      img.style.left = leftMm + 'mm';
+      img.style.top  = topMm + 'mm';
+      wrap.appendChild(img);
+      printRoot.appendChild(wrap);
+      setPrintPage('A4');
+    }
+
+    const imgs = printRoot.querySelectorAll('img');
+    Promise.all(Array.prototype.map.call(imgs, function (im) {
+      return im.decode ? im.decode().catch(function () {}) : Promise.resolve();
+    })).then(function () {
+      setTimeout(function () {
+        window.print();
+        setTimeout(function () { printRoot.innerHTML = ''; }, 500);
+      }, 120);
+    });
+  }
 
   /* ==================== 自适应 ==================== */
   let resizeTimer = null;

@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>屏幕尺子 · 真实尺寸测量</title>
+<style>
+  :root {
+    --accent: #3b82f6;
+    --accent-dark: #2563eb;
+    --bg: #f1f5f9;
+    --panel: #ffffff;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --muted: #64748b;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 11px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  header h1 {
+    font-size: 17px;
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: .5px;
+  }
+  header h1 span { color: var(--accent); }
+  .spacer { flex: 1; }
+  .ppi-badge {
+    font-size: 12px;
+    color: var(--muted);
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  button {
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    padding: 7px 14px;
+    transition: background .15s, border-color .15s;
+  }
+  button:hover { background: #f8fafc; border-color: #cbd5e1; }
+  button:active { transform: translateY(1px); }
+  button.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  button.primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+  .toolbar {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 11px 20px;
+    background: var(--panel);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tabs {
+    display: flex;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 9px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .tabs button {
+    border: none;
+    background: transparent;
+    padding: 6px 18px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .tabs button:hover { background: transparent; }
+  .tabs button.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  .panel { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .panel.hidden { display: none; }
+
+  .cake-cards { display: flex; gap: 7px; flex-wrap: wrap; }
+  .cake-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    padding: 6px 13px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    transition: all .15s;
+    min-width: 76px;
+    line-height: 1.3;
+  }
+  .cake-card:hover { border-color: #93c5fd; background: #f8fafc; }
+  .cake-card.active {
+    border-color: var(--accent);
+    background: #eff6ff;
+    box-shadow: 0 0 0 3px rgba(59,130,246,.12);
+  }
+  .ck-inch { font-size: 14px; font-weight: 700; color: var(--text); }
+  .ck-cm   { font-size: 10.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ck-ppl  { font-size: 10.5px; color: var(--accent); }
+
+  .field {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .field input[type=number] {
+    width: 86px;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    outline: none;
+    font-variant-numeric: tabular-nums;
+  }
+  .field input[type=number]:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(59,130,246,.15);
+  }
+  .field select {
+    padding: 6px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--text);
+    outline: none;
+    cursor: pointer;
+  }
+  .divider-v {
+    width: 1px;
+    height: 30px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .stage {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+    background-color: #fbfdff;
+    background-image:
+      linear-gradient(rgba(148,163,184,.13) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148,163,184,.13) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  #canvas { display: block; }
+
+  .info-bar {
+    padding: 9px 20px;
+    font-size: 12.5px;
+    color: var(--muted);
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    min-height: 38px;
+    line-height: 1.6;
+  }
+  .info-bar b { color: var(--text); font-weight: 600; }
+  .warn { color: #b45309; }
+
+  /* ===== 校准弹窗 ===== */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15,23,42,.55);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 100;
+    -webkit-backdrop-filter: blur(3px);
+    backdrop-filter: blur(3px);
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px 26px;
+    width: min(940px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    box-shadow: 0 24px 70px rgba(15,23,42,.35);
+  }
+  .modal h2 { margin: 0 0 10px; font-size: 18px; }
+
+  .calib-tabs {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    background: #f1f5f9;
+    padding: 3px;
+    border-radius: 9px;
+    width: fit-content;
+  }
+  .calib-tabs button {
+    border: none;
+    background: transparent;
+    padding: 7px 16px;
+    border-radius: 7px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .calib-tabs button:hover { background: transparent; }
+  .calib-tabs button.active {
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+
+  .modal p {
+    margin: 0 0 4px;
+    font-size: 13.5px;
+    color: var(--muted);
+    line-height: 1.65;
+  }
+  .modal p b { color: var(--text); }
+
+  .calib-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 22px 0 10px;
+    overflow: auto;
+    max-height: 55vh;
+    min-height: 140px;
+  }
+  .calib-card {
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    background: rgba(59,130,246,.09);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .calib-coin {
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    background: rgba(59,130,246,.09);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-weight: 600;
+    overflow: hidden;
+  }
+  .calib-a4 {
+    border: 2px solid var(--accent);
+    border-radius: 4px;
+    background: rgba(59,130,246,.07);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2563eb;
+    font-size: 13px;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .calib-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 10px;
+    text-align: center;
+  }
+  .calib-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .calib-controls button {
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+    border-radius: 10px;
+  }
+  .calib-controls input[type=range] {
+    flex: 1;
+    max-width: 420px;
+    accent-color: var(--accent);
+  }
+  .calib-info {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .calib-info b { color: var(--text); }
+
+  .coin-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+    justify-content: center;
+  }
+  .coin-options button {
+    padding: 6px 14px;
+    font-size: 12.5px;
+    border-radius: 20px;
+  }
+  .coin-options button.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .coin-options button.active:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 22px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>屏幕<span>尺子</span></h1>
+  <div class="spacer"></div>
+  <span class="ppi-badge" id="ppiBadge">—</span>
+  <button id="calibrateBtn">校准屏幕</button>
+</header>
+
+<div class="toolbar">
+  <div class="tabs">
+    <button class="active" data-mode="length">长度</button>
+    <button data-mode="cake">蛋糕尺寸</button>
+    <button data-mode="area">面积</button>
+  </div>
+
+  <!-- 长度面板（默认显示） -->
+  <div class="panel" id="lengthPanel">
+    <label class="field">
+      长度
+      <input type="number" id="lenVal" value="50" min="0" max="10000" step="0.1">
+      <select id="lenUnit">
+        <option value="mm">毫米 mm</option>
+        <option value="cm">厘米 cm</option>
+        <option value="m">米 m</option>
+        <option value="in">英寸 in</option>
+      </select>
+    </label>
+  </div>
+
+  <!-- 蛋糕面板 -->
+  <div class="panel hidden" id="cakePanel">
+    <div class="cake-cards" id="cakeCards"></div>
+    <div class="divider-v"></div>
+    <label class="field">
+      直径
+      <input type="number" id="cakeDia" value="8" min="0.5" max="200" step="0.1">
+      <select id="cakeDiaUnit">
+        <option value="in">英寸</option>
+        <option value="cm">厘米</option>
+      </select>
+    </label>
+    <div class="divider-v"></div>
+    <label class="field">
+      人数
+      <input type="number" id="peopleCount" value="4" min="1" max="60" step="1">
+      <button id="recommendBtn" class="primary">推荐尺寸</button>
+    </label>
+  </div>
+
+  <!-- 面积面板 -->
+  <div class="panel hidden" id="areaPanel">
+    <label class="field">
+      宽
+      <input type="number" id="wVal" value="50" min="0" max="10000" step="0.1">
+    </label>
+    <label class="field">
+      高
+      <input type="number" id="hVal" value="30" min="0" max="10000" step="0.1">
+    </label>
+    <label class="field">
+      单位
+      <select id="areaUnit">
+        <option value="mm">毫米 mm</option>
+        <option value="cm">厘米 cm</option>
+        <option value="m">米 m</option>
+        <option value="in">英寸 in</option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div class="stage" id="stage">
+  <canvas id="canvas"></canvas>
+</div>
+
+<div class="info-bar" id="infoBar"></div>
+
+<!-- ===== 校准弹窗 ===== -->
+<div class="modal-backdrop" id="calibModal">
+  <div class="modal">
+    <h2>校准屏幕</h2>
+
+    <div class="calib-tabs">
+      <button class="active" data-calib="card">银行卡 / 身份证</button>
+      <button data-calib="a4">A4 纸（纵向）</button>
+      <button data-calib="coin">硬币</button>
+    </div>
+
+    <!-- 卡片模式说明 -->
+    <div id="calibDescCard">
+      <p>请拿一张银行卡 / 身份证贴在屏幕上（标准尺寸 <b>85.60 mm × 53.98 mm</b>）。</p>
+      <p>拖动下方滑块，让蓝色方框与卡片边缘完全重合。</p>
+    </div>
+
+    <!-- A4 模式说明 -->
+    <div id="calibDescA4" style="display:none;">
+      <p>请将一张 <b>A4 纸纵向</b>贴在屏幕上（标准尺寸 <b>210 mm × 297 mm</b>）。</p>
+      <p>拖动下方滑块，让蓝色方框的<b>左右宽度</b>与 A4 纸边缘完全对齐即可。高度若超出屏幕，可上下滚动查看。</p>
+    </div>
+
+    <!-- 硬币模式说明 -->
+    <div id="calibDescCoin" style="display:none;">
+      <p>请拿一枚硬币贴在屏幕上，选择对应面额，拖动滑块让蓝色圆圈与硬币边缘完全重合。</p>
+      <div class="coin-options" id="coinOptions">
+        <button class="active" data-mm="25">1 元（Ø25 mm）</button>
+        <button data-mm="20.5">5 角（Ø20.5 mm）</button>
+        <button data-mm="19">1 角（Ø19 mm）</button>
+      </div>
+    </div>
+
+    <div class="calib-wrap" id="calibWrap">
+      <div class="calib-card" id="calibCard">85.60 × 53.98 mm</div>
+      <div class="calib-a4" id="calibA4" style="display:none;">A4 纵向<br>210 × 297 mm</div>
+      <div class="calib-coin" id="calibCoin" style="display:none;">1元</div>
+    </div>
+
+    <div class="calib-hint" id="calibHint">↑ 让蓝色方框与卡片完全重合</div>
+
+    <div class="calib-controls">
+      <button id="minusBtn" title="减小">−</button>
+      <input type="range" id="calibRange" min="1" max="15" step="0.01">
+      <button id="plusBtn" title="增大">+</button>
+    </div>
+
+    <div class="calib-info">
+      <b id="calibPPMM">3.780</b> px/mm &nbsp;·&nbsp;
+      <b id="calibPPI">96.0</b> PPI
+    </div>
+
+    <div class="modal-actions">
+      <button id="calibReset">恢复默认</button>
+      <button id="calibDone" class="primary">完成校准</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ==================== 常量 ==================== */
+  const MM_PER_UNIT = { mm: 1, cm: 10, m: 1000, in: 25.4 };
+  const DEFAULT_PX_PER_MM = 96 / 25.4;              // ≈ 3.7795
+  const STORAGE_KEY = 'screen-ruler-px-per-mm';
+  const MAX_CANVAS_PX = 16000;
+  const FONT = '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif';
+
+  /* 常见蛋糕尺寸对照表（1 英寸 = 25.4mm） */
+  const CAKE_SIZES = [
+    { inch: 6,  mm: 152.4, people: '2-3 人',   maxP: 3  },
+    { inch: 8,  mm: 203.2, people: '3-5 人',   maxP: 5  },
+    { inch: 10, mm: 254.0, people: '5-8 人',   maxP: 8  },
+    { inch: 12, mm: 304.8, people: '8-10 人',  maxP: 10 },
+    { inch: 14, mm: 355.6, people: '10-12 人', maxP: 12 },
+    { inch: 16, mm: 406.4, people: '12 人以上', maxP: 99 }
+  ];
+  const AREA_PER_PERSON_CM2 = 73;
+
+  /* ==================== 状态 ==================== */
+  let pxPerMm = DEFAULT_PX_PER_MM;
+  try {
+    const saved = parseFloat(localStorage.getItem(STORAGE_KEY));
+    if (saved > 0.5 && saved < 50) pxPerMm = saved;
+  } catch (e) { /* ignore */ }
+
+  const state = {
+    mode: 'length',
+    lenVal: 50,
+    lenUnit: 'mm',
+    cakeIdx: 1,
+    cakeDia: 8,
+    cakeDiaUnit: 'in',
+    wVal: 50,
+    hVal: 30,
+    areaUnit: 'mm'
+  };
+
+  /* ==================== DOM ==================== */
+  const stage       = document.getElementById('stage');
+  const canvas      = document.getElementById('canvas');
+  const ctx         = canvas.getContext('2d');
+  const infoBar     = document.getElementById('infoBar');
+  const ppiBadge    = document.getElementById('ppiBadge');
+
+  const cakePanel   = document.getElementById('cakePanel');
+  const lengthPanel = document.getElementById('lengthPanel');
+  const areaPanel   = document.getElementById('areaPanel');
+
+  const cakeCardsEl   = document.getElementById('cakeCards');
+  const cakeDiaInput  = document.getElementById('cakeDia');
+  const cakeDiaUnitSel = document.getElementById('cakeDiaUnit');
+  const peopleInput   = document.getElementById('peopleCount');
+  const recommendBtn  = document.getElementById('recommendBtn');
+
+  const lenValInput = document.getElementById('lenVal');
+  const lenUnitSel  = document.getElementById('lenUnit');
+  const wValInput   = document.getElementById('wVal');
+  const hValInput   = document.getElementById('hVal');
+  const areaUnitSel = document.getElementById('areaUnit');
+
+  /* ==================== 工具函数 ==================== */
+  function fmtNum(n) {
+    if (!isFinite(n)) return '0';
+    return String(parseFloat(n.toFixed(3)));
+  }
+  function fmtLen(mm) {
+    let s = fmtNum(mm) + ' mm';
+    if (mm >= 10) s += ' (' + fmtNum(mm / 10) + ' cm)';
+    return s;
+  }
+  function fmtArea(mm2) {
+    if (mm2 >= 1e6) return fmtNum(mm2 / 1e6) + ' m²';
+    if (mm2 >= 100) return fmtNum(mm2 / 100) + ' cm²';
+    return fmtNum(mm2) + ' mm²';
+  }
+  function clampVal(v) {
+    if (!isFinite(v) || v < 0) return 0;
+    return Math.min(v, 10000);
+  }
+  function fmtInch(inch) {
+    if (Math.abs(inch - Math.round(inch)) < 0.05) return String(Math.round(inch));
+    return inch.toFixed(1);
+  }
+
+  function getCakeMm() {
+    const v = Math.max(0, state.cakeDia);
+    return state.cakeDiaUnit === 'in' ? v * 25.4 : v * 10;
+  }
+
+  function findSize(mm) {
+    const inch = mm / 25.4;
+    for (let i = 0; i < CAKE_SIZES.length; i++) {
+      if (Math.abs(CAKE_SIZES[i].inch - inch) < 0.15) return CAKE_SIZES[i];
+    }
+    return null;
+  }
+
+  function estimatePeople(mm) {
+    const rCm = mm / 20;
+    const areaCm2 = Math.PI * rCm * rCm;
+    return Math.max(1, Math.round(areaCm2 / AREA_PER_PERSON_CM2));
+  }
+
+  function recommendSize(people) {
+    for (let i = 0; i < CAKE_SIZES.length; i++) {
+      if (people <= CAKE_SIZES[i].maxP) return CAKE_SIZES[i];
+    }
+    return CAKE_SIZES[CAKE_SIZES.length - 1];
+  }
+
+  /* ==================== 尺寸卡片 ==================== */
+  CAKE_SIZES.forEach(function (s, i) {
+    const btn = document.createElement('button');
+    btn.className = 'cake-card';
+    btn.dataset.idx = String(i);
+    btn.innerHTML =
+      '<span class="ck-inch">' + s.inch + '英寸</span>' +
+      '<span class="ck-cm">Ø' + (s.mm / 10).toFixed(1) + 'cm</span>' +
+      '<span class="ck-ppl">' + s.people + '</span>';
+    btn.addEventListener('click', function () { selectCake(i); });
+    cakeCardsEl.appendChild(btn);
+  });
+
+  function updateCardActive() {
+    const cards = cakeCardsEl.querySelectorAll('.cake-card');
+    for (let i = 0; i < cards.length; i++) {
+      cards[i].classList.toggle('active', i === state.cakeIdx);
+    }
+  }
+
+  function selectCake(i) {
+    const s = CAKE_SIZES[i];
+    if (!s) return;
+    state.cakeIdx = i;
+    state.cakeDia = s.inch;
+    state.cakeDiaUnit = 'in';
+    cakeDiaInput.value = String(s.inch);
+    cakeDiaUnitSel.value = 'in';
+    updateCardActive();
+    render();
+    updateInfo();
+    centerScroll();
+  }
+
+  /* ==================== 主渲染 ==================== */
+  function render() {
+    const dpr = window.devicePixelRatio || 1;
+
+    let contentW = 0, contentH = 0;
+    let padL = 80, padR = 80, padT = 80, padB = 80;
+    let cakeMm = 0, lenMm = 0, wmm = 0, hmm = 0;
+
+    if (state.mode === 'length') {
+      lenMm = Math.max(0, state.lenVal) * MM_PER_UNIT[state.lenUnit];
+      contentW = lenMm * pxPerMm;
+      contentH = 60;
+    } else if (state.mode === 'cake') {
+      cakeMm = getCakeMm();
+      contentW = contentH = Math.max(0, cakeMm) * pxPerMm;
+      padL = padR = padT = padB = 70;
+    } else {
+      wmm = Math.max(0, state.wVal) * MM_PER_UNIT[state.areaUnit];
+      hmm = Math.max(0, state.hVal) * MM_PER_UNIT[state.areaUnit];
+      contentW = wmm * pxPerMm;
+      contentH = hmm * pxPerMm;
+      padL = 80; padR = 110;
+    }
+
+    const stageW = stage.clientWidth  || 800;
+    const stageH = stage.clientHeight || 400;
+
+    const W = Math.min(MAX_CANVAS_PX, Math.max(stageW, contentW + padL + padR));
+    const H = Math.min(MAX_CANVAS_PX, Math.max(stageH, contentH + padT + padB));
+
+    canvas.style.width  = W + 'px';
+    canvas.style.height = H + 'px';
+    canvas.width  = Math.round(W * dpr);
+    canvas.height = Math.round(H * dpr);
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+
+    const ox = padL + Math.max(0, (W - padL - padR - contentW) / 2);
+    const oy = padT + Math.max(0, (H - padT - padB - contentH) / 2);
+
+    if (state.mode === 'length') {
+      drawLength(ox, oy, lenMm);
+    } else if (state.mode === 'cake') {
+      drawCake(ox + contentW / 2, oy + contentH / 2);
+    } else {
+      drawArea(ox, oy, wmm, hmm);
+    }
+  }
+
+  function centerScroll() {
+    requestAnimationFrame(function () {
+      stage.scrollLeft = Math.max(0, (canvas.offsetWidth  - stage.clientWidth)  / 2);
+      stage.scrollTop  = Math.max(0, (canvas.offsetHeight - stage.clientHeight) / 2);
+    });
+  }
+
+  /* ==================== 绘制：长度 ==================== */
+  function drawLength(x0, y0, mm) {
+    if (mm <= 0) return;
+
+    const totalPx = mm * pxPerMm;
+    const axisY = y0 + 30;
+
+    const cands = [0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+    let major = cands[cands.length - 1];
+    for (let i = 0; i < cands.length; i++) {
+      if (cands[i] * pxPerMm >= 32) { major = cands[i]; break; }
+    }
+
+    let minor = major;
+    const divs = [10, 5, 2];
+    for (let i = 0; i < divs.length; i++) {
+      const step = major / divs[i];
+      if (step * pxPerMm >= 6) { minor = step; break; }
+    }
+
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2.5;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(x0, axisY);
+    ctx.lineTo(x0 + Math.max(totalPx, 1), axisY);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const nMinor = Math.floor(mm / minor + 1e-9);
+    for (let i = 0; i <= nMinor; i++) {
+      const p = i * minor;
+      if (p > mm + 1e-9) break;
+      const ratio = p / major;
+      if (Math.abs(ratio - Math.round(ratio)) < 1e-6) continue;
+      const x = x0 + p * pxPerMm;
+      ctx.moveTo(x, axisY);
+      ctx.lineTo(x, axisY + 9);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 1.6;
+    ctx.beginPath();
+    const nMajor = Math.floor(mm / major + 1e-9);
+    for (let i = 0; i <= nMajor; i++) {
+      const p = i * major;
+      if (p > mm + 1e-9) break;
+      const x = x0 + p * pxPerMm;
+      ctx.moveTo(x, axisY);
+      ctx.lineTo(x, axisY + 16);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(x0 + totalPx, axisY - 10);
+    ctx.lineTo(x0 + totalPx, axisY + 16);
+    ctx.stroke();
+
+    ctx.fillStyle = '#334155';
+    ctx.font = '12px ' + FONT;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    for (let i = 0; i <= nMajor; i++) {
+      const p = i * major;
+      if (p > mm + 1e-9) break;
+      const x = x0 + p * pxPerMm;
+      ctx.fillText(fmtNum(p), x, axisY + 21);
+    }
+
+    const label = fmtLen(mm);
+    ctx.font = 'bold 15px ' + FONT;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+
+    const cx = x0 + totalPx / 2;
+    const tw = ctx.measureText(label).width;
+    ctx.fillStyle = 'rgba(255,255,255,.9)';
+    ctx.fillRect(cx - tw / 2 - 6, axisY - 34, tw + 12, 20);
+    ctx.fillStyle = '#0f172a';
+    ctx.fillText(label, cx, axisY - 18);
+  }
+
+  /* ==================== 绘制：蛋糕 ==================== */
+  function drawCake(cx, cy) {
+    const mm = getCakeMm();
+    if (mm <= 0) return;
+
+    const d = mm * pxPerMm;
+    const r = d / 2;
+    const inch = mm / 25.4;
+    const cm = mm / 10;
+
+    const std = findSize(mm);
+    let pplText;
+    if (std) {
+      pplText = '适合 ' + std.people;
+    } else {
+      const n = estimatePeople(mm);
+      pplText = '约 ' + n + ' 人';
+    }
+
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(59,130,246,.07)';
+    ctx.fill();
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = Math.max(2, Math.min(4, r * 0.014));
+    ctx.stroke();
+
+    ctx.save();
+    ctx.setLineDash([9, 7]);
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - r, cy);
+    ctx.lineTo(cx + r, cy);
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.fillStyle = '#3b82f6';
+    ctx.beginPath();
+    ctx.arc(cx - r, cy, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(cx + r, cy, 4.5, 0, Math.PI * 2);
+    ctx.fill();
+
+    const sc = Math.max(0.5, Math.min(1, r / 150));
+    ctx.textAlign = 'center';
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = (14 * sc).toFixed(1) + 'px ' + FONT;
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('Ø ' + cm.toFixed(2) + ' cm', cx, cy - 13 * sc);
+
+    if (r < 58) return;
+
+    ctx.fillStyle = '#1d4ed8';
+    ctx.font = 'bold ' + (30 * sc).toFixed(1) + 'px ' + FONT;
+    ctx.textBaseline = 'top';
+    ctx.fillText(fmtInch(inch) + ' 英寸', cx, cy + 15 * sc);
+
+    if (r > 88) {
+      ctx.fillStyle = '#475569';
+      ctx.font = (15 * sc).toFixed(1) + 'px ' + FONT;
+      ctx.fillText(pplText, cx, cy + 58 * sc);
+    }
+  }
+
+  /* ==================== 绘制：面积 ==================== */
+  function drawArea(x0, y0, wmm, hmm) {
+    if (wmm <= 0 || hmm <= 0) return;
+
+    const wpx = wmm * pxPerMm;
+    const hpx = hmm * pxPerMm;
+
+    ctx.fillStyle = 'rgba(59,130,246,.10)';
+    ctx.fillRect(x0, y0, wpx, hpx);
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x0, y0, wpx, hpx);
+
+    if (wpx > 90 && hpx > 34) {
+      ctx.fillStyle = '#1d4ed8';
+      ctx.font = 'bold 17px ' + FONT;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(fmtArea(wmm * hmm), x0 + wpx / 2, y0 + hpx / 2);
+    }
+
+    const dy = y0 + hpx + 30;
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x0, dy);
+    ctx.lineTo(x0 + wpx, dy);
+    ctx.moveTo(x0, dy - 6);       ctx.lineTo(x0, dy + 6);
+    ctx.moveTo(x0 + wpx, dy - 6); ctx.lineTo(x0 + wpx, dy + 6);
+    ctx.stroke();
+
+    ctx.fillStyle = '#475569';
+    ctx.font = '13px ' + FONT;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText(fmtNum(wmm) + ' mm', x0 + wpx / 2, dy - 9);
+
+    const dx = x0 + wpx + 30;
+    ctx.beginPath();
+    ctx.moveTo(dx, y0);
+    ctx.lineTo(dx, y0 + hpx);
+    ctx.moveTo(dx - 6, y0);       ctx.lineTo(dx + 6, y0);
+    ctx.moveTo(dx - 6, y0 + hpx); ctx.lineTo(dx + 6, y0 + hpx);
+    ctx.stroke();
+
+    ctx.save();
+    ctx.translate(dx + 16, y0 + hpx / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    ctx.fillStyle = '#475569';
+    ctx.font = '13px ' + FONT;
+    ctx.fillText(fmtNum(hmm) + ' mm', 0, 0);
+    ctx.restore();
+  }
+
+  /* ==================== 信息栏 ==================== */
+  function updateInfo() {
+    if (state.mode === 'length') {
+      const mm = state.lenVal * MM_PER_UNIT[state.lenUnit];
+      infoBar.innerHTML =
+        '长度：<b>' + fmtNum(mm) + ' mm</b>' +
+        ' = <b>' + fmtNum(mm / 10) + ' cm</b>' +
+        ' = <b>' + fmtNum(mm / 25.4) + ' in</b>';
+    } else if (state.mode === 'cake') {
+      const mm = getCakeMm();
+      const inch = mm / 25.4;
+      const cm = mm / 10;
+      const std = findSize(mm);
+      const ppl = std ? std.people : ('约 ' + estimatePeople(mm) + ' 人');
+      const shicunMm = inch * 33.333;
+
+      infoBar.innerHTML =
+        '直径 <b>Ø' + cm.toFixed(2) + ' cm</b>' +
+        '（<b>' + fmtInch(inch) + ' 英寸</b>）' +
+        ' &nbsp;·&nbsp; ' + ppl +
+        ' &nbsp;·&nbsp; <span class="warn">蛋糕行业"寸"= 英寸(2.54cm)，不是市寸(3.33cm)' +
+        '——同样标"' + fmtInch(inch) + '寸"，直径差 ' +
+        (shicunMm - mm).toFixed(1) + ' cm</span>';
+    } else {
+      const wmm = state.wVal * MM_PER_UNIT[state.areaUnit];
+      const hmm = state.hVal * MM_PER_UNIT[state.areaUnit];
+      infoBar.innerHTML =
+        '尺寸：<b>' + fmtNum(wmm) + ' × ' + fmtNum(hmm) + ' mm</b>' +
+        ' &nbsp;·&nbsp; 面积：<b>' + fmtArea(wmm * hmm) + '</b>' +
+        ' &nbsp;·&nbsp; 周长：<b>' + fmtNum(2 * (wmm + hmm)) + ' mm</b>';
+    }
+  }
+
+  function updatePpiBadge() {
+    ppiBadge.textContent =
+      pxPerMm.toFixed(3) + ' px/mm · ' + (pxPerMm * 25.4).toFixed(1) + ' PPI';
+  }
+
+  /* ==================== 交互：模式切换 ==================== */
+  document.querySelectorAll('.tabs button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.tabs button').forEach(function (b) {
+        b.classList.remove('active');
+      });
+      btn.classList.add('active');
+      state.mode = btn.dataset.mode;
+
+      lengthPanel.classList.toggle('hidden', state.mode !== 'length');
+      cakePanel.classList.toggle('hidden',   state.mode !== 'cake');
+      areaPanel.classList.toggle('hidden',   state.mode !== 'area');
+
+      stage.scrollTop = 0;
+      stage.scrollLeft = 0;
+      render();
+      updateInfo();
+      centerScroll();
+    });
+  });
+
+  /* ==================== 交互：长度 / 面积 ==================== */
+  lenValInput.addEventListener('input', function () {
+    state.lenVal = clampVal(parseFloat(this.value));
+    render(); updateInfo();
+  });
+  lenUnitSel.addEventListener('change', function () {
+    state.lenUnit = this.value;
+    render(); updateInfo();
+  });
+  wValInput.addEventListener('input', function () {
+    state.wVal = clampVal(parseFloat(this.value));
+    render(); updateInfo();
+  });
+  hValInput.addEventListener('input', function () {
+    state.hVal = clampVal(parseFloat(this.value));
+    render(); updateInfo();
+  });
+  areaUnitSel.addEventListener('change', function () {
+    state.areaUnit = this.value;
+    render(); updateInfo();
+  });
+
+  /* ==================== 交互：蛋糕 ==================== */
+  cakeDiaInput.addEventListener('input', function () {
+    state.cakeDia = clampVal(parseFloat(this.value));
+    state.cakeIdx = -1;
+    updateCardActive();
+    render();
+    updateInfo();
+  });
+
+  cakeDiaUnitSel.addEventListener('change', function () {
+    const oldUnit = state.cakeDiaUnit;
+    const newUnit = this.value;
+    if (oldUnit !== newUnit) {
+      const mm = oldUnit === 'in' ? state.cakeDia * 25.4 : state.cakeDia * 10;
+      state.cakeDia = newUnit === 'in' ? mm / 25.4 : mm / 10;
+      cakeDiaInput.value = String(parseFloat(state.cakeDia.toFixed(2)));
+    }
+    state.cakeDiaUnit = newUnit;
+    state.cakeIdx = -1;
+    updateCardActive();
+    render();
+    updateInfo();
+  });
+
+  recommendBtn.addEventListener('click', function () {
+    let n = parseInt(peopleInput.value, 10);
+    if (!isFinite(n) || n < 1) n = 1;
+    if (n > 60) n = 60;
+    peopleInput.value = String(n);
+    const s = recommendSize(n);
+    const idx = CAKE_SIZES.indexOf(s);
+    if (idx >= 0) selectCake(idx);
+  });
+
+  /* ==================== 交互：校准 ==================== */
+  const modal        = document.getElementById('calibModal');
+  const calibWrap    = document.getElementById('calibWrap');
+  const calibCard    = document.getElementById('calibCard');
+  const calibA4      = document.getElementById('calibA4');
+  const calibCoin    = document.getElementById('calibCoin');
+  const calibRange   = document.getElementById('calibRange');
+  const calibPPMM    = document.getElementById('calibPPMM');
+  const calibPPI     = document.getElementById('calibPPI');
+  const calibHint    = document.getElementById('calibHint');
+  const descCard     = document.getElementById('calibDescCard');
+  const descA4       = document.getElementById('calibDescA4');
+  const descCoin     = document.getElementById('calibDescCoin');
+  const coinOptions  = document.getElementById('coinOptions');
+
+  let calibValue  = pxPerMm;
+  let calibMode   = 'card';   // card | a4 | coin
+  let calibCoinMm = 25;
+
+  function syncCalib() {
+    if (calibMode === 'card') {
+      calibCard.style.width  = (85.6  * calibValue) + 'px';
+      calibCard.style.height = (53.98 * calibValue) + 'px';
+    } else if (calibMode === 'a4') {
+      calibA4.style.width  = (210 * calibValue) + 'px';
+      calibA4.style.height = (297 * calibValue) + 'px';
+    } else {
+      const d = calibCoinMm * calibValue;
+      calibCoin.style.width  = d + 'px';
+      calibCoin.style.height = d + 'px';
+      calibCoin.style.fontSize = Math.max(9, Math.min(20, d * 0.2)) + 'px';
+      calibCoin.textContent = calibCoinMm === 25 ? '1元'
+                            : calibCoinMm === 20.5 ? '5角' : '1角';
+    }
+    calibRange.value = calibValue;
+    calibPPMM.textContent = calibValue.toFixed(3);
+    calibPPI.textContent  = (calibValue * 25.4).toFixed(1);
+  }
+
+  function setCalibMode(mode) {
+    calibMode = mode;
+    document.querySelectorAll('.calib-tabs button').forEach(function (b) {
+      b.classList.toggle('active', b.dataset.calib === mode);
+    });
+    const isCard = mode === 'card';
+    const isA4   = mode === 'a4';
+    const isCoin = mode === 'coin';
+
+    descCard.style.display = isCard ? '' : 'none';
+    descA4.style.display   = isA4   ? '' : 'none';
+    descCoin.style.display = isCoin ? '' : 'none';
+
+    calibCard.style.display = isCard ? 'flex' : 'none';
+    calibA4.style.display   = isA4   ? 'flex' : 'none';
+    calibCoin.style.display = isCoin ? 'flex' : 'none';
+
+    calibHint.textContent = isCard
+      ? '↑ 让蓝色方框与卡片完全重合'
+      : isA4
+        ? '↑ 让蓝色方框左右宽度与 A4 纸边缘完全对齐（可上下滚动）'
+        : '↑ 让蓝色圆圈与硬币边缘完全重合';
+
+    calibWrap.scrollTop = 0;
+    syncCalib();
+  }
+
+  document.getElementById('calibrateBtn').addEventListener('click', function () {
+    calibValue = pxPerMm;
+    setCalibMode('card');
+    modal.classList.add('show');
+  });
+
+  document.querySelectorAll('.calib-tabs button').forEach(function (b) {
+    b.addEventListener('click', function () {
+      setCalibMode(b.dataset.calib);
+    });
+  });
+
+  coinOptions.addEventListener('click', function (e) {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    calibCoinMm = parseFloat(btn.dataset.mm);
+    coinOptions.querySelectorAll('button').forEach(function (b) {
+      b.classList.toggle('active', b === btn);
+    });
+    syncCalib();
+  });
+
+  calibRange.addEventListener('input', function () {
+    calibValue = parseFloat(this.value);
+    syncCalib();
+  });
+
+  document.getElementById('minusBtn').addEventListener('click', function () {
+    calibValue = Math.max(1, calibValue - 0.02);
+    syncCalib();
+  });
+  document.getElementById('plusBtn').addEventListener('click', function () {
+    calibValue = Math.min(15, calibValue + 0.02);
+    syncCalib();
+  });
+  document.getElementById('calibReset').addEventListener('click', function () {
+    calibValue = DEFAULT_PX_PER_MM;
+    syncCalib();
+  });
+
+  document.getElementById('calibDone').addEventListener('click', function () {
+    pxPerMm = calibValue;
+    try { localStorage.setItem(STORAGE_KEY, String(pxPerMm)); } catch (e) {}
+    modal.classList.remove('show');
+    updatePpiBadge();
+    render();
+    updateInfo();
+    centerScroll();
+  });
+
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.classList.remove('show');
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal.classList.contains('show')) {
+      modal.classList.remove('show');
+    }
+  });
+
+  /* ==================== 自适应 ==================== */
+  let resizeTimer = null;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () { render(); }, 80);
+  });
+
+  /* ==================== 初始化 ==================== */
+  updatePpiBadge();
+  updateCardActive();
+  updateInfo();
+  requestAnimationFrame(function () {
+    render();
+    centerScroll();
+  });
+})();
+</script>
+</body>
+</html>

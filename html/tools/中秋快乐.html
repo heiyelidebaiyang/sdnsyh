@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>中秋节快乐 · 心形文字特效</title>
+<style>
+:root{
+  --panel-w: min(340px, 88vw);
+  --pink: #ff69b4;
+  --deep: #ff1493;
+  --safe-b: env(safe-area-inset-bottom, 0px);
+}
+*{
+  margin: 0; padding: 0; box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+html, body { width: 100%; height: 100%; }
+body{
+  background: #000;
+  overflow: hidden;
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Helvetica Neue', system-ui, sans-serif;
+  color: #fff;
+  height: 100vh;
+  height: 100dvh;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* ============ 画布层次 ============ */
+canvas{ display: block; }
+
+#bg-canvas{
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1; pointer-events: none;
+}
+#bottom-canvas{
+  position: absolute; left: 0; bottom: 0;
+  width: 100%; height: 35vh;
+  z-index: 2; pointer-events: none;
+}
+
+/* ============ 顶部月亮 ============ */
+#top-area{
+  position: absolute;
+  top: max(8px, 2vh); left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  text-align: center;
+  pointer-events: none;
+}
+#top-area canvas{
+  margin: 0 auto;
+  filter: drop-shadow(0 0 20px rgba(255,200,50,.6));
+}
+
+/* ============ 心形文字 ============ */
+#main-wrap{
+  position: absolute; inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+#main-canvas{
+  width: min(72vmin, 560px);
+  height: min(72vmin, 560px);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+/* ============ 中心祝福语 ============ */
+#center-blessing{
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  font-weight: 900;
+  font-size: 52px;
+  color: var(--deep);
+  letter-spacing: .06em;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow:
+    0 0 10px #fff,
+    0 0 20px var(--pink),
+    0 0 40px var(--deep),
+    0 0 60px var(--deep);
+}
+
+/* ============ 控制面板 ============ */
+#panel{
+  position: fixed;
+  top: 0;
+  right: calc(-1 * var(--panel-w));
+  width: var(--panel-w);
+  height: 100vh;
+  height: 100dvh;
+  background: rgba(10,10,15,.97);
+  border-left: 1px solid #333;
+  padding: 18px 16px calc(24px + var(--safe-b));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  transition: right .35s cubic-bezier(.4,0,.2,1);
+  z-index: 100;
+  color: #ddd;
+  font-size: 13px;
+}
+#panel.open{ right: 0; }
+
+#panel-tab{
+  position: fixed;
+  right: 0; top: 50%;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, var(--pink), var(--deep));
+  color: #fff;
+  padding: 16px 6px;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  z-index: 101;
+  writing-mode: vertical-rl;
+  letter-spacing: 4px;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: -3px 0 12px rgba(255,20,147,.4);
+  transition: right .35s cubic-bezier(.4,0,.2,1);
+  user-select: none;
+}
+#panel-tab.open{ right: var(--panel-w); }
+
+#panel h2{
+  text-align: center;
+  color: var(--pink);
+  font-size: 17px;
+  margin-bottom: 18px;
+  text-shadow: 0 0 10px var(--deep);
+}
+
+.section{
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #2a2a2a;
+}
+.section h3{
+  color: var(--pink);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+.section label{
+  display: block;
+  margin: 8px 0 4px;
+  color: #aaa;
+  font-size: 12px;
+}
+.section input[type=text],
+.section input[type=url]{
+  width: 100%;
+  padding: 9px 10px;
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 15px;
+  margin-bottom: 6px;
+  outline: none;
+}
+.section input[type=text]:focus,
+.section input[type=url]:focus{ border-color: var(--pink); }
+.section input[type=range]{
+  width: 100%;
+  height: 26px;
+  accent-color: var(--pink);
+  margin-bottom: 4px;
+  background: transparent;
+}
+.section input[type=color]{
+  width: 100%;
+  height: 36px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+}
+.section input[type=checkbox]{
+  accent-color: var(--pink);
+  width: 17px; height: 17px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+.section label:has(input[type=checkbox]){
+  display: flex;
+  align-items: center;
+  padding: 7px 0;
+  font-size: 13px;
+  color: #ccc;
+  cursor: pointer;
+}
+.val{ float: right; color: var(--pink); font-weight: bold; }
+
+.upload-btn{
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background: #2a2a2a;
+  text-align: center;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 6px;
+  transition: background .2s;
+  font-size: 13px;
+}
+.upload-btn:active{ background: #3a3a3a; }
+
+.btn-mini{
+  width: 100%;
+  padding: 9px;
+  background: #444;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 4px;
+  font-size: 13px;
+}
+.btn-mini:active{ background: #555; }
+
+#btn-generate{
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(45deg, var(--pink), var(--deep));
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 8px;
+  letter-spacing: 2px;
+  transition: transform .2s, box-shadow .2s;
+}
+#btn-generate:active{
+  transform: scale(.97);
+  box-shadow: 0 4px 20px rgba(255,20,147,.5);
+}
+
+.hint{
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  margin-top: 12px;
+}
+
+/* ============ 小屏适配 ============ */
+@media (max-width: 480px){
+  #panel{ padding: 14px 13px calc(20px + var(--safe-b)); font-size: 12.5px; }
+  #panel h2{ font-size: 15px; margin-bottom: 14px; }
+  .section h3{ font-size: 13px; }
+  .section{ margin-bottom: 14px; padding-bottom: 12px; }
+  #panel-tab{ padding: 13px 5px; font-size: 13px; letter-spacing: 3px; }
+  #main-canvas{ width: min(78vmin, 560px); height: min(78vmin, 560px); }
+}
+@media (max-height: 520px){
+  #top-area{ top: 4px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 背景星星 -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- 顶部月亮 -->
+<div id="top-area">
+  <canvas id="moon-canvas"></canvas>
+</div>
+
+<!-- 心形文字 -->
+<div id="main-wrap">
+  <canvas id="main-canvas"></canvas>
+</div>
+
+<!-- 中心祝福语 -->
+<div id="center-blessing">中秋节快乐</div>
+
+<!-- 底部粒子 -->
+<canvas id="bottom-canvas"></canvas>
+
+<!-- 面板触发 -->
+<div id="panel-tab">⚙ 设置</div>
+
+<!-- 控制面板 -->
+<div id="panel">
+  <h2>🎨 可视化控制台</h2>
+
+  <div class="section">
+    <h3>🌕 顶部月亮/标题</h3>
+    <label class="upload-btn">
+      📁 上传自定义图片
+      <input type="file" id="f-upload" accept="image/*" style="display:none">
+    </label>
+    <label>或输入图片URL：</label>
+    <input type="url" id="f-url" placeholder="https://..." inputmode="url">
+    <label>图片宽度 <span class="val" id="v-imgw">220px</span></label>
+    <input type="range" id="f-imgw" min="120" max="500" value="220">
+    <button class="btn-mini" id="btn-remove-img">移除图片</button>
+  </div>
+
+  <div class="section">
+    <h3>💖 心形填充文字</h3>
+    <label>文字内容</label>
+    <input type="text" id="f-word" value="云雪星球">
+    <label>文字数量 <span class="val" id="v-count">300</span></label>
+    <input type="range" id="f-count" min="100" max="800" value="300">
+    <label>最小字号 <span class="val" id="v-minf">10px</span></label>
+    <input type="range" id="f-minf" min="6" max="20" value="10">
+    <label>最大字号 <span class="val" id="v-maxf">26px</span></label>
+    <input type="range" id="f-maxf" min="16" max="48" value="26">
+    <label>发光强度 <span class="val" id="v-glow">12</span></label>
+    <input type="range" id="f-glow" min="0" max="30" value="12">
+    <label>文字颜色</label>
+    <input type="color" id="f-color" value="#ff69b4">
+  </div>
+
+  <div class="section">
+    <h3>✨ 中心祝福语</h3>
+    <label>祝福文字</label>
+    <input type="text" id="f-greet" value="中秋节快乐">
+    <label>字体大小 <span class="val" id="v-gsize">52px</span></label>
+    <input type="range" id="f-gsize" min="28" max="100" value="52">
+    <label>文字颜色</label>
+    <input type="color" id="f-gcolor" value="#ff1493">
+  </div>
+
+  <div class="section">
+    <h3>🎆 特效开关</h3>
+    <label><input type="checkbox" id="f-flicker" checked> ✨ 文字星光闪烁</label>
+    <label><input type="checkbox" id="f-particles" checked> 🫧 底部漂浮粒子</label>
+    <label><input type="checkbox" id="f-twinkle" checked> ⭐ 背景星光点缀</label>
+    <label><input type="checkbox" id="f-pulse" checked> 💓 爱心呼吸律动</label>
+  </div>
+
+  <button id="btn-generate">🎉 生成预览</button>
+  <p class="hint">设置自动保存到本地浏览器</p>
+</div>
+
+<script>
+(function () {
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+/* =====================================================================
+   1. 默认配置
+   ===================================================================== */
+const DEFAULTS = {
+  word: '云雪星球', count: 300, minF: 10, maxF: 26, glow: 12,
+  color: '#ff69b4', greet: '中秋节快乐', gSize: 52, gColor: '#ff1493',
+  imgW: 220, imgSrc: '',
+  flicker: true, particles: true, twinkle: true, pulse: true
+};
+const CFG_KEY = 'mq_cfg_v2';
+
+let C = Object.assign({}, DEFAULTS);
+/* 移动端限制 dpr，避免高分屏卡顿 */
+let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+/* =====================================================================
+   2. 画布引用
+   ===================================================================== */
+let moonCanvas, moonCtx;
+let mainCanvas, mainCtx, mainW = 1, mainH = 1;
+let bgCanvas, bgCtx, stars = [];
+let botCanvas, botCtx, particles = [];
+let wordItems = [];
+
+/* =====================================================================
+   3. 启动
+   ===================================================================== */
+document.addEventListener('DOMContentLoaded', function () {
+  loadCfg();
+  syncUI();
+  resizeAll();
+  bindUI();
+  generate();
+  requestAnimationFrame(loop);
+});
+
+/* 窗口尺寸变化（含手机旋转）——防抖 */
+let resizeTimer = null;
+function onResize() {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(function () {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    resizeAll();
+    updateBlessing();
+  }, 160);
+}
+window.addEventListener('resize', onResize);
+window.addEventListener('orientationchange', onResize);
+
+/* =====================================================================
+   4. 本地存储
+   ===================================================================== */
+function loadCfg() {
+  try {
+    const raw = localStorage.getItem(CFG_KEY);
+    if (raw) C = Object.assign({}, DEFAULTS, JSON.parse(raw));
+  } catch (e) { /* ignore */ }
+}
+function saveCfg() {
+  try { localStorage.setItem(CFG_KEY, JSON.stringify(C)); } catch (e) { /* ignore */ }
+}
+
+/* =====================================================================
+   5. UI 同步
+   ===================================================================== */
+function setVal(id, v) {
+  const el = $(id);
+  if (el) el.textContent = v;
+}
+
+function syncUI() {
+  $('f-word').value = C.word;
+  $('f-count').value = C.count;
+  $('f-minf').value = C.minF;
+  $('f-maxf').value = C.maxF;
+  $('f-glow').value = C.glow;
+  $('f-color').value = C.color;
+  $('f-greet').value = C.greet;
+  $('f-gsize').value = C.gSize;
+  $('f-gcolor').value = C.gColor;
+  $('f-imgw').value = C.imgW;
+  $('f-url').value = /^https?:/i.test(C.imgSrc) ? C.imgSrc : '';
+  $('f-flicker').checked = C.flicker;
+  $('f-particles').checked = C.particles;
+  $('f-twinkle').checked = C.twinkle;
+  $('f-pulse').checked = C.pulse;
+  setVal('v-count', C.count);
+  setVal('v-minf', C.minF + 'px');
+  setVal('v-maxf', C.maxF + 'px');
+  setVal('v-glow', C.glow);
+  setVal('v-gsize', C.gSize + 'px');
+  setVal('v-imgw', C.imgW + 'px');
+}
+
+/* 从 UI 读取全部配置 */
+function readUI() {
+  C.word = $('f-word').value.trim() || '云雪星球';
+  C.count = +$('f-count').value || 300;
+  C.minF = +$('f-minf').value;
+  C.maxF = +$('f-maxf').value;
+  C.glow = +$('f-glow').value;
+  C.color = $('f-color').value;
+  C.greet = $('f-greet').value || '中秋节快乐';
+  C.gSize = +$('f-gsize').value;
+  C.gColor = $('f-gcolor').value;
+  C.imgW = +$('f-imgw').value;
+  C.flicker = $('f-flicker').checked;
+  C.particles = $('f-particles').checked;
+  C.twinkle = $('f-twinkle').checked;
+  C.pulse = $('f-pulse').checked;
+  saveCfg();
+}
+
+/* =====================================================================
+   6. 事件绑定（★ 修复：原来所有控件都没有绑定事件）
+   ===================================================================== */
+function bindUI() {
+  /* --- 面板开关 --- */
+  $('panel-tab').addEventListener('click', togglePanel);
+
+  /* --- 顶部月亮/图片 --- */
+  $('f-upload').addEventListener('change', onUpload);
+  $('f-url').addEventListener('input', function () {
+    C.imgSrc = this.value.trim();
+    drawMoon();
+    saveCfg();
+  });
+  $('f-imgw').addEventListener('input', function () {
+    C.imgW = +this.value;
+    setVal('v-imgw', C.imgW + 'px');
+    initMoonCanvas();
+    saveCfg();
+  });
+  $('btn-remove-img').addEventListener('click', removeTopImg);
+
+  /* --- 心形填充文字 --- */
+  $('f-word').addEventListener('input', function () {
+    C.word = this.value.trim() || '云雪星球';
+    buildWordItems();
+    saveCfg();
+  });
+  $('f-count').addEventListener('input', function () {
+    C.count = +this.value;
+    setVal('v-count', C.count);
+    buildWordItems();
+    saveCfg();
+  });
+  $('f-minf').addEventListener('input', function () {
+    C.minF = +this.value;
+    setVal('v-minf', C.minF + 'px');
+    buildWordItems();
+    saveCfg();
+  });
+  $('f-maxf').addEventListener('input', function () {
+    C.maxF = +this.value;
+    setVal('v-maxf', C.maxF + 'px');
+    buildWordItems();
+    saveCfg();
+  });
+  $('f-glow').addEventListener('input', function () {
+    C.glow = +this.value;
+    setVal('v-glow', C.glow);
+    saveCfg();
+  });
+  $('f-color').addEventListener('input', function () {
+    C.color = this.value;
+    saveCfg();
+  });
+
+  /* --- 中心祝福语 --- */
+  $('f-greet').addEventListener('input', function () {
+    C.greet = this.value || '中秋节快乐';
+    updateBlessing();
+    saveCfg();
+  });
+  $('f-gsize').addEventListener('input', function () {
+    C.gSize = +this.value;
+    setVal('v-gsize', C.gSize + 'px');
+    updateBlessing();
+    saveCfg();
+  });
+  $('f-gcolor').addEventListener('input', function () {
+    C.gColor = this.value;
+    updateBlessing();
+    saveCfg();
+  });
+
+  /* --- 特效开关 --- */
+  ['flicker', 'particles', 'twinkle', 'pulse'].forEach(function (key) {
+    const el = $('f-' + key);
+    if (!el) return;
+    el.addEventListener('change', function () {
+      C[key] = this.checked;
+      saveCfg();
+    });
+  });
+
+  /* --- 生成预览 --- */
+  $('btn-generate').addEventListener('click', function () {
+    readUI();
+    generate();
+    /* 小屏：生成后自动收起面板，方便查看效果 */
+    if (window.innerWidth < 700 && $('panel').classList.contains('open')) {
+      togglePanel();
+    }
+  });
+}
+
+/* 面板开关 */
+function togglePanel() {
+  const panel = $('panel');
+  const tab = $('panel-tab');
+  const isOpen = panel.classList.toggle('open');
+  tab.classList.toggle('open', isOpen);
+  tab.textContent = isOpen ? '✕ 关闭' : '⚙ 设置';
+}
+
+/* 上传图片 */
+function onUpload(e) {
+  const f = e.target.files && e.target.files[0];
+  if (!f) return;
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    C.imgSrc = ev.target.result;
+    $('f-url').value = '';
+    drawMoon();
+    saveCfg();
+  };
+  reader.readAsDataURL(f);
+}
+
+/* 移除图片 */
+function removeTopImg() {
+  C.imgSrc = '';
+  $('f-url').value = '';
+  $('f-upload').value = '';
+  drawMoon();
+  saveCfg();
+}
+
+/* =====================================================================
+   7. 统一尺寸重算
+   ===================================================================== */
+function resizeAll() {
+  initMoonCanvas();
+  initMainCanvas();
+  initBgCanvas();
+  initBottomCanvas();
+  updateBlessing();
+}
+
+/* =====================================================================
+   8. 顶部月亮
+   ===================================================================== */
+function moonSize() {
+  return Math.round(Math.min(
+    C.imgW,
+    window.innerWidth * 0.50,
+    window.innerHeight * 0.30
+  ));
+}
+
+function initMoonCanvas() {
+  moonCanvas = $('moon-canvas');
+  const s = Math.max(40, moonSize());
+  moonCanvas.style.width = s + 'px';
+  moonCanvas.style.height = s + 'px';
+  moonCanvas.width = Math.round(s * dpr);
+  moonCanvas.height = Math.round(s * dpr);
+  moonCtx = moonCanvas.getContext('2d');
+  drawMoon();
+}
+
+function drawMoon() {
+  if (!moonCtx) return;
+  const ctx = moonCtx;
+  const w = moonCanvas.width, h = moonCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  /* 自定义图片 */
+  if (C.imgSrc) {
+    const img = new Image();
+    img.onload = function () {
+      ctx.clearRect(0, 0, w, h);
+      const grd = ctx.createRadialGradient(w / 2, h / 2, w * 0.05, w / 2, h / 2, w / 2);
+      grd.addColorStop(0, 'rgba(255,250,200,0.30)');
+      grd.addColorStop(1, 'rgba(255,200,50,0)');
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, w, h);
+
+      const sz = Math.min(w, h) * 0.88;
+      ctx.drawImage(img, (w - sz) / 2, (h - sz) / 2, sz, sz);
+    };
+    img.onerror = function () {
+      C.imgSrc = '';
+      saveCfg();
+      drawMoon();
+    };
+    img.src = C.imgSrc;
+    return;
+  }
+
+  /* 默认月亮 */
+  const grd = ctx.createRadialGradient(w / 2, h / 2, w * 0.10, w / 2, h / 2, w / 2);
+  grd.addColorStop(0, 'rgba(255,255,200,0.90)');
+  grd.addColorStop(0.5, 'rgba(255,220,100,0.50)');
+  grd.addColorStop(1, 'rgba(255,200,50,0)');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.beginPath();
+  ctx.arc(w / 2, h / 2, w * 0.30, 0, Math.PI * 2);
+  const mg = ctx.createRadialGradient(w * 0.42, h * 0.42, w * 0.05, w / 2, h / 2, w * 0.35);
+  mg.addColorStop(0, '#FFFACD');
+  mg.addColorStop(0.7, '#FFD700');
+  mg.addColorStop(1, '#FFA500');
+  ctx.fillStyle = mg;
+  ctx.fill();
+
+  ctx.fillStyle = '#8B4513';
+  ctx.font = 'bold ' + Math.round(w * 0.13) + 'px "Microsoft YaHei", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('花好月圆', w / 2, h / 2 + w * 0.015);
+}
+
+/* =====================================================================
+   9. 心形数学：拒绝采样
+   ===================================================================== */
+function generateHeartPoints(count, w, h) {
+  const pts = [];
+  const cx = w / 2;
+  const cy = h / 2 + h * 0.03;
+  const scale = Math.min(w, h) * 0.40;
+  const maxAttempts = count * 500;
+  let attempts = 0;
+
+  while (pts.length < count && attempts < maxAttempts) {
+    attempts++;
+    const nx = (Math.random() * 2 - 1) * 1.5;
+    const ny = (Math.random() * 2 - 1) * 1.5;
+    const lhs = Math.pow(nx * nx + ny * ny - 1, 3);
+    const rhs = nx * nx * Math.pow(ny, 3);
+    if (lhs - rhs <= 0) {
+      pts.push({ x: cx + nx * scale, y: cy - ny * scale });
+    }
+  }
+  return pts;
+}
+
+/* =====================================================================
+   10. 主画布：心形文字
+   ===================================================================== */
+function initMainCanvas() {
+  mainCanvas = $('main-canvas');
+  /* 用 offsetWidth 而不是 getBoundingClientRect —— 不受缩放动画影响 */
+  mainW = Math.max(1, Math.round(mainCanvas.offsetWidth * dpr));
+  mainH = Math.max(1, Math.round(mainCanvas.offsetHeight * dpr));
+  mainCanvas.width = mainW;
+  mainCanvas.height = mainH;
+  mainCtx = mainCanvas.getContext('2d');
+  buildWordItems();
+}
+
+function buildWordItems() {
+  if (!mainW || !mainH || !C.count) return;
+
+  const lo = Math.min(C.minF, C.maxF) * dpr;
+  const hi = Math.max(C.minF, C.maxF) * dpr;
+  const jitter = dpr * 2;
+
+  const pts = generateHeartPoints(C.count, mainW, mainH);
+
+  wordItems = pts.map(function (p) {
+    return {
+      text: C.word,
+      x: p.x + (Math.random() - 0.5) * jitter,
+      y: p.y + (Math.random() - 0.5) * jitter,
+      size: Math.random() * (hi - lo) + lo,
+      baseOpacity: Math.random() * 0.4 + 0.6,
+      phase: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.02 + 0.01
+    };
+  });
+}
+
+/* 心形氛围光 + 轮廓 */
+function drawHeartGlow(ctx) {
+  const cx = mainW / 2;
+  const cy = mainH / 2 + mainH * 0.03;
+  const r = Math.min(mainW, mainH) * 0.38;
+
+  for (let i = 3; i >= 1; i--) {
+    const grd = ctx.createRadialGradient(cx, cy, r * 0.1, cx, cy, r * i * 0.5);
+    const a = 0.03 * (4 - i);
+    grd.addColorStop(0, 'rgba(255,105,180,' + a + ')');
+    grd.addColorStop(0.5, 'rgba(255,20,147,' + (a * 0.5) + ')');
+    grd.addColorStop(1, 'rgba(255,20,147,0)');
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, mainW, mainH);
+  }
+
+  /* 心形轮廓描边 */
+  const k = Math.min(mainW, mainH) * 0.40 / 16;
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.beginPath();
+  for (let t = 0; t <= Math.PI * 2 + 0.05; t += 0.05) {
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+    const sx = x * k, sy = y * k;
+    if (t === 0) ctx.moveTo(sx, sy);
+    else ctx.lineTo(sx, sy);
+  }
+  ctx.closePath();
+  ctx.strokeStyle = 'rgba(255,105,180,0.08)';
+  ctx.lineWidth = 2 * dpr;
+  ctx.shadowColor = '#ff69b4';
+  ctx.shadowBlur = 10 * dpr;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawHeartWords(ctx, time) {
+  ctx.clearRect(0, 0, mainW, mainH);
+  drawHeartGlow(ctx);
+
+  ctx.globalCompositeOperation = 'lighter';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  const glowPx = C.glow * dpr;
+
+  for (let i = 0; i < wordItems.length; i++) {
+    const item = wordItems[i];
+
+    let opa = item.baseOpacity;
+    if (C.flicker) {
+      opa *= 0.6 + 0.4 * Math.sin(time * item.speed * 60 + item.phase);
+    }
+
+    ctx.globalAlpha = opa;
+    ctx.shadowColor = C.color;
+    ctx.shadowBlur = glowPx;
+    ctx.fillStyle = C.color;
+    ctx.font = 'bold ' + item.size + 'px "Microsoft YaHei", sans-serif';
+    ctx.fillText(item.text, item.x, item.y);
+
+    /* 偶尔高亮白色星芒 */
+    if (C.twinkle && Math.sin(time * 3 + item.phase * 5) > 0.92) {
+      ctx.shadowBlur = glowPx * 2;
+      ctx.fillStyle = '#fff';
+      ctx.fillText(item.text, item.x, item.y);
+    }
+  }
+
+  ctx.globalAlpha = 1;
+  ctx.shadowBlur = 0;
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* =====================================================================
+   11. 背景星星
+   ===================================================================== */
+function initBgCanvas() {
+  bgCanvas = $('bg-canvas');
+  const w = document.documentElement.clientWidth || window.innerWidth;
+  const h = document.documentElement.clientHeight || window.innerHeight;
+  bgCanvas.width = Math.round(w * dpr);
+  bgCanvas.height = Math.round(h * dpr);
+  bgCtx = bgCanvas.getContext('2d');
+
+  stars = [];
+  const count = w < 500 ? 70 : 110;
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * bgCanvas.width,
+      y: Math.random() * bgCanvas.height * 0.78,
+      s: (Math.random() * 1.5 + 0.5) * dpr,
+      phase: Math.random() * Math.PI * 2,
+      speed: Math.random() * 0.02 + 0.01
+    });
+  }
+}
+
+function drawStars(ctx, time) {
+  ctx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+  if (!C.twinkle) return;
+
+  for (let i = 0; i < stars.length; i++) {
+    const st = stars[i];
+    const a = 0.3 + 0.7 * Math.abs(Math.sin(time * st.speed * 60 + st.phase));
+
+    ctx.globalAlpha = a * 0.6;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(st.x, st.y, st.s, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (a > 0.7) {
+      ctx.strokeStyle = 'rgba(255,255,200,' + (a * 0.3) + ')';
+      ctx.lineWidth = dpr * 0.8;
+      ctx.beginPath();
+      ctx.moveTo(st.x - st.s * 4, st.y);
+      ctx.lineTo(st.x + st.s * 4, st.y);
+      ctx.moveTo(st.x, st.y - st.s * 4);
+      ctx.lineTo(st.x, st.y + st.s * 4);
+      ctx.stroke();
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* =====================================================================
+   12. 底部粒子
+   ===================================================================== */
+function initBottomCanvas() {
+  botCanvas = $('bottom-canvas');
+  const w = document.documentElement.clientWidth || window.innerWidth;
+  const h = Math.round((document.documentElement.clientHeight || window.innerHeight) * 0.35);
+
+  botCanvas.width = Math.round(w * dpr);
+  botCanvas.height = Math.round(h * dpr);
+  botCtx = botCanvas.getContext('2d');
+
+  particles = [];
+  const count = Math.round(botCanvas.width * 0.028 / dpr);
+  for (let i = 0; i < count; i++) {
+    particles.push({
+      x: Math.random() * botCanvas.width,
+      y: Math.random() * botCanvas.height,
+      s: (Math.random() * 2 + 1) * dpr,
+      vy: (Math.random() * 0.5 + 0.2) * dpr,
+      vx: (Math.random() - 0.5) * 0.3 * dpr,
+      a: Math.random() * 0.5 + 0.1,
+      twinkle: Math.random() * Math.PI * 2,
+      isHeart: Math.random() > 0.6,
+      color: Math.random() > 0.5 ? '#ff69b4' : '#ff1493'
+    });
+  }
+}
+
+function drawTinyHeart(ctx, cx, cy, size, color) {
+  const s = size;
+  ctx.save();
+  ctx.fillStyle = color;
+  ctx.shadowColor = color;
+  ctx.shadowBlur = 4 * dpr;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + s * 0.3);
+  ctx.bezierCurveTo(cx, cy - s * 0.1, cx - s * 0.6, cy - s * 0.5, cx - s * 0.5, cy - s * 0.1);
+  ctx.bezierCurveTo(cx - s * 0.4, cy + s * 0.2, cx, cy + s * 0.5, cx, cy + s * 0.7);
+  ctx.bezierCurveTo(cx, cy + s * 0.5, cx + s * 0.4, cy + s * 0.2, cx + s * 0.5, cy - s * 0.1);
+  ctx.bezierCurveTo(cx + s * 0.6, cy - s * 0.5, cx, cy - s * 0.1, cx, cy + s * 0.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawParticles(ctx, time) {
+  const w = botCanvas.width, h = botCanvas.height;
+  ctx.clearRect(0, 0, w, h);
+  if (!C.particles) return;
+
+  for (let i = 0; i < particles.length; i++) {
+    const p = particles[i];
+
+    p.y -= p.vy;
+    p.x += p.vx;
+    p.twinkle += 0.03;
+
+    if (p.y < -10) {
+      p.y = h + 10;
+      p.x = Math.random() * w;
+    }
+    if (p.x < -10) p.x = w + 10;
+    if (p.x > w + 10) p.x = -10;
+
+    const alpha = p.a * (0.5 + 0.5 * Math.sin(p.twinkle));
+    ctx.globalAlpha = alpha;
+
+    if (p.isHeart) {
+      drawTinyHeart(ctx, p.x, p.y, p.s * 2, p.color);
+    } else {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.fill();
+
+      if (Math.sin(p.twinkle * 2) > 0.7) {
+        ctx.strokeStyle = 'rgba(255,255,255,' + (alpha * 0.6) + ')';
+        ctx.lineWidth = dpr;
+        ctx.beginPath();
+        ctx.moveTo(p.x - p.s * 3, p.y);
+        ctx.lineTo(p.x + p.s * 3, p.y);
+        ctx.moveTo(p.x, p.y - p.s * 3);
+        ctx.lineTo(p.x, p.y + p.s * 3);
+        ctx.stroke();
+      }
+    }
+  }
+  ctx.globalAlpha = 1;
+}
+
+/* =====================================================================
+   13. 中心祝福语（自适应字号，长文本不溢出）
+   ===================================================================== */
+function updateBlessing() {
+  const el = $('center-blessing');
+  if (!el) return;
+
+  const text = C.greet || '中秋节快乐';
+  el.textContent = text;
+
+  /* 手机上自动收缩，保证不超出屏幕 */
+  const len = Math.max(text.length, 1);
+  const maxByWidth = (window.innerWidth * 0.88) / len;
+  const maxByHeight = window.innerHeight * 0.20;
+  const fs = Math.max(14, Math.min(C.gSize, maxByWidth, maxByHeight));
+
+  el.style.fontSize = fs + 'px';
+  el.style.color = C.gColor;
+  el.style.textShadow =
+    '0 0 ' + Math.round(fs * 0.20) + 'px #fff,' +
+    '0 0 ' + Math.round(fs * 0.40) + 'px ' + C.gColor + ',' +
+    '0 0 ' + Math.round(fs * 0.80) + 'px ' + C.gColor + ',' +
+    '0 0 ' + Math.round(fs * 1.20) + 'px #ff1493';
+}
+
+/* =====================================================================
+   14. 生成主函数
+   ===================================================================== */
+function generate() {
+  readUI();
+  buildWordItems();
+  updateBlessing();
+  drawMoon();
+}
+
+/* =====================================================================
+   15. 主渲染循环
+   ===================================================================== */
+const startTime = performance.now();
+
+function loop(now) {
+  const time = ((now || performance.now()) - startTime) / 1000;
+
+  /* 呼吸律动 */
+  if (mainCanvas) {
+    if (C.pulse) {
+      const s = 1 + Math.sin(time * 1.5) * 0.015;
+      mainCanvas.style.transform = 'scale(' + s.toFixed(4) + ')';
+    } else if (mainCanvas.style.transform) {
+      mainCanvas.style.transform = '';
+    }
+  }
+
+  if (bgCtx) drawStars(bgCtx, time);
+  if (mainCtx) drawHeartWords(mainCtx, time);
+  if (botCtx) drawParticles(botCtx, time);
+
+  requestAnimationFrame(loop);
+}
+
+})();
+</script>
+</body>
+</html>
